@@ -7,7 +7,6 @@ namespace MVT.Decoder
 
 	public class Decode
 	{
-		private static FileInfo gzipFileName = new FileInfo(@"C:\Users\mateo_000\Documents\Mapbox\code\decoder\12667.mvt");
 		public static void Main() {
 			GetMVT();
 		}
@@ -21,7 +20,7 @@ namespace MVT.Decoder
 		};
 
 		public static void GetMVT() {
-			using (var bufferedData = new BinaryReader(File.Open(@"C:\Users\mateo_000\Documents\Mapbox\code\decoder\12667.mvt", FileMode.Open))) {
+			using (var bufferedData = new BinaryReader(File.Open(@"sample.mvt", FileMode.Open))) {
 				var tileReader = new PBFReader(bufferedData);
 				while (tileReader.Next()) {
 					// get layer message in tile message
