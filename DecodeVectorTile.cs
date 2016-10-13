@@ -20,78 +20,77 @@ namespace MVT.Decoder {
 		}
 
 		public static void GetMVT() {
-			using (var bufferedData = new BinaryReader(File.Open(@"sample.mvt", FileMode.Open))) {
-				var tileReader = new PBFReader(bufferedData);
-				while (tileReader.Next()) {
-					// get layer message in tile message
-					Debug.WriteLine("tileReader._tag: {0}", tileReader._tag);
-					if (tileReader._tag == 3) {
-						var layersData = tileReader.View();
-						var layerReader = new PBFReader(layersData);
-						//var extent = new byte[];
-						//PBFReader[] featureViews = new PBFReader[];
 
-						while (layerReader.Next()) {
-							Debug.WriteLine("layerReader._tag: {0}", layerReader._tag);
-							// get feature message in layer message
-							if (layerReader._tag == 2) {
-								//featureViews.append(layerReader.View())
-							} else if (layerReader._tag == 5) {
-								//extent = layerReader.Varint();
-							} else {
-								layerReader.Skip();
-							}
+			var bufferedData = File.ReadAllBytes(@"sample.mvt");
+			var tileReader = new PBFReader(bufferedData);
+
+			while (tileReader.Next()) {
+
+				Debug.WriteLine("[tileReader] tag:{0} val:{1}", tileReader.Tag, tileReader.Value);
+
+				// get layer message in tile message
+				if (tileReader.Tag == 3) {//3=layer ??? https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto#L75
+
+					var layersData = tileReader.View();
+					var layerReader = new PBFReader(layersData);
+					List<byte[]> featureViews = new List<byte[]>();
+
+					while (layerReader.Next()) {
+						Debug.WriteLine("[layerReader] tag:{0} val:{1}", layerReader.Tag, layerReader.Value);
+
+						// get feature message in layer message
+						if (layerReader.Tag == 2) {//2=feature??? https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto#L60
+							featureViews.Add(layerReader.View());
+						} else if (layerReader.Tag == 5) {
+							//extent = layerReader.Varint();
+						} else {
+							layerReader.Skip();
 						}
-
-						//foreach (PBFReader view in featureViews) {
-						//	var featureReader = new PBFReader(view);
-						//	while (featureReader.Next()) {
-						//		if (featureReader._tag == 4) {
-						//			//for f in _decode_array(feature_reader.get_packed_uint32(), extent):
-						//			//    yield f
-						//		} else {
-						//			featureReader.Skip();
-						//		}
-						//	}
-						//}
-					} else {
-						tileReader.Skip();
 					}
+
+					//foreach (PBFReader view in featureViews) {
+					//	var featureReader = new PBFReader(view);
+					//	while (featureReader.Next()) {
+					//		if (featureReader._tag == 4) {
+					//			//for f in _decode_array(feature_reader.get_packed_uint32(), extent):
+					//			//    yield f
+					//		} else {
+					//			featureReader.Skip();
+					//		}
+					//	}
+					//}
+				} else {
+					tileReader.Skip();
 				}
 			}
 		}
 
 		public class PBFReader {
 
-			public BinaryReader _buffer;
-			public WireTypes _wireType = WireTypes.UNDEFINED;
-			public long _length;
-			public int _pos = 0;
-			public int _tag;
-			public int _val;
+			public int Tag { get; private set; }
+			public int Value { get; private set; }
 
-			public PBFReader(BinaryReader tileBuffer) {
+			private byte[] _buffer;
+			private WireTypes _wireType = WireTypes.UNDEFINED;
+			private long _length;
+			private int _pos = 0;
+
+			public PBFReader(byte[] tileBuffer) {
 				// Initialize
 				_buffer = tileBuffer;
-				_length = _buffer.BaseStream.Length;
+				_length = _buffer.Length;
 			}
 
 			public int Varint() {
 				// convert to base 128 varint
 				// https://developers.google.com/protocol-buffers/docs/encoding
-				int mask = (1 << 64) - 1;
-				//int result_type = long;
 				int result = 0;
 				int shift = 0;
 				while (1 == 1) {
-					byte[] buf = new byte[1];
-					_buffer.BaseStream.Seek(_pos, SeekOrigin.Begin);
-					int bytesRead = _buffer.Read(buf, 0, 1);
-					int b = buf[0];
+					byte b = _buffer[_pos];
 					result |= ((b & 0x7f) << shift);
 					_pos++;
 					if (0 == (b & 0x80)) {
-						//result &= mask;
 						return result;
 					}
 					shift += 7;
@@ -101,9 +100,9 @@ namespace MVT.Decoder {
 				}
 			}
 
-			public BinaryReader View() {
+			public byte[] View() {
 				// return layer/feature subsections of the main stream
-				if (_tag == 0) {
+				if (Tag == 0) {
 					throw new Exception("call next() before accessing field value");
 				};
 				if (_wireType != WireTypes.BYTES) {
@@ -112,33 +111,37 @@ namespace MVT.Decoder {
 				int skipBytes = Varint();
 				SkipBytes(skipBytes);
 
-				_buffer.BaseStream.Seek(_pos - skipBytes, SeekOrigin.Begin);
 				byte[] buf = new byte[skipBytes];
-				_buffer.Read(buf, 0, skipBytes);
-				MemoryStream ms = new MemoryStream(buf);
-				return new BinaryReader(ms);
+				Array.Copy(_buffer, _pos - skipBytes, buf, 0, skipBytes);
+				return buf;
 			}
 
 			public bool Next() {
-				Debug.WriteLine("Next({0})", _pos);
+				Debug.WriteLine("[Next()] pos:{0} len:{1}", _pos, _length);
 				if (_pos >= _length) {
 					return false;
 				}
 				// get and process the next byte in the buffer
 				// return true until end of stream
-				_val = Varint();
-				_tag = _val >> 3;
-				_wireType = (WireTypes)(_val & 0x07);
+				Value = Varint();
+				Tag = Value >> 3;
+				Debug.Assert(
+					(Tag > 0 && Tag < 19000)
+					|| (Tag > 19999 && Tag <= ((1 << 29) - 1)
+					), "tag out of range");
+				_wireType = (WireTypes)(Value & 0x07);
+				Debug.WriteLine("[Next()] tag:{0} val:{1} wiretype:{2}", Tag, Value, _wireType);
 				return true;
 			}
 
 
 			public void SkipVarint() {
-				_buffer.BaseStream.Seek(_pos, SeekOrigin.Begin);
-
-				while (0 == (_buffer.ReadByte() & 0x80)) {
+				Debug.WriteLine("[SkipVarint()]");
+				while (0 == (_buffer[_pos] & 0x80)) {
+					Debug.WriteLine("[SkipVarint()] incrementing _pos, pos:{0} (_buffer[_pos] & 0x80):{1}", _pos, (_buffer[_pos] & 0x80));
 					_pos++;
 				}
+				Debug.WriteLine("[SkipVarint()] pos:{0}, (_buffer[_pos] & 0x80):{1}", _pos, (_buffer[_pos] & 0x80));
 				if (_pos > _length) {
 					throw new Exception("Truncated message.");
 				}
@@ -146,20 +149,17 @@ namespace MVT.Decoder {
 
 
 			public void SkipBytes(int skip) {
+				string msg = string.Format("[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, _pos, _length);
+				Debug.WriteLine(msg);
 				if (_pos + skip > _length) {
-					throw new Exception(string.Format(
-						"skip:{0} pos:{1} len:{2}"
-						, skip
-						, _pos
-						, _length
-						));
+					throw new Exception(msg);
 				}
 				_pos += skip;
 			}
 
 			public int Skip() {
 				// return number of bytes to skip depending on wireType
-				if (_tag == 0) {
+				if (Tag == 0) {
 					throw new Exception("call next() before calling skip()");
 				}
 
