@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Linq;
 
 namespace MVT.DecoderWilly {
 
@@ -20,10 +21,23 @@ namespace MVT.DecoderWilly {
 			UNDEFINED = 99
 		}
 
+		public enum GeomType {
+			UNKNOWN = 0,
+			POINT = 1,
+			LINESTRING = 2,
+			POLYGON = 3
+		}
+
+		public enum Commands {
+			MoveTo = 1,
+			LineTo = 2,
+			ClosePath = 7
+		}
+
 		public static void GetMVT() {
 
-			//var bufferedData = File.ReadAllBytes(@"14-8902-5666.vector.pbf");
-			var bufferedData = File.ReadAllBytes(@"sample.mvt");
+			var bufferedData = File.ReadAllBytes(@"14-8902-5666.vector.pbf");
+			//var bufferedData = File.ReadAllBytes(@"sample.mvt");
 			var tileReader = new PBFReader(bufferedData);
 
 			while (tileReader.NextByte()) {
@@ -33,6 +47,7 @@ namespace MVT.DecoderWilly {
 					Console.WriteLine("--------------------- layer -----------");
 					byte[] layer = tileReader.View();
 					PBFReader layerReader = new PBFReader(layer);
+					ulong extent = 0;
 					while (layerReader.NextByte()) {
 						switch (layerReader.Tag) {
 							case 15: //version
@@ -46,7 +61,7 @@ namespace MVT.DecoderWilly {
 								//layerReader.Skip();
 								break;
 							case 5: //extent
-								ulong extent = layerReader.Varint();
+								extent = layerReader.Varint();
 								Console.WriteLine("extent: {0}", extent);
 								break;
 							case 3: //keys
@@ -91,6 +106,7 @@ namespace MVT.DecoderWilly {
 							case 2: //features
 								byte[] featureBuffer = layerReader.View();
 								PBFReader featureReader = new PBFReader(featureBuffer);
+								GeomType geomType = GeomType.UNKNOWN;
 								while (featureReader.NextByte()) {
 									switch (featureReader.Tag) {
 										case 1: //id
@@ -107,12 +123,22 @@ namespace MVT.DecoderWilly {
 											//}
 											break;
 										case 3://geomtype
-											ulong geomType = featureReader.Varint();
+											geomType = (GeomType)featureReader.Varint();
 											Console.WriteLine("geomType:{0}", geomType);
 											break;
 										case 4: //geometry
 											List<UInt32> geometry = featureReader.GetPackedUnit32();
-											Console.WriteLine("geometry: {0}", string.Join(",", geometry.ToArray()));
+											Console.WriteLine("geometry RAW: {0}", string.Join(",", geometry.ToArray()));
+											DecodeGeometry dg = new DecodeGeometry(
+												extent
+												, 14
+												, 8902
+												, 5666
+												, geomType
+												, geometry
+											);
+											List<Point2d> geom = dg.GetGeometry();
+											Console.WriteLine("geometry DECODED: {0}", string.Join(",", geom.Select(g=>g.ToString()).ToArray()));
 											break;
 										default:
 											featureReader.Skip();
@@ -130,6 +156,85 @@ namespace MVT.DecoderWilly {
 				}
 			}
 		}
+
+
+		public class Point2d {
+			public long X { get; set; }
+			public long Y { get; set; }
+			public override string ToString() {
+				return string.Format("{0}/{1}", X, Y);
+			}
+		}
+
+		public class DecodeGeometry {
+
+			public DecodeGeometry(
+				ulong extent
+				, ulong zoom
+				, ulong tileColumn
+				, ulong tileRow
+				, GeomType geomType
+				, List<UInt32> geometry
+			) {
+
+				_Zoom = zoom;
+				_TileColumn = tileColumn;
+				_TileRow = tileRow;
+				_GeomType = geomType;
+				_Geometry = geometry;
+			}
+
+			private ulong _Zoom;
+			private ulong _TileColumn;
+			private ulong _TileRow;
+			private GeomType _GeomType;
+			private List<UInt32> _Geometry;
+
+			public List<Point2d> GetGeometry() {
+
+				List<Point2d> outGeom = new List<Point2d>();
+				long cursorX = 0;
+				long cursorY = 0;
+
+				for (int i = 0; i < _Geometry.Count; i++) {
+
+					uint g = _Geometry[i];
+					Commands cmd = (Commands)(g & 0x7);
+					uint cmdCount = g >> 3;
+
+					if (cmd == Commands.MoveTo || cmd == Commands.LineTo) {
+						for (int j = 0; j < cmdCount; j++) {
+							Point2d pt = zigzag(_Geometry[i + 1], _Geometry[i + 2]);
+							cursorX += pt.X;
+							cursorY += pt.Y;
+							i += 2;
+							//TODO calculate real coords
+							outGeom.Add(pt);
+						}
+					}
+					if (cmd == Commands.ClosePath) {
+						break;
+					}
+
+				}
+
+				if (_GeomType == GeomType.POLYGON && outGeom.Count > 0) {
+					outGeom.Add(outGeom[0]);
+				}
+
+				return outGeom;
+			}
+
+
+			private Point2d zigzag(uint x, uint y) {
+
+				return new Point2d() {
+					X = ((x >> 1) ^ (-(x & 1))),
+					Y = ((y >> 1) ^ (-(y & 1)))
+				};
+			}
+		}
+
 
 		public class PBFReader {
 
