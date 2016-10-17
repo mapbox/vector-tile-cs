@@ -129,16 +129,20 @@ namespace MVT.DecoderWilly {
 										case 4: //geometry
 											List<UInt32> geometry = featureReader.GetPackedUnit32();
 											Console.WriteLine("geometry RAW: {0}", string.Join(",", geometry.ToArray()));
+											ulong zoom = 14;
+											ulong tileCol = 8902;
+											ulong tileRow = 5666;
 											DecodeGeometry dg = new DecodeGeometry(
 												extent
-												, 14
-												, 8902
-												, 5666
+												, zoom
+												, tileCol
+												, tileRow
 												, geomType
 												, geometry
 											);
 											List<Point2d> geom = dg.GetGeometry();
-											Console.WriteLine("geometry DECODED: {0}", string.Join(",", geom.Select(g=>g.ToString()).ToArray()));
+											Console.WriteLine("geometry DECODED tile coords: {0}", string.Join(",", geom.Select(g => g.ToString()).ToArray()));
+											Console.WriteLine("geometry DECODED LatLng: {0}", string.Join(",", geom.Select(g => g.ToLngLat(zoom, tileCol, tileRow, extent).ToString()).ToArray()));
 											break;
 										default:
 											featureReader.Skip();
@@ -158,9 +162,41 @@ namespace MVT.DecoderWilly {
 		}
 
 
+		public class LatLng {
+			public double Lat { get; set; }
+			public double Lng { get; set; }
+
+			public override string ToString() {
+				return string.Format(
+					"{0:0.000000}/{1:0.000000}"
+					, Lat
+					,Lng);
+			}
+		}
+
 		public class Point2d {
+
 			public long X { get; set; }
 			public long Y { get; set; }
+
+			public LatLng ToLngLat(ulong z, ulong x, ulong y, ulong extent) {
+
+				double size = (double)extent * Math.Pow(2, (double)z);
+				double x0 = (double)extent * (double)x;
+				double y0 = (double)extent * (double)y;
+
+				double y2 = 180 - (Y + y0) * 360 / size;
+				double lng = (X + x0) * 360 / size - 180;
+				double lat = 360 / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180)) - 90;
+
+				LatLng latLng = new LatLng() {
+					Lat = lat,
+					Lng = lng
+				};
+
+				return latLng;
+			}
+
 			public override string ToString() {
 				return string.Format("{0}/{1}", X, Y);
 			}
@@ -226,7 +262,7 @@ namespace MVT.DecoderWilly {
 			}
 
 
-			private Point2d zigzag(uint x, uint y) {
+			private Point2d zigzag(long x, long y) {
 
 				return new Point2d() {
 					X = ((x >> 1) ^ (-(x & 1))),
