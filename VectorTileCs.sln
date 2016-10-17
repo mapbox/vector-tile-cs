@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorTileReader", "src\VectorTileReader\VectorTileReader.csproj", "{4656B308-1492-4A22-A73E-06BF6AA858F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PbfReader", "src\PbfReader\PbfReader.csproj", "{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoConsoleApp", "src\DemoConsoleApp\DemoConsoleApp.csproj", "{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geometry", "src\Geometry\Geometry.csproj", "{F0967389-29C8-4D50-B397-9BB698F13ED6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Debug|x64.ActiveCfg = Debug|x64
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Debug|x64.Build.0 = Debug|x64
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Release|x64.ActiveCfg = Release|Any CPU
+		{4656B308-1492-4A22-A73E-06BF6AA858F2}.Release|x64.Build.0 = Release|Any CPU
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Debug|x64.ActiveCfg = Debug|x64
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Debug|x64.Build.0 = Debug|x64
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Release|x64.ActiveCfg = Release|Any CPU
+		{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}.Release|x64.Build.0 = Release|Any CPU
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Debug|x64.ActiveCfg = Debug|x64
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Debug|x64.Build.0 = Debug|x64
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Release|x64.ActiveCfg = Release|x64
+		{D01BA6CB-9A2B-4AA5-95E1-085D9B569309}.Release|x64.Build.0 = Release|x64
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Debug|x64.Build.0 = Debug|Any CPU
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Release|x64.ActiveCfg = Release|Any CPU
+		{F0967389-29C8-4D50-B397-9BB698F13ED6}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
