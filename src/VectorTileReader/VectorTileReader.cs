@@ -111,14 +111,16 @@ namespace Mapbox.VectorTile {
 											List<Point2d> geom = dg.GetGeometry();
 											//Console.WriteLine("geometry DECODED tile coords: {0}", string.Join(",", geom.Select(g => g.ToString()).ToArray()));
 											//Console.WriteLine("geometry DECODED LatLng: {0}", string.Join(",", geom.Select(g => g.ToLngLat(zoom, tileCol, tileRow, layer.Extent).ToString()).ToArray()));
-											feat.Geometry.Add(geom.Select(g => g.ToLngLat(zoom, tileCol, tileRow, layer.Extent)).ToList());
+											List<LatLng> geomAsLatLng = geom.Select(g => g.ToLngLat(zoom, tileCol, tileRow, layer.Extent)).ToList();
+											feat.Geometry.Add(geomAsLatLng);
 											break;
 										default:
 											featureReader.Skip();
 											break;
 									}
-									layer.Features.Add(feat);
 								}
+
+								layer.Features.Add(feat);
 								break;
 							default:
 								layerReader.Skip();

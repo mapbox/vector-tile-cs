@@ -67,6 +67,7 @@ namespace Mapbox.VectorTile.Geometry {
 			List<string> geojsonFeatures = new List<string>();
 
 			foreach (var lyr in Layers) {
+
 				//Console.WriteLine(
 				//	"=== Layer:{0} Version:{1} Extent:{2} Features:{3}"
 				//	, lyr.Name
@@ -75,32 +76,46 @@ namespace Mapbox.VectorTile.Geometry {
 				//	, lyr.Features.Count
 				//);
 				//Console.WriteLine("Keys: " + string.Join(", ", lyr.Keys.ToArray()));
+
 				foreach (var feat in lyr.Features) {
-					//if (feat.GeometryType != GeomType.POINT) { continue; }
+
+					if (feat.Id == 0) { continue; }
+
+					if (feat.GeometryType != GeomType.POINT) { continue; }
+					//if (feat.GeometryType != GeomType.LINESTRING) { continue; }
+					//if (feat.GeometryType != GeomType.POLYGON) { continue; }
+
 					string geojsonProps = string.Format("fid:{0} lyr:{1} key;{2}", feat.Id, lyr.Name, string.Join(",", lyr.Keys));
 					string geojsonCoords = "";
 					string geomType = feat.GeometryType.Description();
 					foreach (var geoms in feat.Geometry) {
-						if (geoms.Count == 1) {
-							geojsonCoords = string.Format(en_US, "{0},{1}", geoms[0].Lng, geoms[0].Lat);
-						} else {
-							switch (feat.GeometryType) {
-								case GeomType.UNKNOWN:
-									break;
-								case GeomType.POINT:
+						switch (feat.GeometryType) {
+							case GeomType.UNKNOWN:
+								break;
+							case GeomType.POINT:
+								if (geoms.Count == 1) {
+									geojsonCoords = string.Format(en_US, "{0},{1}", geoms[0].Lng, geoms[0].Lat);
+								} else {
 									geomType = "MultiPoint";
-									break;
-								case GeomType.LINESTRING:
-									geomType = "MultiLineString";
-									break;
-								case GeomType.POLYGON:
-									geomType = "MultiPolygon";
-									break;
-								default:
-									break;
-							}
-							geojsonCoords = string.Join(",", geoms.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray());
+									geojsonCoords = string.Join(
+										","
+										, geoms.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+									);
+								}
+								break;
+							case GeomType.LINESTRING:
+								//geomType = "MultiLineString";
+								break;
+							case GeomType.POLYGON:
+								geomType = "MultiPolygon";
+								break;
+							default:
+								break;
 						}
+						//geojsonCoords = string.Join(
+						//	","
+						//	, geoms.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+						//);
 					}
 
 					//templateFeature = @"""{0}"" wie geht's ""{1}""";
@@ -115,6 +130,9 @@ namespace Mapbox.VectorTile.Geometry {
 					);
 				}
 			}
+
+			//geojsonFeatures = geojsonFeatures.Skip(100).Take(10).ToList();
+			//geojsonFeatures = geojsonFeatures.Take(20).ToList();
 
 			string geoJsonFeatColl = string.Format(
 				templateFeatureCollection
