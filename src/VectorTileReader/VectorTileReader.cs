@@ -11,21 +11,18 @@ namespace Mapbox.VectorTile {
 
 	public class VectorTileReader {
 
-
-
 		public static Tile Decode(
 			ulong zoom
 			, ulong tileCol
 			, ulong tileRow
 			, byte[] bufferedData
 		) {
+
 			var tileReader = new PbfReader(bufferedData);
 			Tile tile = new Tile(zoom, tileCol, tileRow);
 
 			while (tileReader.NextByte()) {
-				//Debug.WriteLine("[tileReader] tag:{0} val:{1}", tileReader.Tag, tileReader.Value);
-				//layers
-				if (tileReader.Tag == 3) {
+				if (tileReader.Tag == 3) { //layer
 					Layer layer = new Layer();
 					byte[] layerBuffer = tileReader.View();
 					PbfReader layerReader = new PbfReader(layerBuffer);
@@ -55,15 +52,19 @@ namespace Mapbox.VectorTile {
 										case 1: //string
 											byte[] stringBuffer = valReader.View();
 											string value = Encoding.UTF8.GetString(stringBuffer);
+											layer.Values.Add(value);
 											break;
 										case 2: //float
 											float snglVal = valReader.GetFloat();
+											layer.Values.Add(snglVal);
 											break;
 										case 3: //double
 											double dblVal = valReader.GetDouble();
+											layer.Values.Add(dblVal);
 											break;
 										case 4: //int64
 											ulong i64 = valReader.Varint();
+											layer.Values.Add(i64);
 											break;
 										default:
 											Console.WriteLine(
@@ -86,14 +87,9 @@ namespace Mapbox.VectorTile {
 										case 1: //id
 											feat.Id = featureReader.Varint();
 											break;
-										case 2: //tags - not working yet
-											featureReader.View();
-											//byte[] tagsBuffer = featureReader.View();
-											//PBFReader tagReader = new PBFReader(tagsBuffer);
-											//while (tagReader.NextByte()) {
-											//	Console.WriteLine("{0} {1}", tagReader.Tag, tagReader.WireType);
-											//	tagReader.Skip();
-											//}
+										case 2: //tags 
+											List<int> tags = featureReader.GetPackedUnit32().Select(t => (int)t).ToList();
+											feat.Tags = tags;
 											break;
 										case 3://geomtype
 											feat.GeometryType = (GeomType)featureReader.Varint();
@@ -108,11 +104,14 @@ namespace Mapbox.VectorTile {
 												, feat.GeometryType
 												, geometry
 											);
-											List<Point2d> geom = dg.GetGeometry();
-											//Console.WriteLine("geometry DECODED tile coords: {0}", string.Join(",", geom.Select(g => g.ToString()).ToArray()));
-											//Console.WriteLine("geometry DECODED LatLng: {0}", string.Join(",", geom.Select(g => g.ToLngLat(zoom, tileCol, tileRow, layer.Extent).ToString()).ToArray()));
-											List<LatLng> geomAsLatLng = geom.Select(g => g.ToLngLat(zoom, tileCol, tileRow, layer.Extent)).ToList();
-											feat.Geometry.Add(geomAsLatLng);
+											List<List<Point2d>> geom = dg.GetGeometry();
+											List<List<LatLng>> geomAsLatLng = new List<List<LatLng>>();
+											foreach (var part in geom) {
+												geomAsLatLng.Add(
+													part.Select(g => g.ToLngLat(zoom, tileCol, tileRow, layer.Extent)).ToList()
+												);
+											}
+											feat.Geometry.AddRange(geomAsLatLng);
 											break;
 										default:
 											featureReader.Skip();
@@ -162,9 +161,10 @@ namespace Mapbox.VectorTile {
 			private GeomType _GeomType;
 			private List<UInt32> _Geometry;
 
-			public List<Point2d> GetGeometry() {
+			public List<List<Point2d>> GetGeometry() {
 
-				List<Point2d> outGeom = new List<Point2d>();
+				List<List<Point2d>> geomOut = new List<List<Point2d>>();
+				List<Point2d> geomTmp = new List<Point2d>();
 				long cursorX = 0;
 				long cursorY = 0;
 
@@ -176,25 +176,30 @@ namespace Mapbox.VectorTile {
 
 					if (cmd == Commands.MoveTo || cmd == Commands.LineTo) {
 						for (int j = 0; j < cmdCount; j++) {
-							Point2d pt = zigzag(_Geometry[i + 1], _Geometry[i + 2]);
-							cursorX += pt.X;
-							cursorY += pt.Y;
+							Point2d delta = zigzag(_Geometry[i + 1], _Geometry[i + 2]);
+							cursorX += delta.X;
+							cursorY += delta.Y;
 							i += 2;
-							//TODO calculate real coords
-							outGeom.Add(pt);
+							//end of part of multipart feature
+							if (cmd == Commands.MoveTo && geomTmp.Count > 0) {
+								geomOut.Add(geomTmp);
+								geomTmp = new List<Point2d>();
+							}
+							geomTmp.Add(new Point2d() { X = cursorX, Y = cursorY });
 						}
 					}
 					if (cmd == Commands.ClosePath) {
-						break;
+						if (_GeomType == GeomType.POLYGON && geomTmp.Count > 0) {
+							geomTmp.Add(geomTmp[0]);
+						}
 					}
-
 				}
 
-				if (_GeomType == GeomType.POLYGON && outGeom.Count > 0) {
-					outGeom.Add(outGeom[0]);
+				if (geomTmp.Count > 0) {
+					geomOut.Add(geomTmp);
 				}
 
-				return outGeom;
+				return geomOut;
 			}
 
 
