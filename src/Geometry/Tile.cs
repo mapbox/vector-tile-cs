@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Mapbox.VectorTile;
 using System.ComponentModel;
 using System.Globalization;
 
 namespace Mapbox.VectorTile.Geometry {
+
 	public class Feature {
 
 		public Feature() {
@@ -15,9 +13,9 @@ namespace Mapbox.VectorTile.Geometry {
 		}
 
 		public ulong Id { get; set; }
-
 		public GeomType GeometryType { get; set; }
 		public List<List<LatLng>> Geometry { get; set; }
+		public List<int> Tags { get; set; }
 	}
 
 
@@ -26,13 +24,14 @@ namespace Mapbox.VectorTile.Geometry {
 		public Layer() {
 			Features = new List<Feature>();
 			Keys = new List<string>();
+			Values = new List<object>();
 		}
 
 		public string Name { get; set; }
 		public ulong Version { get; set; }
 		public ulong Extent { get; set; }
-
 		public List<Feature> Features { get; set; }
+		public List<object> Values { get; set; }
 		public List<string> Keys { get; set; }
 	}
 
@@ -49,76 +48,110 @@ namespace Mapbox.VectorTile.Geometry {
 			TileRow = tileRow;
 			Layers = new List<Layer>();
 		}
+
 		public ulong Zoom { get; set; }
 		public ulong TileColumn { get; set; }
 		public ulong TileRow { get; set; }
 
 		public List<Layer> Layers { get; set; }
-
-
+		
 		public string ToGeoJson() {
 
+			//to get '.' instead of ',' when using "string.format" with double/float
 			CultureInfo en_US = new CultureInfo("en-US");
+
 			// escaping '{' '}' -> @"{{" "}}"
 			//escaping '"' -> @""""
 			string templateFeatureCollection = @"{{""type"":""FeatureCollection"",""features"":[{0}]}}";
-			string templateFeature = @"{{""type"":""Feature"",""geometry"":{{""type"":""{0}"",""coordinates"":[{1}]}},""properties"":{{""props"":""{2}""}}}}";
+			string templateFeature = @"{{""type"":""Feature"",""geometry"":{{""type"":""{0}"",""coordinates"":[{1}]}},""properties"":{2}}}";
 
 			List<string> geojsonFeatures = new List<string>();
 
 			foreach (var lyr in Layers) {
 
-				//Console.WriteLine(
-				//	"=== Layer:{0} Version:{1} Extent:{2} Features:{3}"
-				//	, lyr.Name
-				//	, lyr.Version
-				//	, lyr.Extent
-				//	, lyr.Features.Count
-				//);
-				//Console.WriteLine("Keys: " + string.Join(", ", lyr.Keys.ToArray()));
-
 				foreach (var feat in lyr.Features) {
 
-					if (feat.Id == 0) { continue; }
-
-					if (feat.GeometryType != GeomType.POINT) { continue; }
-					//if (feat.GeometryType != GeomType.LINESTRING) { continue; }
 					//if (feat.GeometryType != GeomType.POLYGON) { continue; }
+					if (feat.GeometryType == GeomType.UNKNOWN) { continue; }
 
-					string geojsonProps = string.Format("fid:{0} lyr:{1} key;{2}", feat.Id, lyr.Name, string.Join(",", lyr.Keys));
+					//resolve properties
+					List<string> keyValue = new List<string>();
+					for (int i = 0; i < feat.Tags.Count; i += 2) {
+						string key = lyr.Keys[feat.Tags[i]];
+						object val = lyr.Values[feat.Tags[i + 1]];
+						keyValue.Add(string.Format(en_US, @"""{0}"":""{1}""", key, val));
+					}
+
+					string geojsonProps = string.Format(
+						@"{{""id"":{0},""lyr"":""{1}"",{2}}}"
+						, feat.Id
+						, lyr.Name
+						, string.Join(",", keyValue.ToArray())
+					);
+
+					//work through geometries
 					string geojsonCoords = "";
 					string geomType = feat.GeometryType.Description();
-					foreach (var geoms in feat.Geometry) {
+
+					//multipart
+					if (feat.Geometry.Count > 1) {
 						switch (feat.GeometryType) {
-							case GeomType.UNKNOWN:
-								break;
 							case GeomType.POINT:
-								if (geoms.Count == 1) {
-									geojsonCoords = string.Format(en_US, "{0},{1}", geoms[0].Lng, geoms[0].Lat);
-								} else {
-									geomType = "MultiPoint";
-									geojsonCoords = string.Join(
-										","
-										, geoms.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
-									);
-								}
+								geomType = "MultiPoint";
+								geojsonCoords = string.Join(
+									","
+									, feat.Geometry
+										.SelectMany((List<LatLng> g) => g)
+										.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+								);
 								break;
 							case GeomType.LINESTRING:
-								//geomType = "MultiLineString";
+								geomType = "MultiLineString";
+								List<string> parts = new List<string>();
+								foreach (var part in feat.Geometry) {
+									parts.Add("[" + string.Join(
+									","
+									, part.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+									) + "]");
+								}
+								geojsonCoords = string.Join(",", parts.ToArray());
 								break;
 							case GeomType.POLYGON:
 								geomType = "MultiPolygon";
+								List<string> partsMP = new List<string>();
+								foreach (var part in feat.Geometry) {
+									partsMP.Add("[" + string.Join(
+									","
+									, part.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+									) + "]");
+								}
+								geojsonCoords = "[" + string.Join(",", partsMP.ToArray()) + "]";
 								break;
 							default:
 								break;
 						}
-						//geojsonCoords = string.Join(
-						//	","
-						//	, geoms.Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
-						//);
+					} else { //singlepart
+						switch (feat.GeometryType) {
+							case GeomType.POINT:
+								geojsonCoords = string.Format(en_US, "{0},{1}", feat.Geometry[0][0].Lng, feat.Geometry[0][0].Lat);
+								break;
+							case GeomType.LINESTRING:
+								geojsonCoords = string.Join(
+									","
+									, feat.Geometry[0].Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+								);
+								break;
+							case GeomType.POLYGON:
+								geojsonCoords = "[" + string.Join(
+									","
+									, feat.Geometry[0].Select(g => string.Format(en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+								) + "]";
+								break;
+							default:
+								break;
+						}
 					}
 
-					//templateFeature = @"""{0}"" wie geht's ""{1}""";
 					geojsonFeatures.Add(
 						string.Format(
 							templateFeature
@@ -130,9 +163,6 @@ namespace Mapbox.VectorTile.Geometry {
 					);
 				}
 			}
-
-			//geojsonFeatures = geojsonFeatures.Skip(100).Take(10).ToList();
-			//geojsonFeatures = geojsonFeatures.Take(20).ToList();
 
 			string geoJsonFeatColl = string.Format(
 				templateFeatureCollection
