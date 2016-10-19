@@ -40,10 +40,10 @@ namespace Mapbox.VectorTile.Geometry {
 			double lng = (X + x0) * 360 / size - 180;
 			double lat = 360 / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180)) - 90;
 
-			if (lng <= -180 || lng >= 180) {
+			if (lng < -180 || lng > 180) {
 				throw new Exception("Longitude out of range");
 			}
-			if (lat <= -90 || lat >= 90) {
+			if (lat < -90 || lat > 90) {
 				throw new Exception("Latitude out of range");
 			}
 			LatLng latLng = new LatLng() {
