@@ -40,11 +40,9 @@ namespace Mapbox.VectorTile {
 			_buffer = tileBuffer;
 			_length = (ulong)_buffer.Length;
 			WireType = WireTypes.UNDEFINED;
-			//Debug.WriteLine("[PBFReader] constructor, buffer length:{0}", _length);
 		}
 
 		public ulong Varint() {
-			//Debug.WriteLine("[Varint()]");
 			// convert to base 128 varint
 			// https://developers.google.com/protocol-buffers/docs/encoding
 			int shift = 0;
@@ -64,7 +62,6 @@ namespace Mapbox.VectorTile {
 
 
 		public byte[] View() {
-			//Debug.WriteLine("[View()]");
 			// return layer/feature subsections of the main stream
 			if (Tag == 0) {
 				throw new Exception("call next() before accessing field value");
@@ -74,13 +71,10 @@ namespace Mapbox.VectorTile {
 			}
 			ulong tmpPos = Pos;
 			ulong skipBytes = Varint();
-			//Debug.WriteLine("[View()] skipBytes:{0}", skipBytes);
 			SkipBytes(skipBytes);
 
 			byte[] buf = new byte[skipBytes];
 			Array.Copy(_buffer, (int)Pos - (int)skipBytes, buf, 0, (int)skipBytes);
-			//Array.Copy(_buffer, (int)tmpPos, buf, 0, (int)skipBytes);
-			//Debug.WriteLine("[View()] returning array, length:{0}", buf.Length);
 			return buf;
 		}
 
@@ -121,7 +115,6 @@ namespace Mapbox.VectorTile {
 		}
 
 		public bool NextByte() {
-			//Debug.WriteLine("[Next()] pos:{0} len:{1}", Pos, _length);
 			if (Pos >= _length) {
 				return false;
 			}
@@ -136,19 +129,15 @@ namespace Mapbox.VectorTile {
 				throw new Exception("tag out of range");
 			}
 			WireType = (WireTypes)(Value & 0x07);
-			//Debug.WriteLine("[Next()] tag:{0} val:{1} wiretype:{2}", Tag, Value, WireType);
 			return true;
 		}
 
 
 		public void SkipVarint() {
-			//Debug.WriteLine("[SkipVarint()]");
 			while (0 == (_buffer[Pos] & 0x80)) {
-				//Debug.WriteLine("[SkipVarint()] incrementing _pos, pos:{0} _buffer[_pos]:{1} (_buffer[_pos] & 0x80):{2}", Pos, _buffer[Pos], (_buffer[Pos] & 0x80));
 				Pos++;
 			}
 
-			//Debug.WriteLine("[SkipVarint()] pos:{0} _buffer[_pos]:{1} (_buffer[_pos] & 0x80):{2}", Pos, _buffer[Pos], (_buffer[Pos] & 0x80));
 			if (Pos > _length) {
 				throw new Exception("Truncated message.");
 			}
@@ -157,7 +146,6 @@ namespace Mapbox.VectorTile {
 
 		public void SkipBytes(ulong skip) {
 			string msg = string.Format("[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, Pos, _length);
-			//Debug.WriteLine(msg);
 			if (Pos + skip > _length) {
 				throw new Exception(msg);
 			}
@@ -166,8 +154,6 @@ namespace Mapbox.VectorTile {
 
 
 		public ulong Skip() {
-			//Debug.WriteLine("[Skip()]");
-			// return number of bytes to skip depending on wireType
 			if (Tag == 0) {
 				throw new Exception("call next() before calling skip()");
 			}

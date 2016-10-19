@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Mapbox.VectorTile.Geometry;
 
 namespace Mapbox.VectorTile {
 
@@ -28,16 +27,11 @@ namespace Mapbox.VectorTile {
 
 			var bufferedData = File.ReadAllBytes(vtIn);
 
-			if(bufferedData[0]== 0x1f && bufferedData[1] == 0x8b){
-				Console.WriteLine("file [{0}] is zipped", vtIn);
-				return 1;
-			}
-
-			Tile tile = VectorTileReader.Decode(
-				zoom
-				, tileCol
-				, tileRow
-				, bufferedData
+			VectorTile tile = VectorTileReader.Decode(
+(ulong)zoom
+				, (ulong)tileCol
+				, (ulong)tileRow
+				, (byte[])bufferedData
 			);
 
 			Console.WriteLine(tile.ToGeoJson());

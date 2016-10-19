@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4656B308-1492-4A22-A73E-06BF6AA858F2}</ProjectGuid>
+    <ProjectGuid>{55503403-0083-4ED8-B618-F8377610B225}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VectorTileReader</RootNamespace>
-    <AssemblyName>Mapbox.VectorTile.VectorTileReader</AssemblyName>
+    <RootNamespace>Util</RootNamespace>
+    <AssemblyName>Mapbox.VectorTile.Util</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -40,25 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="VectorTileFeature.cs" />
-    <Compile Include="VectorTileLayer.cs" />
-    <Compile Include="VectorTile.cs" />
-    <Compile Include="VectorTileReader.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Util\Util.csproj">
-      <Project>{55503403-0083-4ed8-b618-f8377610b225}</Project>
-      <Name>Util</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Geometry\Geometry.csproj">
-      <Project>{f0967389-29c8-4d50-b397-9bb698f13ed6}</Project>
-      <Name>Geometry</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PbfReader\PbfReader.csproj">
-      <Project>{4bce42ee-c33f-4fa4-bfdd-86f3d45c647c}</Project>
-      <Name>PbfReader</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

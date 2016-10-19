@@ -1,44 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.ComponentModel;
 using System.Globalization;
+using Mapbox.VectorTile.Geometry;
+using Mapbox.VectorTile.Util;
 
-namespace Mapbox.VectorTile.Geometry {
+namespace Mapbox.VectorTile {
 
-	public class Feature {
+	public class VectorTile {
 
-		public Feature() {
-			Geometry = new List<List<LatLng>>();
-		}
-
-		public ulong Id { get; set; }
-		public GeomType GeometryType { get; set; }
-		public List<List<LatLng>> Geometry { get; set; }
-		public List<int> Tags { get; set; }
-	}
-
-
-	public class Layer {
-
-		public Layer() {
-			Features = new List<Feature>();
-			Keys = new List<string>();
-			Values = new List<object>();
-		}
-
-		public string Name { get; set; }
-		public ulong Version { get; set; }
-		public ulong Extent { get; set; }
-		public List<Feature> Features { get; set; }
-		public List<object> Values { get; set; }
-		public List<string> Keys { get; set; }
-	}
-
-
-	public class Tile {
-
-		public Tile(
+		public VectorTile(
 			ulong zoom
 			, ulong tileColumn
 			, ulong tileRow
@@ -46,18 +16,18 @@ namespace Mapbox.VectorTile.Geometry {
 			Zoom = zoom;
 			TileColumn = tileColumn;
 			TileRow = tileRow;
-			Layers = new List<Layer>();
+			Layers = new List<VectorTileLayer>();
 		}
 
 		public ulong Zoom { get; set; }
 		public ulong TileColumn { get; set; }
 		public ulong TileRow { get; set; }
 
-		public List<Layer> Layers { get; set; }
+		public List<VectorTileLayer> Layers { get; set; }
 		
 		public string ToGeoJson() {
 
-			//to get '.' instead of ',' when using "string.format" with double/float
+			//to get '.' instead of ',' when using "string.format" with double/float and non-US system number format settings
 			CultureInfo en_US = new CultureInfo("en-US");
 
 			// escaping '{' '}' -> @"{{" "}}"
@@ -71,7 +41,6 @@ namespace Mapbox.VectorTile.Geometry {
 
 				foreach (var feat in lyr.Features) {
 
-					//if (feat.GeometryType != GeomType.POLYGON) { continue; }
 					if (feat.GeometryType == GeomType.UNKNOWN) { continue; }
 
 					//resolve properties
@@ -82,6 +51,7 @@ namespace Mapbox.VectorTile.Geometry {
 						keyValue.Add(string.Format(en_US, @"""{0}"":""{1}""", key, val));
 					}
 
+					//build geojson properties object from resolved properties
 					string geojsonProps = string.Format(
 						@"{{""id"":{0},""lyr"":""{1}"",{2}}}"
 						, feat.Id
@@ -154,11 +124,11 @@ namespace Mapbox.VectorTile.Geometry {
 
 					geojsonFeatures.Add(
 						string.Format(
-							templateFeature
-						, geomType
-						, geojsonCoords
-						, geojsonProps
-						, 1
+							en_US
+							, templateFeature
+							, geomType
+							, geojsonCoords
+							, geojsonProps
 						)
 					);
 				}
@@ -174,18 +144,5 @@ namespace Mapbox.VectorTile.Geometry {
 
 	}
 
-
-
-	public static class EnumExtensions {
-		public static string Description(this Enum value) {
-			// variables  
-			var enumType = value.GetType();
-			var field = enumType.GetField(value.ToString());
-			var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-			// return  
-			return attributes.Length == 0 ? value.ToString() : ((DescriptionAttribute)attributes[0]).Description;
-		}
-	}
 
 }
