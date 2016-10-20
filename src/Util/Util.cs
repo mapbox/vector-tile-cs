@@ -1,18 +1,42 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
+//using System.IO.Compression;
+using ICSharpCode.SharpZipLib.GZip;
 
 namespace Mapbox.VectorTile.Util {
 
+	//DOES NOT WORK WITH UNITY
+	///// <summary>
+	///// inflates buffer, returns original buffer if not zipped
+	///// </summary>
+	//public class UtilGzip {
+	//	public static byte[] Inflate(byte[] buffer) {
+	//		if (buffer[0] == 0x1f && buffer[1] == 0x8b) {
+	//			using (GZipStream stream = new GZipStream(new MemoryStream(buffer), CompressionMode.Decompress)) {
+	//				const int size = 4096;
+	//				byte[] buf = new byte[size];
+	//				using (MemoryStream memory = new MemoryStream()) {
+	//					int count = 0;
+	//					do {
+	//						count = stream.Read(buf, 0, size);
+	//						if (count > 0) {
+	//							memory.Write(buf, 0, count);
+	//						}
+	//					}
+	//					while (count > 0);
+	//					buffer = memory.ToArray();
+	//				}
+	//			}
+	//		}
+	//		return buffer;
+	//	}
+	//}
 
-	/// <summary>
-	/// inflates buffer, returns original buffer if not zipped
-	/// </summary>
 	public class UtilGzip {
 		public static byte[] Inflate(byte[] buffer) {
 			if (buffer[0] == 0x1f && buffer[1] == 0x8b) {
-				using (GZipStream stream = new GZipStream(new MemoryStream(buffer), CompressionMode.Decompress)) {
+				using (GZipInputStream stream = new GZipInputStream(new MemoryStream(buffer))) {
 					const int size = 4096;
 					byte[] buf = new byte[size];
 					using (MemoryStream memory = new MemoryStream()) {
