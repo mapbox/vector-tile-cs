@@ -51,6 +51,7 @@ namespace Mapbox.VectorTile {
             Mapbox.VectorTile.Geometry.LatLng pt = coord[0];
             require((pt.Lat - 84.920545) < .001);
             require((pt.Lng - -177.802734) < .001);
+            Console.WriteLine("Test succeeded");
             return 0;
         }
 
