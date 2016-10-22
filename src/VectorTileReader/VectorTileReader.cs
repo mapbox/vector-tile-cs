@@ -17,9 +17,6 @@ namespace Mapbox.VectorTile {
 			, byte[] bufferedData
 		) {
 
-			//inflate - returns original buffer if not zipped
-			bufferedData = UtilGzip.Inflate(bufferedData);
-
 			var tileReader = new PbfReader(bufferedData);
 			VectorTile tile = new VectorTile(zoom, tileCol, tileRow);
 

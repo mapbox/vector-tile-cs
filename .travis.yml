@@ -1,0 +1,14 @@
+language: generic
+
+addons:
+  apt:
+    packages:
+     - mono-complete, mono-devel
+
+matrix:
+  include:
+     - os: linux
+       sudo: false
+
+script:
+ - make
