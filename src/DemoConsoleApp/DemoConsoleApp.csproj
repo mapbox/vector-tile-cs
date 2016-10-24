@@ -62,30 +62,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\data\sample.mvt">
-      <Link>sample.mvt</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\data\data.mvt">
-      <Link>data.mvt</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\data\14-8902-5666.vector.pbf">
-      <Link>14-8902-5666.vector.pbf</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\data\14-8902-5667.vector.pbf">
-      <Link>14-8902-5667.vector.pbf</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\data\14-8902-5666.test.pbf">
-      <Link>14-8902-5666.test.pbf</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\data\14-8902-5667.test.pbf">
-      <Link>14-8902-5667.test.pbf</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

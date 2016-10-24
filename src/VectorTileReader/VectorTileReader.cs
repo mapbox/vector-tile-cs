@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Mapbox.VectorTile.Geometry;
-using Mapbox.VectorTile.Util;
 
 namespace Mapbox.VectorTile
 {
@@ -17,22 +16,28 @@ namespace Mapbox.VectorTile
             , ulong tileCol
             , ulong tileRow
             , byte[] bufferedData
-        ) {
+        )
+        {
 
-            if (bufferedData[0] == 0x1f && bufferedData[1] == 0x8b) {
+            if (bufferedData[0] == 0x1f && bufferedData[1] == 0x8b)
+            {
                 throw new Exception("tile data is zipped");
             }
 
             var tileReader = new PbfReader(bufferedData);
             VectorTile tile = new VectorTile(zoom, tileCol, tileRow);
 
-            while (tileReader.NextByte()) {
-                if (tileReader.Tag == 3) { //layer
+            while (tileReader.NextByte())
+            {
+                if (tileReader.Tag == 3)
+                { //layer
                     VectorTileLayer layer = new VectorTileLayer();
                     byte[] layerBuffer = tileReader.View();
                     PbfReader layerReader = new PbfReader(layerBuffer);
-                    while (layerReader.NextByte()) {
-                        switch (layerReader.Tag) {
+                    while (layerReader.NextByte())
+                    {
+                        switch (layerReader.Tag)
+                        {
                             case 15: //version
                                 ulong version = layerReader.Varint();
                                 layer.Version = version;
@@ -52,8 +57,10 @@ namespace Mapbox.VectorTile
                             case 4: //values
                                 byte[] valueBuffer = layerReader.View();
                                 PbfReader valReader = new PbfReader(valueBuffer);
-                                while (valReader.NextByte()) {
-                                    switch (valReader.Tag) {
+                                while (valReader.NextByte())
+                                {
+                                    switch (valReader.Tag)
+                                    {
                                         case 1: //string
                                             byte[] stringBuffer = valReader.View();
                                             string value = Encoding.UTF8.GetString(stringBuffer);
@@ -73,7 +80,8 @@ namespace Mapbox.VectorTile
                                             break;
                                         default:
                                             throw new Exception(string.Format(
-                                                "NOT IMPLEMENTED valueReader.Tag:{0} valueReader.WireType:{1}"
+                                                UtilFormat.CultureInfo_en_US
+                                                , "NOT IMPLEMENTED valueReader.Tag:{0} valueReader.WireType:{1}"
                                                 , valReader.Tag
                                                 , valReader.WireType
                                             ));
@@ -87,8 +95,10 @@ namespace Mapbox.VectorTile
                                 byte[] featureBuffer = layerReader.View();
                                 PbfReader featureReader = new PbfReader(featureBuffer);
                                 VectorTileFeature feat = new VectorTileFeature();
-                                while (featureReader.NextByte()) {
-                                    switch (featureReader.Tag) {
+                                while (featureReader.NextByte())
+                                {
+                                    switch (featureReader.Tag)
+                                    {
                                         case 1: //id
                                             feat.Id = featureReader.Varint();
                                             break;
@@ -113,7 +123,8 @@ namespace Mapbox.VectorTile
                                             );
                                             //convert tile coordinates to LatLnt
                                             List<List<LatLng>> geomAsLatLng = new List<List<LatLng>>();
-                                            foreach (var part in geom) {
+                                            foreach (var part in geom)
+                                            {
                                                 geomAsLatLng.Add(
                                                     part.Select(g => g.ToLngLat(zoom, tileCol, tileRow, layer.Extent)).ToList()
                                                 );
@@ -135,7 +146,8 @@ namespace Mapbox.VectorTile
                     }
 
                     tile.Layers.Add(layer);
-                } else {
+                } else
+                {
                     tileReader.Skip();
                 }
             }
