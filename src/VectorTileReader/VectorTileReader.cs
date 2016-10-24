@@ -78,6 +78,18 @@ namespace Mapbox.VectorTile
                                             ulong i64 = valReader.Varint();
                                             layer.Values.Add(i64);
                                             break;
+                                        case 5: //uint64
+                                            ulong u64 = valReader.Varint();
+                                            layer.Values.Add(u64);
+                                            break;
+                                        case 6: //sint64
+                                            ulong s64 = valReader.Varint();
+                                            layer.Values.Add(s64);
+                                            break;
+                                        case 7: //bool
+                                            ulong b = valReader.Varint();
+                                            layer.Values.Add(b == 1);
+                                            break;
                                         default:
                                             throw new Exception(string.Format(
                                                 UtilFormat.CultureInfo_en_US
