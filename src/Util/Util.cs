@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.IO;
 //using System.IO.Compression;
-using ICSharpCode.SharpZipLib.GZip;
 
 namespace Mapbox.VectorTile.Util {
 
@@ -33,28 +32,28 @@ namespace Mapbox.VectorTile.Util {
 	//	}
 	//}
 
-	public class UtilGzip {
-		public static byte[] Inflate(byte[] buffer) {
-			if (buffer[0] == 0x1f && buffer[1] == 0x8b) {
-				using (GZipInputStream stream = new GZipInputStream(new MemoryStream(buffer))) {
-					const int size = 4096;
-					byte[] buf = new byte[size];
-					using (MemoryStream memory = new MemoryStream()) {
-						int count = 0;
-						do {
-							count = stream.Read(buf, 0, size);
-							if (count > 0) {
-								memory.Write(buf, 0, count);
-							}
-						}
-						while (count > 0);
-						buffer = memory.ToArray();
-					}
-				}
-			}
-			return buffer;
-		}
-	}
+	//public class UtilGzip {
+	//	public static byte[] Inflate(byte[] buffer) {
+	//		if (buffer[0] == 0x1f && buffer[1] == 0x8b) {
+	//			using (GZipInputStream stream = new GZipInputStream(new MemoryStream(buffer))) {
+	//				const int size = 4096;
+	//				byte[] buf = new byte[size];
+	//				using (MemoryStream memory = new MemoryStream()) {
+	//					int count = 0;
+	//					do {
+	//						count = stream.Read(buf, 0, size);
+	//						if (count > 0) {
+	//							memory.Write(buf, 0, count);
+	//						}
+	//					}
+	//					while (count > 0);
+	//					buffer = memory.ToArray();
+	//				}
+	//			}
+	//		}
+	//		return buffer;
+	//	}
+	//}
 
 	/// <summary>
 	/// Extension method to extract the [Description] attribute from an Enum
