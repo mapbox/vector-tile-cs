@@ -28,11 +28,12 @@ namespace VectorTiles.Tests
         }
 
 
-        [Test, TestCaseSource(typeof(GetMVTs),"GetFixtureFileName")]
-        public void TestAllFixtures(string fileName)
+        [Test, TestCaseSource(typeof(GetMVTs), "GetFixtureFileName")]
+        public void AtLeastOneLayer(string fileName)
         {
-            Assert.True(File.Exists(fileName));
-            byte[] data = File.ReadAllBytes(fileName);
+            string fullFileName = Path.Combine(fixturesPath, fileName);
+            Assert.True(File.Exists(fullFileName));
+            byte[] data = File.ReadAllBytes(fullFileName);
             VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
             Assert.GreaterOrEqual(vt.Layers.Count, 1);
         }
@@ -49,7 +50,8 @@ namespace VectorTiles.Tests
 
             foreach (var file in Directory.GetFiles(path))
             {
-                yield return new TestCaseData( file);
+                //return file basename only to make test description more readable
+                yield return new TestCaseData(Path.GetFileName(file));
             }
         }
     }
