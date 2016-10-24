@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>Mapbox.VectorTile</id>
+		<version>1.0.0-alpha</version>
+		<authors>Mapbox</authors>
+		<owners>Mapbox</owners>
+		<licenseUrl>https://github.com/mapbox/vector-tile-cs</licenseUrl>
+		<projectUrl>https://github.com/mapbox/vector-tile-cs</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Mapbox VectorTileReader CSharp</description>
+		<releaseNotes>Initial version.</releaseNotes>
+		<copyright>Copyright 2016</copyright>
+		<tags>vector tiles c# mapbox</tags>
+	</metadata>
+	<files>
+		<file src="bin\Mapbox.VectorTile.Geometry.dll" target="lib\net35\Mapbox.VectorTile.Geometry.dll"></file>
+		<file src="bin\Mapbox.VectorTile.PbfReader.dll" target="lib\net35\Mapbox.VectorTile.PbfReader.dll"></file>
+		<file src="bin\Mapbox.VectorTile.Util.dll" target="lib\net35\Mapbox.VectorTile.Util.dll"></file>
+		<file src="bin\Mapbox.VectorTile.VectorTileReader.dll" target="lib\net35\Mapbox.VectorTile.VectorTileReader.dll"></file>
+	</files>
+</package>
