@@ -10,6 +10,7 @@ namespace Mapbox.VectorTile
         public VectorTileFeature()
         {
             Geometry = new List<List<LatLng>>();
+            Tags = new List<int>();
         }
 
         public ulong Id { get; set; }

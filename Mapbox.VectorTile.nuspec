@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Mapbox.VectorTile</id>
-		<version>1.0.0-alpha</version>
+		<version>1.0.1-alpha</version>
 		<authors>Mapbox</authors>
 		<owners>Mapbox</owners>
 		<licenseUrl>https://github.com/mapbox/vector-tile-cs</licenseUrl>
