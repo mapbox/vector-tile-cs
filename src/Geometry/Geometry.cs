@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace Mapbox.VectorTile.Geometry
 {
@@ -23,7 +24,7 @@ namespace Mapbox.VectorTile.Geometry
         public override string ToString()
         {
             return string.Format(
-                UtilFormat.CultureInfo_en_US
+                NumberFormatInfo.InvariantInfo
                 , "{0:0.000000}/{1:0.000000}"
                 , Lat
                 , Lng);
@@ -36,7 +37,7 @@ namespace Mapbox.VectorTile.Geometry
         public long X { get; set; }
         public long Y { get; set; }
 
-        public LatLng ToLngLat(ulong z, ulong x, ulong y, ulong extent)
+        public LatLng ToLngLat(ulong z, ulong x, ulong y, ulong extent, bool checkLatLngMax = false)
         {
 
             double size = (double)extent * Math.Pow(2, (double)z);
@@ -47,14 +48,18 @@ namespace Mapbox.VectorTile.Geometry
             double lng = (X + x0) * 360 / size - 180;
             double lat = 360 / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180)) - 90;
 
-            if (lng < -180 || lng > 180)
+            if (checkLatLngMax)
             {
-                throw new Exception("Longitude out of range");
+                if (lng < -180 || lng > 180)
+                {
+                    throw new Exception("Longitude out of range");
+                }
+                if (lat < -90 || lat > 90)
+                {
+                    throw new Exception("Latitude out of range");
+                }
             }
-            if (lat < -90 || lat > 90)
-            {
-                throw new Exception("Latitude out of range");
-            }
+
             LatLng latLng = new LatLng()
             {
                 Lat = lat,
@@ -66,7 +71,7 @@ namespace Mapbox.VectorTile.Geometry
 
         public override string ToString()
         {
-            return string.Format(UtilFormat.CultureInfo_en_US, "{0}/{1}", X, Y);
+            return string.Format(NumberFormatInfo.InvariantInfo, "{0}/{1}", X, Y);
         }
     }
 
