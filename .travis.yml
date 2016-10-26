@@ -1,0 +1,13 @@
+# https://docs.travis-ci.com/user/languages/csharp/
+
+language: csharp
+solution: VectorTileCs.sln
+
+matrix:
+  include:
+     - os: linux
+       sudo: false
+       mono: latest
+     - os: linux
+       sudo: false
+       mono: 3.10.0
