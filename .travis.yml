@@ -8,9 +8,6 @@ matrix:
      - os: linux
        sudo: false
        mono: latest
-     - os: linux
-       sudo: false
-       mono: 4.0.0
 
 install:
   - nuget restore VectorTileCs.sln
