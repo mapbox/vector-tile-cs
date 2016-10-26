@@ -10,4 +10,12 @@ matrix:
        mono: latest
      - os: linux
        sudo: false
-       mono: 3.12.1
+       mono: 3.12.0
+
+install:
+  - nuget restore VectorTileCs.sln
+  - nuget install NUnit.ConsoleRunner -Version 3.5.0 -OutputDirectory testrunner
+
+script:
+  - xbuild /p:Configuration=Release VectorTileCs.sln
+  - mono ./testrunner/NUnit.ConsoleRunner.3.5.0/tools/nunit3-console.exe ./bin/VectorTiles.Tests.dll
