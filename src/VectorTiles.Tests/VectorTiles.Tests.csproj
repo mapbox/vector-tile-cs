@@ -58,13 +58,23 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestAllMVTs.cs" />
+    <Compile Include="TestMvtSingle.cs" />
+    <Compile Include="TestPbfReader.cs" />
+    <Compile Include="TestMvtInBulk.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Geometry\Geometry.csproj">
+      <Project>{f0967389-29c8-4d50-b397-9bb698f13ed6}</Project>
+      <Name>Geometry</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PbfReader\PbfReader.csproj">
+      <Project>{4BCE42EE-C33F-4FA4-BFDD-86F3D45C647C}</Project>
+      <Name>PbfReader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VectorTileReader\VectorTileReader.csproj">
       <Project>{4656b308-1492-4a22-a73e-06bf6aa858f2}</Project>
       <Name>VectorTileReader</Name>
