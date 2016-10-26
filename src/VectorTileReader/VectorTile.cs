@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Mapbox.VectorTile.Geometry;
+using System.Globalization;
 
 namespace Mapbox.VectorTile
 {
@@ -53,15 +54,16 @@ namespace Mapbox.VectorTile
                     {
                         string key = lyr.Keys[feat.Tags[i]];
                         object val = lyr.Values[feat.Tags[i + 1]];
-                        keyValue.Add(string.Format(UtilFormat.CultureInfo_en_US, @"""{0}"":""{1}""", key, val));
+                        keyValue.Add(string.Format(NumberFormatInfo.InvariantInfo, @"""{0}"":""{1}""", key, val));
                     }
 
                     //build geojson properties object from resolved properties
                     string geojsonProps = string.Format(
-                        UtilFormat.CultureInfo_en_US
-                        , @"{{""id"":{0},""lyr"":""{1}"",{2}}}"
+                        NumberFormatInfo.InvariantInfo
+                        , @"{{""id"":{0},""lyr"":""{1}""{2}{3}}}"
                         , feat.Id
                         , lyr.Name
+                        , keyValue.Count > 0 ? "," : ""
                         , string.Join(",", keyValue.ToArray())
                     );
 
@@ -80,7 +82,7 @@ namespace Mapbox.VectorTile
                                     ","
                                     , feat.Geometry
                                         .SelectMany((List<LatLng> g) => g)
-                                        .Select(g => string.Format(UtilFormat.CultureInfo_en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+                                        .Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                 );
                                 break;
                             case GeomType.LINESTRING:
@@ -90,7 +92,7 @@ namespace Mapbox.VectorTile
                                 {
                                     parts.Add("[" + string.Join(
                                     ","
-                                    , part.Select(g => string.Format(UtilFormat.CultureInfo_en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+                                    , part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                     ) + "]");
                                 }
                                 geojsonCoords = string.Join(",", parts.ToArray());
@@ -102,7 +104,7 @@ namespace Mapbox.VectorTile
                                 {
                                     partsMP.Add("[" + string.Join(
                                     ","
-                                    , part.Select(g => string.Format(UtilFormat.CultureInfo_en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+                                    , part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                     ) + "]");
                                 }
                                 geojsonCoords = "[" + string.Join(",", partsMP.ToArray()) + "]";
@@ -115,18 +117,18 @@ namespace Mapbox.VectorTile
                         switch (feat.GeometryType)
                         {
                             case GeomType.POINT:
-                                geojsonCoords = string.Format(UtilFormat.CultureInfo_en_US, "{0},{1}", feat.Geometry[0][0].Lng, feat.Geometry[0][0].Lat);
+                                geojsonCoords = string.Format(NumberFormatInfo.InvariantInfo, "{0},{1}", feat.Geometry[0][0].Lng, feat.Geometry[0][0].Lat);
                                 break;
                             case GeomType.LINESTRING:
                                 geojsonCoords = string.Join(
                                     ","
-                                    , feat.Geometry[0].Select(g => string.Format(UtilFormat.CultureInfo_en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+                                    , feat.Geometry[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                 );
                                 break;
                             case GeomType.POLYGON:
                                 geojsonCoords = "[" + string.Join(
                                     ","
-                                    , feat.Geometry[0].Select(g => string.Format(UtilFormat.CultureInfo_en_US, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+                                    , feat.Geometry[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                 ) + "]";
                                 break;
                             default:
@@ -136,7 +138,7 @@ namespace Mapbox.VectorTile
 
                     geojsonFeatures.Add(
                         string.Format(
-                            UtilFormat.CultureInfo_en_US
+                            NumberFormatInfo.InvariantInfo
                             , templateFeature
                             , geomType
                             , geojsonCoords
@@ -147,7 +149,7 @@ namespace Mapbox.VectorTile
             }
 
             string geoJsonFeatColl = string.Format(
-                UtilFormat.CultureInfo_en_US
+                NumberFormatInfo.InvariantInfo
                 , templateFeatureCollection
                 , string.Join(",", geojsonFeatures.ToArray())
             );

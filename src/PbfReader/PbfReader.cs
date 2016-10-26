@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 
@@ -8,30 +9,10 @@ namespace Mapbox.VectorTile
 {
 
 
-    // WIRE types
-    public enum WireTypes
-    {
-        VARINT = 0,// varint: int32, int64, uint32, uint64, sint32, sint64, bool, enum
-        FIXED64 = 1, // 64-bit: double, fixed64, sfixed64
-        BYTES = 2, // length-delimited: string, bytes, embedded messages, packed repeated fields
-        FIXED32 = 5, // 32-bit: float, fixed32, sfixed32
-        UNDEFINED = 99
-    }
-
-
-    public enum Commands
-    {
-        MoveTo = 1,
-        LineTo = 2,
-        ClosePath = 7
-    }
-
-
-
     public class PbfReader
     {
 
-        public ulong Tag { get; private set; }
+        public int Tag { get; private set; }
         public ulong Value { get; private set; }
         public ulong Pos { get; private set; }
         public WireTypes WireType { get; private set; }
@@ -139,7 +120,7 @@ namespace Mapbox.VectorTile
             // get and process the next byte in the buffer
             // return true until end of stream
             Value = Varint();
-            Tag = Value >> 3;
+            Tag = (int)Value >> 3;
             if (
                 (Tag == 0 || Tag >= 19000)
                 && (Tag > 19999 || Tag <= ((1 << 29) - 1))
@@ -168,7 +149,7 @@ namespace Mapbox.VectorTile
 
         public void SkipBytes(ulong skip)
         {
-            string msg = string.Format(UtilFormat.CultureInfo_en_US, "[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, Pos, _length);
+            string msg = string.Format(NumberFormatInfo.InvariantInfo, "[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, Pos, _length);
             if (Pos + skip > _length)
             {
                 throw new Exception(msg);

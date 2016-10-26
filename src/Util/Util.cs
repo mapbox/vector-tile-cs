@@ -58,14 +58,6 @@ namespace Mapbox.VectorTile
     //}
 
 
-    public static class UtilFormat
-    {
-        //to get '.' instead of ',' when using "string.format" with double/float and non-US system number format settings
-        public static CultureInfo CultureInfo_en_US = new CultureInfo("en-US");
-    }
-
-
-
     /// <summary>
     /// Extension method to extract the [Description] attribute from an Enum
     /// </summary>

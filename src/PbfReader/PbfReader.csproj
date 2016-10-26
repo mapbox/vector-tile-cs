@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="PbfReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

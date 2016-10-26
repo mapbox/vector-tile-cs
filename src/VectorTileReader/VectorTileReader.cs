@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Mapbox.VectorTile.Geometry;
+using System.Globalization;
 
 namespace Mapbox.VectorTile
 {
@@ -29,70 +30,70 @@ namespace Mapbox.VectorTile
 
             while (tileReader.NextByte())
             {
-                if (tileReader.Tag == 3)
-                { //layer
+                if (tileReader.Tag == (int)TileType.Layers)
+                {
                     VectorTileLayer layer = new VectorTileLayer();
                     byte[] layerBuffer = tileReader.View();
                     PbfReader layerReader = new PbfReader(layerBuffer);
                     while (layerReader.NextByte())
                     {
-                        switch (layerReader.Tag)
+                        switch ((LayerType)layerReader.Tag)
                         {
-                            case 15: //version
+                            case LayerType.Version:
                                 ulong version = layerReader.Varint();
                                 layer.Version = version;
                                 break;
-                            case 1: //layer name
+                            case LayerType.Name:
                                 ulong strLength = layerReader.Varint();
                                 layer.Name = layerReader.GetString(strLength);
                                 break;
-                            case 5: //extent
+                            case LayerType.Extent:
                                 layer.Extent = layerReader.Varint();
                                 break;
-                            case 3: //keys
+                            case LayerType.Keys:
                                 byte[] keyBuffer = layerReader.View();
                                 string key = Encoding.UTF8.GetString(keyBuffer);
                                 layer.Keys.Add(key);
                                 break;
-                            case 4: //values
+                            case LayerType.Values:
                                 byte[] valueBuffer = layerReader.View();
                                 PbfReader valReader = new PbfReader(valueBuffer);
                                 while (valReader.NextByte())
                                 {
-                                    switch (valReader.Tag)
+                                    switch ((ValueType)valReader.Tag)
                                     {
-                                        case 1: //string
+                                        case ValueType.String:
                                             byte[] stringBuffer = valReader.View();
                                             string value = Encoding.UTF8.GetString(stringBuffer);
                                             layer.Values.Add(value);
                                             break;
-                                        case 2: //float
+                                        case ValueType.Float:
                                             float snglVal = valReader.GetFloat();
                                             layer.Values.Add(snglVal);
                                             break;
-                                        case 3: //double
+                                        case ValueType.Double:
                                             double dblVal = valReader.GetDouble();
                                             layer.Values.Add(dblVal);
                                             break;
-                                        case 4: //int64
+                                        case ValueType.Int:
                                             ulong i64 = valReader.Varint();
                                             layer.Values.Add(i64);
                                             break;
-                                        case 5: //uint64
+                                        case ValueType.UInt:
                                             ulong u64 = valReader.Varint();
                                             layer.Values.Add(u64);
                                             break;
-                                        case 6: //sint64
+                                        case ValueType.SInt:
                                             ulong s64 = valReader.Varint();
                                             layer.Values.Add(s64);
                                             break;
-                                        case 7: //bool
+                                        case ValueType.Bool:
                                             ulong b = valReader.Varint();
                                             layer.Values.Add(b == 1);
                                             break;
                                         default:
                                             throw new Exception(string.Format(
-                                                UtilFormat.CultureInfo_en_US
+                                                NumberFormatInfo.InvariantInfo
                                                 , "NOT IMPLEMENTED valueReader.Tag:{0} valueReader.WireType:{1}"
                                                 , valReader.Tag
                                                 , valReader.WireType
@@ -103,26 +104,26 @@ namespace Mapbox.VectorTile
                                     }
                                 }
                                 break;
-                            case 2: //features
+                            case LayerType.Features:
                                 byte[] featureBuffer = layerReader.View();
                                 PbfReader featureReader = new PbfReader(featureBuffer);
-                                VectorTileFeature feat = new VectorTileFeature();
+                                VectorTileFeature feat = new VectorTileFeature(layer);
                                 while (featureReader.NextByte())
                                 {
-                                    switch (featureReader.Tag)
+                                    switch ((FeatureType)featureReader.Tag)
                                     {
-                                        case 1: //id
+                                        case FeatureType.Id:
                                             feat.Id = featureReader.Varint();
                                             break;
-                                        case 2: //tags 
+                                        case FeatureType.Tags:
                                             List<int> tags = featureReader.GetPackedUnit32().Select(t => (int)t).ToList();
                                             feat.Tags = tags;
                                             break;
-                                        case 3://geomtype
+                                        case FeatureType.Type:
                                             feat.GeometryType = (GeomType)featureReader.Varint();
                                             break;
-                                        case 4: //geometry
-                                                //get raw array of commands and coordinates
+                                        case FeatureType.Geometry:
+                                            //get raw array of commands and coordinates
                                             List<UInt32> geometry = featureReader.GetPackedUnit32();
                                             //decode commands and coordinates
                                             List<List<Point2d>> geom = DecodeGeometry.GetGeometry(
@@ -133,6 +134,7 @@ namespace Mapbox.VectorTile
                                                 , feat.GeometryType
                                                 , geometry
                                             );
+                                            feat.GeometryOnTile = geom;
                                             //convert tile coordinates to LatLnt
                                             List<List<LatLng>> geomAsLatLng = new List<List<LatLng>>();
                                             foreach (var part in geom)
