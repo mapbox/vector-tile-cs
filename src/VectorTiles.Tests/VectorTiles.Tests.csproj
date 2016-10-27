@@ -58,7 +58,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestInvalidMvtInBulk.cs" />
     <Compile Include="TestMvtSingle.cs" />
+    <Compile Include="TestGeometry.cs" />
     <Compile Include="TestPbfReader.cs" />
     <Compile Include="TestMvtInBulk.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

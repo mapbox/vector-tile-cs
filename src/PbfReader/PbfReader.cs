@@ -138,6 +138,10 @@ namespace Mapbox.VectorTile
             while (0 == (_buffer[Pos] & 0x80))
             {
                 Pos++;
+                if (Pos >= _length)
+                {
+                    throw new Exception("Truncated message.");
+                }
             }
 
             if (Pos > _length)

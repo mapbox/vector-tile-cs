@@ -30,6 +30,10 @@ namespace Mapbox.VectorTile
 
             while (tileReader.NextByte())
             {
+                if (tileReader.Tag != 3)
+                {
+                    throw new Exception("unknown tile tag");
+                }
                 if (tileReader.Tag == (int)TileType.Layers)
                 {
                     VectorTileLayer layer = new VectorTileLayer();
@@ -108,6 +112,7 @@ namespace Mapbox.VectorTile
                                 byte[] featureBuffer = layerReader.View();
                                 PbfReader featureReader = new PbfReader(featureBuffer);
                                 VectorTileFeature feat = new VectorTileFeature(layer);
+                                bool geomTypeSet = false;
                                 while (featureReader.NextByte())
                                 {
                                     switch ((FeatureType)featureReader.Tag)
@@ -120,9 +125,19 @@ namespace Mapbox.VectorTile
                                             feat.Tags = tags;
                                             break;
                                         case FeatureType.Type:
-                                            feat.GeometryType = (GeomType)featureReader.Varint();
+                                            int geomType = (int)featureReader.Varint();
+                                            if (!Enum.IsDefined(typeof(GeomType), geomType))
+                                            {
+                                                throw new Exception("Unknown geometry type tag");
+                                            }
+                                            feat.GeometryType = (GeomType)geomType;
+                                            geomTypeSet = true;
                                             break;
                                         case FeatureType.Geometry:
+                                            if (null != feat.GeometryOnTile)
+                                            {
+                                                throw new Exception("feature already has a geometry");
+                                            }
                                             //get raw array of commands and coordinates
                                             List<UInt32> geometry = featureReader.GetPackedUnit32();
                                             //decode commands and coordinates
@@ -149,6 +164,11 @@ namespace Mapbox.VectorTile
                                             featureReader.Skip();
                                             break;
                                     }
+                                }
+
+                                if (!geomTypeSet)
+                                {
+                                    throw new Exception("feature missing geometry type");
                                 }
 
                                 layer.Features.Add(feat);

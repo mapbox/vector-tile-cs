@@ -37,6 +37,8 @@ namespace VectorTiles.Tests
             byte[] data = File.ReadAllBytes(fullFileName);
             VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
             Assert.GreaterOrEqual(vt.Layers.Count, 1, "At least one layer");
+            string geojson = vt.ToGeoJson();
+            Assert.GreaterOrEqual(geojson.Length, 30, "geojson >= 30 chars");
         }
 
 
@@ -55,14 +57,10 @@ namespace VectorTiles.Tests
                     foreach (var prop in properties)
                     {
                         Assert.IsInstanceOf<string>(prop.Key);
-                        Debug.WriteLine(new { prop.Key, prop.Value });
-                    }
-                    foreach (var geom in feat.Geometry)
-                    {
-                        Debug.WriteLine(geom.Count);
                     }
                 }
             }
+            Assert.IsTrue(vt.Validate(), "VectorTile Validation");
         }
     }
 
@@ -71,7 +69,7 @@ namespace VectorTiles.Tests
 
 
 
-    public class GetMVTs
+    public partial class GetMVTs
     {
         public static IEnumerable GetFixtureFileName()
         {

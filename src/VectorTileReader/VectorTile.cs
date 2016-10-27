@@ -2,6 +2,7 @@
 using System.Linq;
 using Mapbox.VectorTile.Geometry;
 using System.Globalization;
+using System;
 
 namespace Mapbox.VectorTile
 {
@@ -157,6 +158,47 @@ namespace Mapbox.VectorTile
             return geoJsonFeatColl;
         }
 
+
+        public bool Validate()
+        {
+
+            List<string> layerNames = Layers.Select(l => l.Name).Distinct().ToList();
+            if (layerNames.Count() != Layers.Count())
+            {
+                throw new Exception("Duplicate layer names.");
+            }
+            if (0 < Layers.Where(l => l.Name.Length == 0).Count())
+            {
+                throw new Exception("Layer with no name");
+            }
+            if (0 < Layers.Where(l => l.Version != 2).Count())
+            {
+                throw new Exception("invalid layer version");
+            }
+            if (0 < Layers.Where(l => l.Extent == 0).Count())
+            {
+                throw new Exception("layer without extent");
+            }
+            if (0 < Layers.Where(l => l.Features.Count() == 0).Count())
+            {
+                throw new Exception("layer without features");
+            }
+            if (0 < Layers.SelectMany(l => l.Features).Where(f => null == f.GeometryOnTile).Count())
+            {
+                throw new Exception("features with no geometry");
+            }
+            //if (0 < Layers.SelectMany(l => l.Features).Where(f => f.GeometryType == GeomType.UNKNOWN).Count())
+            //{
+            //    throw new Exception("features with unknown geometry type");
+            //}
+
+            if (0 < Layers.Where(l => l.Keys.Count != l.Values.Count).Count())
+            {
+                throw new Exception("number of keys and values doesn't match");
+            }
+
+            return true;
+        }
     }
 
 

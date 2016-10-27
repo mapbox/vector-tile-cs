@@ -8,6 +8,7 @@ packages/
 TestResults/
 StyleCop.Cache
 nuget.exe
+.vscode/
 
 # globs
 Makefile.in

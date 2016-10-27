@@ -52,11 +52,11 @@ namespace Mapbox.VectorTile.Geometry
             {
                 if (lng < -180 || lng > 180)
                 {
-                    throw new Exception("Longitude out of range");
+                    throw new ArgumentOutOfRangeException("Longitude out of range");
                 }
-                if (lat < -90 || lat > 90)
+                if (lat < -85.051128779806589 || lat > 85.051128779806589)
                 {
-                    throw new Exception("Latitude out of range");
+                    throw new ArgumentOutOfRangeException("Latitude out of range");
                 }
             }
 
