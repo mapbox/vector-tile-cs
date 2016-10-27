@@ -1,11 +1,9 @@
 image: Visual Studio 2015
 
-# scripts that are called at very beginning, before repo cloning
 init:
   - git config --global core.autocrlf input
 
-shallow_clone: true                 # default is "false"
-clone_depth: 5                      # clone entire repository history if not defined
+clone_depth: 5
 
 install:
   - git submodule update --init --recursive
@@ -17,11 +15,11 @@ configuration:
 
 
 build:
-  parallel: true                  # enable MSBuild parallel builds
-  project: VectorTileCs.sln      # path to Visual Studio solution or project
-  publish_nuget: true             # package projects with .nuspec files and push to artifacts
-  publish_nuget_symbols: true     # generate and publish NuGet symbol packages
-  include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
+  parallel: true
+  project: VectorTileCs.sln
+  publish_nuget: true
+  publish_nuget_symbols: true
+  include_nuget_references: true
 
   # MSBuild verbosity level
   verbosity: detailed
