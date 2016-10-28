@@ -18,6 +18,10 @@ configuration:
   - Debug
   - Release
 
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: jAjmxnCi94uDJw6nWj6Kyr3jruWF4Aq03ItGuYvTzhfKgyk4h8R/tS0ZBBPC6j8k
+
 build:
   parallel: true
   project: VectorTileCs.sln
@@ -43,3 +47,4 @@ after_test:
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor
 
+8fs9TVgMbeiPNxXKnh3VXDvgO9gJktM2o
