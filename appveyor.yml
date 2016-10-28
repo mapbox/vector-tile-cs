@@ -8,6 +8,7 @@ clone_depth: 5
 install:
   - git submodule update --init --recursive
   - nuget restore
+  - nuget install NUnit.Runners -OutputDirectory tools
   - nuget install OpenCover -OutputDirectory tools
   - nuget install ReportGenerator -Pre -OutputDirectory tools
   - nuget install coveralls.net -Pre -OutputDirectory tools
@@ -28,6 +29,7 @@ build:
 
 test_script:
 - ps: >-
+    $nunitrunner = (Resolve-Path "tools/NUnit.ConsoleRunner.*/tools/nunit3-console.exe").ToString();
     $opencov = (Resolve-Path "tools/OpenCover.*/tools/OpenCover.Console.exe").ToString();
     $coveralls = (Resolve-Path "tools/coveralls.net.*/tools/csmacnz.coveralls.exe").ToString();
-    & $opencov  -register:user -target:nunit-console.exe "-targetargs:""bin\VectorTiles.Tests.dll"" /noshadow" -filter:"+[*]* -[*.Tests]*" -output:opencoverCoverage.xml ;
+    & $opencov  -register:user -target:$nunitrunner "-targetargs:""bin\VectorTiles.Tests.dll"" /noshadow" -filter:"+[*]* -[*.Tests]*" -output:opencoverCoverage.xml ;
