@@ -27,7 +27,11 @@ build:
   include_nuget_references: true
   verbosity: minimal
 
-test_script:
+#test:
+#  assemblies:
+#    - VectorTiles.Tests.dll
+
+after_test:
 - ps: >-
     $nunitrunner = (Resolve-Path "tools/NUnit.ConsoleRunner.*/tools/nunit3-console.exe").ToString();
     $opencov = (Resolve-Path "tools/OpenCover.*/tools/OpenCover.Console.exe").ToString();
