@@ -23,4 +23,4 @@ build:
   include_nuget_references: true
 
   # MSBuild verbosity level
-  verbosity: detailed
+  verbosity: minimal
