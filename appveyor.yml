@@ -47,4 +47,3 @@ after_test:
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor
 
-8fs9TVgMbeiPNxXKnh3VXDvgO9gJktM2o
