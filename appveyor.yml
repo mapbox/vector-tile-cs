@@ -35,7 +35,12 @@ after_test:
     $nunitrunner = (Resolve-Path "tools/NUnit.ConsoleRunner.*/tools/nunit3-console.exe").ToString();
     $opencov = (Resolve-Path "tools/OpenCover.*/tools/OpenCover.Console.exe").ToString();
     $coveralls = (Resolve-Path "tools/coveralls.net.*/tools/csmacnz.coveralls.exe").ToString();
-    & $opencov  -register:user -target:"$nunitrunner" -targetargs:"bin\VectorTiles.Tests.dll" -filter:"+[*]* -[*.Tests]*" -output:opencoverCoverage.xml;
+    & $opencov `
+    -register:user `
+    -target:"$nunitrunner" `
+    -targetargs:"bin\VectorTiles.Tests.dll" `
+    -filter:"+[*]* -[*.Tests]*" `
+    -output:opencoverCoverage.xml;
     & $coveralls --opencover -i opencoverCoverage.xml `
     --repoToken $env:COVERALLS_REPO_TOKEN `
     --useRelativePaths `
@@ -45,5 +50,4 @@ after_test:
     --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL `
     --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE `
     --jobId $env:APPVEYOR_BUILD_NUMBER `
-    --serviceName appveyor
-
+    --serviceName appveyor;
