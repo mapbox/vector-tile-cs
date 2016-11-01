@@ -12,6 +12,8 @@ install:
   - nuget install OpenCover -OutputDirectory tools
 #  - nuget install ReportGenerator -Pre -OutputDirectory tools
   - nuget install coveralls.net -Pre -OutputDirectory tools
+  - nuget install Microsoft.CodeAnalysis.CSharp.FxCopAnalyzers -Pre
+  - nuget install Microsoft.CodeAnalysis.FxCopAnalyzers -Pre
 
 platform: Any CPU
 configuration:
