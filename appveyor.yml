@@ -54,4 +54,5 @@ after_test:
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor;
 #- "C:\Program Files (x86)\Microsoft Fxcop 10.0\FxCopCmd.exe" /console /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
-- ""C:\\Program Files (x86)\\Microsoft Fxcop 10.0\\FxCopCmd.exe""
+- SET PATH=C:\Program Files (x86)\Microsoft Fxcop 10.0;%PATH%
+- FxCopCmd.exe
