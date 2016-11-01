@@ -12,8 +12,8 @@ install:
   - nuget install OpenCover -OutputDirectory tools
 #  - nuget install ReportGenerator -Pre -OutputDirectory tools
   - nuget install coveralls.net -Pre -OutputDirectory tools
-  - nuget install Microsoft.CodeAnalysis.CSharp.FxCopAnalyzers -Pre
-  - nuget install Microsoft.CodeAnalysis.FxCopAnalyzers -Pre
+  - nuget install Microsoft.CodeAnalysis.CSharp.FxCopAnalyzers -Pre -OutputDirectory tools
+  - nuget install Microsoft.CodeAnalysis.FxCopAnalyzers -Pre -OutputDirectory tools
 
 platform: Any CPU
 configuration:
@@ -53,3 +53,4 @@ after_test:
     --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE `
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor;
+- "C:\Program Files (x86)\Microsoft Fxcop 10.0\FxCopCmd.exe" /file:bin\Mapbox.VectorTile.VectorTileReader.dll /console /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
