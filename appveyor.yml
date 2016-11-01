@@ -54,7 +54,7 @@ after_test:
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor;
 #- "C:\Program Files (x86)\Microsoft Fxcop 10.0\FxCopCmd.exe" /console /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
-#- cmd: SET PATH=C:\Program Files (x86)\Microsoft Fxcop 10.0;%PATH%
+- cmd: SET PATH=c:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\FxCop;%PATH%
 #- cmd: dir "C:\Program Files (x86)"
-#- cmd: FxCopCmd.exe /console /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
-- cmd: dir c:\fxcop*.* /s
+- cmd: FxCopCmd.exe /console /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
+#- cmd: dir c:\fxcop*.* /s
