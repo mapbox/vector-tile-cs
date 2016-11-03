@@ -53,8 +53,15 @@ after_test:
     --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE `
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor;
-#- "C:\Program Files (x86)\Microsoft Fxcop 10.0\FxCopCmd.exe" /console /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
 - cmd: SET PATH=c:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\FxCop;%PATH%
-#- cmd: dir "C:\Program Files (x86)"
-- cmd: FxCopCmd.exe /console /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
-#- cmd: dir c:\fxcop*.* /s
+- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
+#http://help.appveyor.com/discussions/kb/9-support-for-stylecop-report#comment_34865295
+#http://help.appveyor.com/discussions/kb/5-code-analysis-fxcop-support
+- ps: >-
+    $codeAnalysisErrors = [xml](Get-Content fxcop.out.xml);
+    foreach ($codeAnalysisError in $codeAnalysisErrors.SelectNodes("//Message")) {
+       $issueNode = $codeAnalysisError.SelectSingleNode("Issue");
+       Write-Host "Violation of Rule $($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line) FileName: $($issueNode.Path)\$($codeAnalysisError.Issue.File) ErrorMessage: $($issueNode.InnerXml)";
+       Add-AppveyorTest "Violation of Rule $($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line)" -Outcome Failed -FileName "$($issueNode.Path)\$($codeAnalysisError.Issue.File)" -ErrorMessage $($issueNode.InnerXml);
+    }
+    Push-AppveyorArtifact fxcop.out.xml;
