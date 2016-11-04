@@ -16,7 +16,7 @@ namespace Mapbox.VectorTile.Geometry
         POLYGON = 3
     }
 
-    public class LatLng
+    public struct LatLng
     {
         public double Lat { get; set; }
         public double Lng { get; set; }
@@ -31,8 +31,14 @@ namespace Mapbox.VectorTile.Geometry
         }
     }
 
-    public class Point2d
+    public struct Point2d
     {
+
+        public Point2d(long x, long y)
+        {
+            X = x;
+            Y = y;
+        }
 
         public long X { get; set; }
         public long Y { get; set; }

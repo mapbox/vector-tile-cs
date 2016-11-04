@@ -1,3 +1,6 @@
 [submodule "test/mvt-fixtures"]
 	path = test/mvt-fixtures
 	url = https://github.com/mapbox/mvt-fixtures.git
+[submodule "bench/mvt-bench-fixtures"]
+	path = bench/mvt-bench-fixtures
+	url = https://github.com/mapbox/mvt-bench-fixtures.git

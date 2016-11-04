@@ -71,15 +71,15 @@ namespace Mapbox.VectorTile
         }
 
 
-        public List<UInt32> GetPackedUnit32()
+        public List<uint> GetPackedUnit32()
         {
-            List<UInt32> values = new List<uint>();
+            List<uint> values = new List<uint>(200);
             ulong sizeInByte = Varint();
             ulong end = Pos + sizeInByte;
             while (Pos < end)
             {
                 ulong val = Varint();
-                values.Add((UInt32)val);
+                values.Add((uint)val);
             }
             return values;
         }
@@ -153,9 +153,9 @@ namespace Mapbox.VectorTile
 
         public void SkipBytes(ulong skip)
         {
-            string msg = string.Format(NumberFormatInfo.InvariantInfo, "[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, Pos, _length);
             if (Pos + skip > _length)
             {
+                string msg = string.Format(NumberFormatInfo.InvariantInfo, "[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, Pos, _length);
                 throw new Exception(msg);
             }
             Pos += skip;

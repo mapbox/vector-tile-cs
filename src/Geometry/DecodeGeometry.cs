@@ -37,7 +37,7 @@ namespace Mapbox.VectorTile.Geometry
             , ulong tileColumn
             , ulong tileRow
             , GeomType geomType
-            , List<UInt32> geometry
+            , List<uint> geometry
         )
         {
 
@@ -67,7 +67,8 @@ namespace Mapbox.VectorTile.Geometry
                             geomOut.Add(geomTmp);
                             geomTmp = new List<Point2d>();
                         }
-                        geomTmp.Add(new Point2d() { X = cursorX, Y = cursorY });
+                        Point2d pntTmp = new Point2d(cursorX, cursorY);
+                        geomTmp.Add(pntTmp);
                     }
                 }
                 if (cmd == Commands.ClosePath)
@@ -91,11 +92,10 @@ namespace Mapbox.VectorTile.Geometry
         private static Point2d zigzagDecode(long x, long y)
         {
 
-            return new Point2d()
-            {
-                X = ((x >> 1) ^ (-(x & 1))),
-                Y = ((y >> 1) ^ (-(y & 1)))
-            };
+            return new Point2d(
+                ((x >> 1) ^ (-(x & 1))),
+                ((y >> 1) ^ (-(y & 1)))
+            );
         }
     }
 }
