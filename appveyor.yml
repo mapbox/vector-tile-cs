@@ -8,12 +8,21 @@ clone_depth: 5
 install:
   - git submodule update --init --recursive
   - nuget restore
+  - nuget install NUnit.Runners -OutputDirectory tools
+  - nuget install OpenCover -OutputDirectory tools
+#  - nuget install ReportGenerator -Pre -OutputDirectory tools
+  - nuget install coveralls.net -Pre -OutputDirectory tools
+  - nuget install Microsoft.CodeAnalysis.CSharp.FxCopAnalyzers -Pre -OutputDirectory tools
+  - nuget install Microsoft.CodeAnalysis.FxCopAnalyzers -Pre -OutputDirectory tools
 
 platform: Any CPU
 configuration:
   - Debug
   - Release
 
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: jAjmxnCi94uDJw6nWj6Kyr3jruWF4Aq03ItGuYvTzhfKgyk4h8R/tS0ZBBPC6j8k
 
 build:
   parallel: true
@@ -21,6 +30,38 @@ build:
   publish_nuget: true
   publish_nuget_symbols: true
   include_nuget_references: true
-
-  # MSBuild verbosity level
   verbosity: minimal
+
+after_test:
+- ps: >-
+    $nunitrunner = (Resolve-Path "tools/NUnit.ConsoleRunner.*/tools/nunit3-console.exe").ToString();
+    $opencov = (Resolve-Path "tools/OpenCover.*/tools/OpenCover.Console.exe").ToString();
+    $coveralls = (Resolve-Path "tools/coveralls.net.*/tools/csmacnz.coveralls.exe").ToString();
+    & $opencov `
+    -register:user `
+    -target:"$nunitrunner" `
+    -targetargs:"bin\VectorTiles.Tests.dll" `
+    -filter:"+[*]* -[*.Tests]*" `
+    -output:opencoverCoverage.xml;
+    & $coveralls --opencover -i opencoverCoverage.xml `
+    --repoToken $env:COVERALLS_REPO_TOKEN `
+    --useRelativePaths `
+    --commitId $env:APPVEYOR_REPO_COMMIT `
+    --commitBranch $env:APPVEYOR_REPO_BRANCH `
+    --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR `
+    --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL `
+    --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE `
+    --jobId $env:APPVEYOR_BUILD_NUMBER `
+    --serviceName appveyor;
+- cmd: SET PATH=c:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\FxCop;%PATH%
+- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
+#http://help.appveyor.com/discussions/kb/9-support-for-stylecop-report#comment_34865295
+#http://help.appveyor.com/discussions/kb/5-code-analysis-fxcop-support
+- ps: >-
+    $codeAnalysisErrors = [xml](Get-Content fxcop.out.xml);
+    foreach ($codeAnalysisError in $codeAnalysisErrors.SelectNodes("//Message")) {
+       $issueNode = $codeAnalysisError.SelectSingleNode("Issue");
+       Write-Host "Violation of Rule $($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line) FileName: $($issueNode.Path)\$($codeAnalysisError.Issue.File) ErrorMessage: $($issueNode.InnerXml)";
+       Add-AppveyorTest "Violation of Rule $($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line)" -Outcome Failed -FileName "$($issueNode.Path)\$($codeAnalysisError.Issue.File)" -ErrorMessage $($issueNode.InnerXml);
+    }
+    Push-AppveyorArtifact fxcop.out.xml;

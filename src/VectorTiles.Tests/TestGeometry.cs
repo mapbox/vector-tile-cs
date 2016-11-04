@@ -26,13 +26,13 @@ namespace VectorTiles.Tests
             ptSE.X = 4210;
             fromPtSE = ptSE.ToLngLat(0, 0, 0, 4096);
             Assert.AreEqual(190, fromPtSE.Lng, 0.02, "correct longitude - out of bounds");
-            Assert.Throws<ArgumentOutOfRangeException>(() => { ptSE.ToLngLat(0, 0, 0, 04096, true); });
+            Assert.Throws(Is.InstanceOf<Exception>(), () => { ptSE.ToLngLat(0, 0, 0, 04096, true); });
 
             ptSE.X = 4096;
             ptSE.Y = 4210;
             fromPtSE = ptSE.ToLngLat(0, 0, 0, 4096);
             Assert.AreEqual(-85.844, fromPtSE.Lat, 0.02, "correct latitude - out of bounds");
-            Assert.Throws<ArgumentOutOfRangeException>(() => { ptSE.ToLngLat(0, 0, 0, 04096, true); });
+            Assert.Throws(Is.InstanceOf<Exception>(), () => { ptSE.ToLngLat(0, 0, 0, 04096, true); });
         }
 
 
