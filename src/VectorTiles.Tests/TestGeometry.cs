@@ -16,7 +16,7 @@ namespace VectorTiles.Tests
             LatLng ll = new LatLng() { Lng = 15, Lat = 48 };
             Assert.AreEqual("48.000000/15.000000", ll.ToString(), "LatLng.ToString()");
 
-            Point2d ptSE = new Point2d() { X = 4096, Y = 4096 };
+            Point2d ptSE = new Point2d(4096, 4096);
             Assert.AreEqual("4096/4096", ptSE.ToString(), "Point2d.ToString()");
 
             LatLng fromPtSE = ptSE.ToLngLat(0, 0, 0, 4096);

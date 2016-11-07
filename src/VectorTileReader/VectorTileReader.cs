@@ -139,7 +139,7 @@ namespace Mapbox.VectorTile
                                                 throw new Exception("feature already has a geometry");
                                             }
                                             //get raw array of commands and coordinates
-                                            List<UInt32> geometry = featureReader.GetPackedUnit32();
+                                            List<uint> geometry = featureReader.GetPackedUnit32();
                                             //decode commands and coordinates
                                             List<List<Point2d>> geom = DecodeGeometry.GetGeometry(
                                                 layer.Extent

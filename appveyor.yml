@@ -65,3 +65,4 @@ after_test:
        Add-AppveyorTest "Violation of Rule $($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line)" -Outcome Failed -FileName "$($issueNode.Path)\$($codeAnalysisError.Issue.File)" -ErrorMessage $($issueNode.InnerXml);
     }
     Push-AppveyorArtifact fxcop.out.xml;
+- cmd: cd bin && bench
