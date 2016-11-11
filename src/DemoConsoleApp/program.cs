@@ -22,6 +22,15 @@ namespace Mapbox.VectorTile
                 return 1;
             }
 
+
+            var bufferedData = File.ReadAllBytes(vtIn);
+
+            VectorTileReader vtr = new VectorTileReader(bufferedData);
+            foreach (var lyrName in vtr.LayerNames())
+            {
+                Console.WriteLine(lyrName);
+            }
+
             ulong zoom;
             ulong tileCol;
             ulong tileRow;
@@ -31,10 +40,9 @@ namespace Mapbox.VectorTile
                 return 1;
             }
 
-            var bufferedData = File.ReadAllBytes(vtIn);
-
-            VectorTile tile = VectorTileReader.Decode(
-(ulong)zoom
+            
+            VectorTile tile = vtr.Decode(
+                (ulong)zoom
                 , (ulong)tileCol
                 , (ulong)tileRow
                 , (byte[])bufferedData

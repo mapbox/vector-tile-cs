@@ -199,6 +199,17 @@ namespace Mapbox.VectorTile
 
             return true;
         }
+
+
+        public static VectorTile DecodeFully(
+            ulong zoom
+            , ulong tileCol
+            , ulong tileRow
+            , byte[] data
+           )
+        {
+            return VectorTileReader.Decode(zoom, tileCol, tileRow, data);
+        }
     }
 
 

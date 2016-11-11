@@ -8,6 +8,12 @@ using System.Text;
 namespace Mapbox.VectorTile
 {
 
+    public struct DataView
+    {
+        public ulong start;
+        public ulong end;
+    }
+
 
     public class PbfReader
     {
@@ -61,12 +67,14 @@ namespace Mapbox.VectorTile
             {
                 throw new Exception("not of type string, bytes or message");
             }
+
             ulong tmpPos = Pos;
             ulong skipBytes = Varint();
             SkipBytes(skipBytes);
 
             byte[] buf = new byte[skipBytes];
             Array.Copy(_buffer, (int)Pos - (int)skipBytes, buf, 0, (int)skipBytes);
+
             return buf;
         }
 
@@ -135,19 +143,20 @@ namespace Mapbox.VectorTile
 
         public void SkipVarint()
         {
-            while (0 == (_buffer[Pos] & 0x80))
-            {
-                Pos++;
-                if (Pos >= _length)
-                {
-                    throw new Exception("Truncated message.");
-                }
-            }
+            Varint();
+            //while (0 == (_buffer[Pos] & 0x80))
+            //{
+            //    Pos++;
+            //    if (Pos >= _length)
+            //    {
+            //        throw new Exception("Truncated message.");
+            //    }
+            //}
 
-            if (Pos > _length)
-            {
-                throw new Exception("Truncated message.");
-            }
+            //if (Pos > _length)
+            //{
+            //    throw new Exception("Truncated message.");
+            //}
         }
 
 
