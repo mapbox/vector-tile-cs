@@ -25,7 +25,8 @@ namespace VectorTiles.Tests
         {
 
             byte[] data = File.ReadAllBytes(Path.Combine(fixturesPath, "Feature-single-point.mvt"));
-            VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
+            VectorTileReader vtr = new VectorTileReader(data);
+            VectorTile vt = vtr.Decode(0, 0, 0, data);
             Assert.AreEqual(1, vt.Layers.Count, "one layer");
             VectorTileLayer lyr = vt.Layers[0];
             Assert.AreEqual("layer_name", lyr.Name, "Layer name");

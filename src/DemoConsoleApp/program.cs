@@ -29,6 +29,17 @@ namespace Mapbox.VectorTile
             foreach (var lyrName in vtr.LayerNames())
             {
                 Console.WriteLine(lyrName);
+                VectorTileLayer layer = vtr.GetLayer(lyrName);
+                Console.WriteLine("features: {0}", layer.FeaturesData.Count);
+                for (int i = 0; i < layer.FeatureCount(); i++)
+                {
+                    VectorTileFeature feat = layer.GetFeature(i);
+                    Console.WriteLine(feat.Id);
+                    foreach (var prop in feat.GetProperties())
+                    {
+                        Console.WriteLine("{0}: {1}", prop.Key, prop.Value);
+                    }
+                }
             }
 
             ulong zoom;
@@ -40,7 +51,7 @@ namespace Mapbox.VectorTile
                 return 1;
             }
 
-            
+
             VectorTile tile = vtr.Decode(
                 (ulong)zoom
                 , (ulong)tileCol

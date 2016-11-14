@@ -67,7 +67,8 @@ namespace ProfileDecoding
                 stopWatch.Start();
                 foreach (var tile in tiles)
                 {
-                    VectorTileReader.Decode(tile.zoom, tile.col, tile.row, tile.pbf);
+                    VectorTileReader vtr = new VectorTileReader();
+                    vtr.Decode(tile.zoom, tile.col, tile.row, tile.pbf);
                 }
                 stopWatch.Stop();
                 //skip first run

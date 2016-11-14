@@ -25,17 +25,11 @@ namespace Mapbox.VectorTile.Geometry
         /// <para> Each child list contains the corrdinates of this part.</para>
         /// </summary>
         /// <param name="extent">Tile extent</param>
-        /// <param name="zoom">Zoom level</param>
-        /// <param name="tileColumn">Tile column</param>
-        /// <param name="tileRow">Tile row</param>
         /// <param name="geomType">Geometry type</param>
         /// <param name="geometry"></param>
         /// <returns>List<List<Point2d>></returns>
         public static List<List<Point2d>> GetGeometry(
             ulong extent
-            , ulong zoom
-            , ulong tileColumn
-            , ulong tileRow
             , GeomType geomType
             , List<uint> geometry
         )

@@ -35,7 +35,8 @@ namespace VectorTiles.Tests
             string fullFileName = Path.Combine(fixturesPath, fileName);
             Assert.True(File.Exists(fullFileName), "Vector tile exists");
             byte[] data = File.ReadAllBytes(fullFileName);
-            VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
+            VectorTileReader vtr = new VectorTileReader(data);
+            VectorTile vt = vtr.Decode(0, 0, 0, data);
             Assert.GreaterOrEqual(vt.Layers.Count, 1, "At least one layer");
             string geojson = vt.ToGeoJson();
             Assert.GreaterOrEqual(geojson.Length, 30, "geojson >= 30 chars");
@@ -48,7 +49,8 @@ namespace VectorTiles.Tests
             string fullFileName = Path.Combine(fixturesPath, fileName);
             Assert.True(File.Exists(fullFileName), "Vector tile exists");
             byte[] data = File.ReadAllBytes(fullFileName);
-            VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
+            VectorTileReader vtr = new VectorTileReader(data);
+            VectorTile vt = vtr.Decode(0, 0, 0, data);
             foreach (var lyr in vt.Layers)
             {
                 foreach (var feat in lyr.Features)
@@ -60,7 +62,6 @@ namespace VectorTiles.Tests
                     }
                 }
             }
-            Assert.IsTrue(vt.Validate(), "VectorTile Validation");
         }
     }
 
