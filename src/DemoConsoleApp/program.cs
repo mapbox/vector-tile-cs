@@ -30,7 +30,7 @@ namespace Mapbox.VectorTile
             {
                 Console.WriteLine(lyrName);
                 VectorTileLayer layer = vtr.GetLayer(lyrName);
-                Console.WriteLine("features: {0}", layer.FeaturesData.Count);
+                Console.WriteLine("features: {0}", layer.FeatureCount());
                 for (int i = 0; i < layer.FeatureCount(); i++)
                 {
                     VectorTileFeature feat = layer.GetFeature(i);
@@ -52,14 +52,9 @@ namespace Mapbox.VectorTile
             }
 
 
-            VectorTile tile = vtr.Decode(
-                (ulong)zoom
-                , (ulong)tileCol
-                , (ulong)tileRow
-                , (byte[])bufferedData
-            );
+            VectorTile tile = VectorTile.DecodeFully(bufferedData);
 
-            Console.WriteLine(tile.ToGeoJson());
+            Console.WriteLine(tile.ToGeoJson(zoom, tileCol, tileRow));
 
             return 0;
         }

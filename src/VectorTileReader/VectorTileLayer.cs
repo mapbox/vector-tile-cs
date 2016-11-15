@@ -1,16 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Mapbox.VectorTile
 {
 
 
+    [DebuggerDisplay("Layer {Name}")]
     public class VectorTileLayer
     {
 
         public VectorTileLayer()
         {
             Features = new List<VectorTileFeature>();
-            FeaturesData = new List<byte[]>();
+            _FeaturesData = new List<byte[]>();
             Keys = new List<string>();
             Values = new List<object>();
         }
@@ -24,7 +26,7 @@ namespace Mapbox.VectorTile
 
         public int FeatureCount()
         {
-            return FeaturesData.Count;
+            return _FeaturesData.Count;
         }
 
         public VectorTileFeature GetFeature(int feature)
@@ -33,11 +35,21 @@ namespace Mapbox.VectorTile
             return vtr.GetFeature(this, feature);
         }
 
+        public void AddFeatureData(byte[] data)
+        {
+            _FeaturesData.Add(data);
+        }
+
+        public byte[] GetFeatureData(int idxFeature)
+        {
+            return _FeaturesData[idxFeature];
+        }
+
         public string Name { get; set; }
         public ulong Version { get; set; }
         public ulong Extent { get; set; }
         public List<VectorTileFeature> Features { get; set; }
-        public List<byte[]> FeaturesData { get; set; }
+        private List<byte[]> _FeaturesData { get; set; }
         public List<object> Values { get; set; }
         public List<string> Keys { get; set; }
 

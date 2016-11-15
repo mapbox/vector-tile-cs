@@ -3,32 +3,68 @@ using System.Linq;
 using Mapbox.VectorTile.Geometry;
 using System.Globalization;
 using System;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace Mapbox.VectorTile
 {
 
+    [DebuggerDisplay("{Zoom}/{TileColumn}/{TileRow}")]
     public class VectorTile
     {
 
-        public VectorTile(
+        public VectorTile(byte[] data, bool lazyLoading = true)
+        {
+            _Layers = new List<VectorTileLayer>();
+            _Lazy = lazyLoading;
+            _VTR = new VectorTileReader(data);
+
+            if (!_Lazy)
+            {
+            }
+        }
+
+        private VectorTileReader _VTR;
+        private bool _Lazy;
+        private List<VectorTileLayer> _Layers;
+
+        [Obsolete("This method is likely to be removed.")]
+        public List<VectorTileLayer> Layers
+        {
+            get {
+                if (!_Lazy)
+                {
+                    return _Layers;
+                }else
+                {
+                    return getLayers();
+                }
+            }
+        }
+
+        public ReadOnlyCollection<string> LayerNames()
+        {
+            return _VTR.LayerNames();
+        }
+
+        public VectorTileLayer GetLayer(string layerName)
+        {
+            if (!_Lazy)
+            {
+                return _Layers.FirstOrDefault(l => l.Name.Equals(layerName));
+            }else
+            {
+                return _VTR.GetLayer(layerName);
+            }
+        }
+
+
+        [Obsolete("This is a convenience method during early development and will be deprecated. Future clients will have to convert themselves.")]
+        public string ToGeoJson(
             ulong zoom
             , ulong tileColumn
             , ulong tileRow
         )
-        {
-            Zoom = zoom;
-            TileColumn = tileColumn;
-            TileRow = tileRow;
-            Layers = new List<VectorTileLayer>();
-        }
-
-        public ulong Zoom { get; set; }
-        public ulong TileColumn { get; set; }
-        public ulong TileRow { get; set; }
-
-        public List<VectorTileLayer> Layers { get; set; }
-
-        public string ToGeoJson()
         {
 
             //to get '.' instead of ',' when using "string.format" with double/float and non-US system number format settings
@@ -73,7 +109,7 @@ namespace Mapbox.VectorTile
                     string geomType = feat.GeometryType.Description();
 
                     //multipart
-                    List<List<LatLng>> geomWgs84 = feat.GeometryAsWgs84(this);
+                    List<List<LatLng>> geomWgs84 = feat.GeometryAsWgs84(this, zoom, tileColumn, tileRow);
                     if (geomWgs84.Count > 1)
                     {
                         switch (feat.GeometryType)
@@ -160,17 +196,25 @@ namespace Mapbox.VectorTile
         }
 
 
-
-
-        public static VectorTile DecodeFully(
-            ulong zoom
-            , ulong tileCol
-            , ulong tileRow
-            , byte[] data
-           )
+        private List<VectorTileLayer> getLayers()
         {
-            VectorTileReader vtr = new VectorTileReader(data);
-            return vtr.Decode(zoom, tileCol, tileRow, data);
+
+            List<VectorTileLayer> layers = new List<VectorTileLayer>();
+            foreach (var layerName in _VTR.LayerNames())
+            {
+                VectorTileLayer layer = _VTR.GetLayer(layerName);
+                for (int i = 0; i < layer.FeatureCount(); i++)
+                {
+                    layer.Features.Add(_VTR.GetFeature(layer, i));
+                }
+                layers.Add(layer);
+            }
+            return layers;
+        }
+
+        public static VectorTile DecodeFully(byte[] data)
+        {
+            return VectorTileReader.Decode(data);
         }
     }
 

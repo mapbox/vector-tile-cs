@@ -37,8 +37,7 @@ namespace VectorTiles.Tests
             byte[] data = File.ReadAllBytes(fullFileName);
             Assert.Throws(Is.InstanceOf<Exception>(), () =>
             {
-                VectorTileReader vtr = new VectorTileReader(data);
-                VectorTile vt = vtr.Decode(0, 0, 0, data);
+                VectorTile vt = VectorTile.DecodeFully(data);
                 foreach (var lyr in vt.Layers)
                 {
                     foreach (var feat in lyr.Features)

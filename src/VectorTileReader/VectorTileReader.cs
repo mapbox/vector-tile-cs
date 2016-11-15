@@ -34,6 +34,10 @@ namespace Mapbox.VectorTile
             PbfReader tileReader = new PbfReader(data);
             while (tileReader.NextByte())
             {
+                if (!Enum.IsDefined(typeof(TileType), tileReader.Tag))
+                {
+                    throw new Exception("Unknown tile tag: " + tileReader.Tag);
+                }
                 if (tileReader.Tag == (int)TileType.Layers)
                 {
                     string name = null;
@@ -162,7 +166,7 @@ namespace Mapbox.VectorTile
                         }
                         break;
                     case LayerType.Features:
-                        layer.FeaturesData.Add(layerReader.View());
+                        layer.AddFeatureData(layerReader.View());
                         break;
                     default:
                         layerReader.Skip();
@@ -190,10 +194,16 @@ namespace Mapbox.VectorTile
             {
                 throw new Exception("Layer has no features: " + layer.Name);
             }
-            if (layer.Keys.Count != layer.Values.Count)
-            {
-                throw new Exception("Number of keys and values does not match, layer " + layer.Name);
-            }
+            //if (layer.Keys.Count != layer.Values.Count)
+            //{
+            //    throw new Exception(string.Format(
+            //        "Number of keys and values does not match, layer:{0} keys:{1} values:{2} "
+            //        , layer.Name
+            //        , layer.Keys.Count
+            //        , layer.Values.Count
+            //        )
+            //    );
+            //}
 
             return layer;
         }
@@ -202,7 +212,7 @@ namespace Mapbox.VectorTile
         public VectorTileFeature GetFeature(VectorTileLayer layer, int idxFeature)
         {
 
-            byte[] data = layer.FeaturesData[idxFeature];
+            byte[] data = layer.GetFeatureData(idxFeature);
 
             PbfReader featureReader = new PbfReader(data);
             VectorTileFeature feat = new VectorTileFeature(layer);
@@ -238,12 +248,12 @@ namespace Mapbox.VectorTile
                             throw new Exception(layer.Name + ", feature already has a geometry");
                         }
                         //get raw array of commands and coordinates
-                        List<uint> geometry = featureReader.GetPackedUnit32();
+                        List<uint> geometryCommands = featureReader.GetPackedUnit32();
                         //decode commands and coordinates
                         List<List<Point2d>> geom = DecodeGeometry.GetGeometry(
                             layer.Extent
                             , feat.GeometryType
-                            , geometry
+                            , geometryCommands
                         );
                         feat.Geometry = geom;
                         break;
@@ -266,40 +276,22 @@ namespace Mapbox.VectorTile
         }
 
 
-        public VectorTile Decode(
-            ulong zoom
-            , ulong tileCol
-            , ulong tileRow
-            , byte[] _Data
-        )
+        public static VectorTile Decode(byte[] data)
         {
 
+            VectorTileReader vtr = new VectorTileReader(data);
+            VectorTile tile = new VectorTile(data);
 
-            var tileReader = new PbfReader(_Data);
-            VectorTile tile = new VectorTile(zoom, tileCol, tileRow);
-
-            while (tileReader.NextByte())
+            foreach (var layerName in vtr.LayerNames())
             {
-                if (tileReader.Tag != 3)
+                VectorTileLayer layer = vtr.GetLayer(layerName);
+                for (int i = 0; i < layer.FeatureCount(); i++)
                 {
-                    throw new Exception("Unknown tile tag");
+                    VectorTileFeature feature = vtr.GetFeature(layer, i);
+                    layer.Features.Add(feature);
                 }
-                if (tileReader.Tag == (int)TileType.Layers)
-                {
-                    byte[] layerBuffer = tileReader.View();
-                    VectorTileLayer layer = getLayer(layerBuffer);
-                    for (int i = 0; i < layer.FeatureCount(); i++)
-                    {
-                        VectorTileFeature feat = GetFeature(layer, i);
-                        layer.Features.Add(feat);
-                    }
-                    tile.Layers.Add(layer);
-                } else
-                {
-                    tileReader.Skip();
-                }
+                tile.Layers.Add(layer);
             }
-
             return tile;
         }
 

@@ -71,7 +71,7 @@ namespace Mapbox.VectorTile
         private List<List<LatLng>> _GeometryAsWgs84 = null;
         [Obsolete("This is a convenience method during early development and will be deprecated. Future clients will have to convert themselves.")]
         /// <summary>Geometry in LatLng Coordinates</summary>
-        public List<List<LatLng>> GeometryAsWgs84(VectorTile vt)
+        public List<List<LatLng>> GeometryAsWgs84(VectorTile vt, ulong zoom, ulong tileColumn, ulong tileRow)
         {
 
             if (null != _GeometryAsWgs84)
@@ -83,7 +83,7 @@ namespace Mapbox.VectorTile
             foreach (var part in Geometry)
             {
                 _GeometryAsWgs84.Add(
-                    part.Select(g => g.ToLngLat(vt.Zoom, vt.TileColumn, vt.TileRow, _Layer.Extent)).ToList()
+                    part.Select(g => g.ToLngLat(zoom, tileColumn, tileRow, _Layer.Extent)).ToList()
                 );
             }
 

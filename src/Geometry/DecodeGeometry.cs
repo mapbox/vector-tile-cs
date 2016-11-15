@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using Mapbox.Geometry;
 
 namespace Mapbox.VectorTile.Geometry
 {
@@ -26,12 +24,13 @@ namespace Mapbox.VectorTile.Geometry
         /// </summary>
         /// <param name="extent">Tile extent</param>
         /// <param name="geomType">Geometry type</param>
-        /// <param name="geometry"></param>
+        /// <param name="geometryCommands"></param>
         /// <returns>List<List<Point2d>></returns>
         public static List<List<Point2d>> GetGeometry(
             ulong extent
             , GeomType geomType
-            , List<uint> geometry
+            , List<uint> geometryCommands
+            , float scale = 1.0f
         )
         {
 
@@ -40,10 +39,10 @@ namespace Mapbox.VectorTile.Geometry
             long cursorX = 0;
             long cursorY = 0;
 
-            for (int i = 0; i < geometry.Count; i++)
+            for (int i = 0; i < geometryCommands.Count; i++)
             {
 
-                uint g = geometry[i];
+                uint g = geometryCommands[i];
                 Commands cmd = (Commands)(g & 0x7);
                 uint cmdCount = g >> 3;
 
@@ -51,7 +50,7 @@ namespace Mapbox.VectorTile.Geometry
                 {
                     for (int j = 0; j < cmdCount; j++)
                     {
-                        Point2d delta = zigzagDecode(geometry[i + 1], geometry[i + 2]);
+                        Point2d delta = zigzagDecode(geometryCommands[i + 1], geometryCommands[i + 2]);
                         cursorX += delta.X;
                         cursorY += delta.Y;
                         i += 2;
@@ -79,6 +78,35 @@ namespace Mapbox.VectorTile.Geometry
                 geomOut.Add(geomTmp);
             }
 
+            //IGeometryBase geomOut2;
+            //switch (geomType)
+            //{
+            //    case GeomType.UNKNOWN:
+            //        throw new System.Exception("Geometry type unknown");
+            //    case GeomType.POINT:
+            //        if (geomOut.Count == 1)
+            //        {
+            //            geomOut2 = new Point<float>(geomOut[0][0].X, geomOut[0][0].Y);
+            //        } else
+            //        {
+            //            geomOut2 = new MultiPoint<float>();
+            //            foreach (var part in geomOut)
+            //            {
+            //                ((MultiPoint<float>)geomOut2).Add(new Point<float>(part[0].X, part[0].Y));
+            //            }
+            //        }
+            //        break;
+            //    case GeomType.LINESTRING:
+            //        geomOut2 = new LinearRing<float>();
+            //        break;
+            //    case GeomType.POLYGON:
+            //        geomOut2 = new Polygon<float>();
+            //        break;
+            //    default:
+            //        throw new System.Exception("Geometry type invalid");
+            //}
+
+            
             return geomOut;
         }
 
