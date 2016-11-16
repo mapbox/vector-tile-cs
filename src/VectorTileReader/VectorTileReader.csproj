@@ -66,6 +66,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AssemblyInfoVersion.cs">
+      <Link>Properties\AssemblyInfoVersion.cs</Link>
+    </Compile>
     <Compile Include="VectorTileFeature.cs" />
     <Compile Include="VectorTileLayer.cs" />
     <Compile Include="VectorTile.cs" />

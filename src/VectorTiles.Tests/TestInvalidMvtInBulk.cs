@@ -1,11 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
 using System.IO;
-using System.Diagnostics;
-using System.Collections.Generic;
 using Mapbox.VectorTile;
 using System.Collections;
-using Mapbox.VectorTile.Geometry;
 
 namespace VectorTiles.Tests
 {

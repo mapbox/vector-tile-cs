@@ -45,10 +45,12 @@ namespace VectorTiles.Tests
                     var properties = feat.GetProperties();
                     foreach (var prop in properties)
                     {
-                        Assert.AreEqual(prop.Value, feat.GetValue(prop.Key));
+                        Assert.AreEqual(prop.Value, feat.GetValue(prop.Key), "Property values match");
                     }
                 }
             }
+            string geojson = vt.ToGeoJson(0, 0, 0);
+            Assert.GreaterOrEqual(geojson.Length, 30, "geojson >= 30 chars");
         }
 
 

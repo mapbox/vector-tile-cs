@@ -31,7 +31,7 @@ namespace Mapbox.VectorTile
 
         public VectorTileFeature GetFeature(int feature)
         {
-            VectorTileReader vtr = new VectorTileReader(null);
+            VectorTileReader vtr = new VectorTileReader();
             return vtr.GetFeature(this, feature);
         }
 

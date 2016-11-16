@@ -13,17 +13,24 @@ namespace Mapbox.VectorTile
     public class VectorTileReader
     {
 
-        public VectorTileReader(byte[] data = null)
-        {
-            if (null != data)
-            {
-                if (data[0] == 0x1f && data[1] == 0x8b)
-                {
-                    throw new Exception("Tile data is zipped");
-                }
+        /// <summary>
+        /// DON'T use this constructor: it will be removed
+        /// </summary>
+        [Obsolete("DON'T use this constructor: it will be removed")]
+        public VectorTileReader() { }
 
-                layers(data);
+        public VectorTileReader(byte[] data)
+        {
+            if (null == data)
+            {
+                throw new Exception("Tile data cannot be null");
             }
+            if (data[0] == 0x1f && data[1] == 0x8b)
+            {
+                throw new Exception("Tile data is zipped");
+            }
+
+            layers(data);
         }
 
 
@@ -194,16 +201,10 @@ namespace Mapbox.VectorTile
             {
                 throw new Exception("Layer has no features: " + layer.Name);
             }
-            //if (layer.Keys.Count != layer.Values.Count)
-            //{
-            //    throw new Exception(string.Format(
-            //        "Number of keys and values does not match, layer:{0} keys:{1} values:{2} "
-            //        , layer.Name
-            //        , layer.Keys.Count
-            //        , layer.Values.Count
-            //        )
-            //    );
-            //}
+            if(layer.Values.Count != layer.Values.Distinct().Count())
+            {
+                throw new Exception("Duplicate values found");
+            }
 
             return layer;
         }
