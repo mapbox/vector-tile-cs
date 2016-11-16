@@ -1,11 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
 using System.IO;
-using System.Diagnostics;
-using System.Collections.Generic;
 using Mapbox.VectorTile;
 using System.Collections;
-using Mapbox.VectorTile.Geometry;
 
 namespace VectorTiles.Tests
 {
@@ -37,7 +34,7 @@ namespace VectorTiles.Tests
             byte[] data = File.ReadAllBytes(fullFileName);
             Assert.Throws(Is.InstanceOf<Exception>(), () =>
             {
-                VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
+                VectorTile vt = VectorTile.DecodeFully(data);
                 foreach (var lyr in vt.Layers)
                 {
                     foreach (var feat in lyr.Features)
@@ -45,7 +42,7 @@ namespace VectorTiles.Tests
                         feat.GetProperties();
                     }
                 }
-                vt.Validate();
+                //vt.Validate();
             });
         }
     }

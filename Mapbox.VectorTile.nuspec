@@ -2,16 +2,19 @@
 <package >
 	<metadata>
 		<id>Mapbox.VectorTile</id>
-		<version>1.0.1-alpha3</version>
+		<version>1.0.2-alpha2</version>
 		<authors>Mapbox</authors>
 		<owners>Mapbox</owners>
 		<licenseUrl>https://github.com/mapbox/vector-tile-cs</licenseUrl>
 		<projectUrl>https://github.com/mapbox/vector-tile-cs</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Mapbox VectorTileReader CSharp</description>
-		<releaseNotes>Updates to VectorTileFeature.</releaseNotes>
+		<releaseNotes>Lazy loading.</releaseNotes>
 		<copyright>Copyright 2016</copyright>
 		<tags>vector tiles c# mapbox</tags>
+		<dependencies>
+			<dependency id="Mapbox.Geometry" version="[1.0.0-alpha1]" />
+		</dependencies>
 	</metadata>
 	<files>
 		<file src="bin\Mapbox.VectorTile.Geometry.dll" target="lib\net35\Mapbox.VectorTile.Geometry.dll"></file>

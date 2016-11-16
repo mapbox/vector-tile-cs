@@ -30,14 +30,39 @@ namespace VectorTiles.Tests
 
 
         [Test, TestCaseSource(typeof(GetMVTs), "GetFixtureFileName")]
+        public void LazyDecoding(string fileName)
+        {
+            string fullFileName = Path.Combine(fixturesPath, fileName);
+            Assert.True(File.Exists(fullFileName), "Vector tile exists");
+            byte[] data = File.ReadAllBytes(fullFileName);
+            VectorTile vt = new VectorTile(data);
+            foreach (var layerName in vt.LayerNames())
+            {
+                VectorTileLayer layer = vt.GetLayer(layerName);
+                for (int i = 0; i < layer.FeatureCount(); i++)
+                {
+                    VectorTileFeature feat = layer.GetFeature(i);
+                    var properties = feat.GetProperties();
+                    foreach (var prop in properties)
+                    {
+                        Assert.AreEqual(prop.Value, feat.GetValue(prop.Key), "Property values match");
+                    }
+                }
+            }
+            string geojson = vt.ToGeoJson(0, 0, 0);
+            Assert.GreaterOrEqual(geojson.Length, 30, "geojson >= 30 chars");
+        }
+
+
+        [Test, TestCaseSource(typeof(GetMVTs), "GetFixtureFileName")]
         public void AtLeastOneLayer(string fileName)
         {
             string fullFileName = Path.Combine(fixturesPath, fileName);
             Assert.True(File.Exists(fullFileName), "Vector tile exists");
             byte[] data = File.ReadAllBytes(fullFileName);
-            VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
+            VectorTile vt = VectorTile.DecodeFully(data);
             Assert.GreaterOrEqual(vt.Layers.Count, 1, "At least one layer");
-            string geojson = vt.ToGeoJson();
+            string geojson = vt.ToGeoJson(0, 0, 0);
             Assert.GreaterOrEqual(geojson.Length, 30, "geojson >= 30 chars");
         }
 
@@ -48,7 +73,7 @@ namespace VectorTiles.Tests
             string fullFileName = Path.Combine(fixturesPath, fileName);
             Assert.True(File.Exists(fullFileName), "Vector tile exists");
             byte[] data = File.ReadAllBytes(fullFileName);
-            VectorTile vt = VectorTileReader.Decode(0, 0, 0, data);
+            VectorTile vt = VectorTile.DecodeFully(data);
             foreach (var lyr in vt.Layers)
             {
                 foreach (var feat in lyr.Features)
@@ -60,7 +85,6 @@ namespace VectorTiles.Tests
                     }
                 }
             }
-            Assert.IsTrue(vt.Validate(), "VectorTile Validation");
         }
     }
 

@@ -62,6 +62,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AssemblyInfoVersion.cs">
+      <Link>Properties\AssemblyInfoVersion.cs</Link>
+    </Compile>
     <Compile Include="Constants.cs" />
     <Compile Include="PbfReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

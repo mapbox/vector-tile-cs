@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace ProfileDecoding
+namespace Bench
 {
     class Program
     {
@@ -47,7 +48,8 @@ namespace ProfileDecoding
                             return 1;
                         } else
                         {
-                            tiles.Add(new TileData() {
+                            tiles.Add(new TileData()
+                            {
                                 zoom = zoom,
                                 col = col,
                                 row = row,
@@ -67,7 +69,14 @@ namespace ProfileDecoding
                 stopWatch.Start();
                 foreach (var tile in tiles)
                 {
-                    VectorTileReader.Decode(tile.zoom, tile.col, tile.row, tile.pbf);
+                    VectorTile vt = VectorTile.DecodeFully(tile.pbf);
+                    foreach (var lyr in vt.Layers)
+                    {
+                        foreach (var feat in lyr.Features)
+                        {
+                            var props = feat.GetProperties();
+                        }
+                    }
                 }
                 stopWatch.Stop();
                 //skip first run
@@ -76,6 +85,7 @@ namespace ProfileDecoding
                     elapsed.Add(stopWatch.ElapsedMilliseconds);
                 }
                 stopWatch.Reset();
+                elapsed.Add(stopWatch.ElapsedMilliseconds);
             }
 
 

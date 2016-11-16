@@ -22,6 +22,26 @@ namespace Mapbox.VectorTile
                 return 1;
             }
 
+
+            var bufferedData = File.ReadAllBytes(vtIn);
+
+            VectorTileReader vtr = new VectorTileReader(bufferedData);
+            foreach (var lyrName in vtr.LayerNames())
+            {
+                Console.WriteLine(lyrName);
+                VectorTileLayer layer = vtr.GetLayer(lyrName);
+                Console.WriteLine("features: {0}", layer.FeatureCount());
+                for (int i = 0; i < layer.FeatureCount(); i++)
+                {
+                    VectorTileFeature feat = layer.GetFeature(i);
+                    Console.WriteLine(feat.Id);
+                    foreach (var prop in feat.GetProperties())
+                    {
+                        Console.WriteLine("{0}: {1}", prop.Key, prop.Value);
+                    }
+                }
+            }
+
             ulong zoom;
             ulong tileCol;
             ulong tileRow;
@@ -31,16 +51,10 @@ namespace Mapbox.VectorTile
                 return 1;
             }
 
-            var bufferedData = File.ReadAllBytes(vtIn);
 
-            VectorTile tile = VectorTileReader.Decode(
-(ulong)zoom
-                , (ulong)tileCol
-                , (ulong)tileRow
-                , (byte[])bufferedData
-            );
+            VectorTile tile = VectorTile.DecodeFully(bufferedData);
 
-            Console.WriteLine(tile.ToGeoJson());
+            Console.WriteLine(tile.ToGeoJson(zoom, tileCol, tileRow));
 
             return 0;
         }

@@ -3,32 +3,68 @@ using System.Linq;
 using Mapbox.VectorTile.Geometry;
 using System.Globalization;
 using System;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace Mapbox.VectorTile
 {
 
+    [DebuggerDisplay("{Zoom}/{TileColumn}/{TileRow}")]
     public class VectorTile
     {
 
-        public VectorTile(
+        public VectorTile(byte[] data, bool lazyLoading = true)
+        {
+            _Layers = new List<VectorTileLayer>();
+            _Lazy = lazyLoading;
+            _VTR = new VectorTileReader(data);
+
+            if (!_Lazy)
+            {
+            }
+        }
+
+        private VectorTileReader _VTR;
+        private bool _Lazy;
+        private List<VectorTileLayer> _Layers;
+
+        [Obsolete("This method is likely to be removed.")]
+        public List<VectorTileLayer> Layers
+        {
+            get {
+                if (!_Lazy)
+                {
+                    return _Layers;
+                }else
+                {
+                    return getLayers();
+                }
+            }
+        }
+
+        public ReadOnlyCollection<string> LayerNames()
+        {
+            return _VTR.LayerNames();
+        }
+
+        public VectorTileLayer GetLayer(string layerName)
+        {
+            if (!_Lazy)
+            {
+                return _Layers.FirstOrDefault(l => l.Name.Equals(layerName));
+            }else
+            {
+                return _VTR.GetLayer(layerName);
+            }
+        }
+
+
+        [Obsolete("This is a convenience method during early development and will be deprecated. Future clients will have to convert themselves.")]
+        public string ToGeoJson(
             ulong zoom
             , ulong tileColumn
             , ulong tileRow
         )
-        {
-            Zoom = zoom;
-            TileColumn = tileColumn;
-            TileRow = tileRow;
-            Layers = new List<VectorTileLayer>();
-        }
-
-        public ulong Zoom { get; set; }
-        public ulong TileColumn { get; set; }
-        public ulong TileRow { get; set; }
-
-        public List<VectorTileLayer> Layers { get; set; }
-
-        public string ToGeoJson()
         {
 
             //to get '.' instead of ',' when using "string.format" with double/float and non-US system number format settings
@@ -73,7 +109,8 @@ namespace Mapbox.VectorTile
                     string geomType = feat.GeometryType.Description();
 
                     //multipart
-                    if (feat.Geometry.Count > 1)
+                    List<List<LatLng>> geomWgs84 = feat.GeometryAsWgs84(zoom, tileColumn, tileRow);
+                    if (geomWgs84.Count > 1)
                     {
                         switch (feat.GeometryType)
                         {
@@ -81,7 +118,7 @@ namespace Mapbox.VectorTile
                                 geomType = "MultiPoint";
                                 geojsonCoords = string.Join(
                                     ","
-                                    , feat.Geometry
+                                    , geomWgs84
                                         .SelectMany((List<LatLng> g) => g)
                                         .Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                 );
@@ -89,7 +126,7 @@ namespace Mapbox.VectorTile
                             case GeomType.LINESTRING:
                                 geomType = "MultiLineString";
                                 List<string> parts = new List<string>();
-                                foreach (var part in feat.Geometry)
+                                foreach (var part in geomWgs84)
                                 {
                                     parts.Add("[" + string.Join(
                                     ","
@@ -101,7 +138,7 @@ namespace Mapbox.VectorTile
                             case GeomType.POLYGON:
                                 geomType = "MultiPolygon";
                                 List<string> partsMP = new List<string>();
-                                foreach (var part in feat.Geometry)
+                                foreach (var part in geomWgs84)
                                 {
                                     partsMP.Add("[" + string.Join(
                                     ","
@@ -118,18 +155,18 @@ namespace Mapbox.VectorTile
                         switch (feat.GeometryType)
                         {
                             case GeomType.POINT:
-                                geojsonCoords = string.Format(NumberFormatInfo.InvariantInfo, "{0},{1}", feat.Geometry[0][0].Lng, feat.Geometry[0][0].Lat);
+                                geojsonCoords = string.Format(NumberFormatInfo.InvariantInfo, "{0},{1}", geomWgs84[0][0].Lng, geomWgs84[0][0].Lat);
                                 break;
                             case GeomType.LINESTRING:
                                 geojsonCoords = string.Join(
                                     ","
-                                    , feat.Geometry[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+                                    , geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                 );
                                 break;
                             case GeomType.POLYGON:
                                 geojsonCoords = "[" + string.Join(
                                     ","
-                                    , feat.Geometry[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+                                    , geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
                                 ) + "]";
                                 break;
                             default:
@@ -159,45 +196,25 @@ namespace Mapbox.VectorTile
         }
 
 
-        public bool Validate()
+        private List<VectorTileLayer> getLayers()
         {
 
-            List<string> layerNames = Layers.Select(l => l.Name).Distinct().ToList();
-            if (layerNames.Count() != Layers.Count())
+            List<VectorTileLayer> layers = new List<VectorTileLayer>();
+            foreach (var layerName in _VTR.LayerNames())
             {
-                throw new Exception("Duplicate layer names.");
+                VectorTileLayer layer = _VTR.GetLayer(layerName);
+                for (int i = 0; i < layer.FeatureCount(); i++)
+                {
+                    layer.Features.Add(_VTR.GetFeature(layer, i));
+                }
+                layers.Add(layer);
             }
-            if (0 < Layers.Where(l => l.Name.Length == 0).Count())
-            {
-                throw new Exception("Layer with no name");
-            }
-            if (0 < Layers.Where(l => l.Version != 2).Count())
-            {
-                throw new Exception("invalid layer version");
-            }
-            if (0 < Layers.Where(l => l.Extent == 0).Count())
-            {
-                throw new Exception("layer without extent");
-            }
-            if (0 < Layers.Where(l => l.Features.Count() == 0).Count())
-            {
-                throw new Exception("layer without features");
-            }
-            if (0 < Layers.SelectMany(l => l.Features).Where(f => null == f.GeometryOnTile).Count())
-            {
-                throw new Exception("features with no geometry");
-            }
-            //if (0 < Layers.SelectMany(l => l.Features).Where(f => f.GeometryType == GeomType.UNKNOWN).Count())
-            //{
-            //    throw new Exception("features with unknown geometry type");
-            //}
+            return layers;
+        }
 
-            if (0 < Layers.Where(l => l.Keys.Count != l.Values.Count).Count())
-            {
-                throw new Exception("number of keys and values doesn't match");
-            }
-
-            return true;
+        public static VectorTile DecodeFully(byte[] data)
+        {
+            return VectorTileReader.Decode(data);
         }
     }
 
