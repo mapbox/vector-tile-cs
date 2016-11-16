@@ -109,7 +109,7 @@ namespace Mapbox.VectorTile
                     string geomType = feat.GeometryType.Description();
 
                     //multipart
-                    List<List<LatLng>> geomWgs84 = feat.GeometryAsWgs84(this, zoom, tileColumn, tileRow);
+                    List<List<LatLng>> geomWgs84 = feat.GeometryAsWgs84(zoom, tileColumn, tileRow);
                     if (geomWgs84.Count > 1)
                     {
                         switch (feat.GeometryType)

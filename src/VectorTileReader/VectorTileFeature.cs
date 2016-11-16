@@ -46,10 +46,6 @@ namespace Mapbox.VectorTile
 
         public object GetValue(string key)
         {
-            if (0 != Tags.Count % 2)
-            {
-                throw new System.Exception("uneven number of feature tag ids");
-            }
 
             var idxKey = _Layer.Keys.IndexOf(key);
             if (-1 == idxKey)
@@ -71,7 +67,7 @@ namespace Mapbox.VectorTile
         private List<List<LatLng>> _GeometryAsWgs84 = null;
         [Obsolete("This is a convenience method during early development and will be deprecated. Future clients will have to convert themselves.")]
         /// <summary>Geometry in LatLng Coordinates</summary>
-        public List<List<LatLng>> GeometryAsWgs84(VectorTile vt, ulong zoom, ulong tileColumn, ulong tileRow)
+        public List<List<LatLng>> GeometryAsWgs84(ulong zoom, ulong tileColumn, ulong tileRow)
         {
 
             if (null != _GeometryAsWgs84)

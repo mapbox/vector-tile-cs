@@ -201,7 +201,7 @@ namespace Mapbox.VectorTile
             {
                 throw new Exception("Layer has no features: " + layer.Name);
             }
-            if(layer.Values.Count != layer.Values.Distinct().Count())
+            if (layer.Values.Count != layer.Values.Distinct().Count())
             {
                 throw new Exception("Duplicate values found");
             }
@@ -271,6 +271,23 @@ namespace Mapbox.VectorTile
             if (null == feat.Geometry)
             {
                 throw new Exception(layer.Name + ", feature has no geometry");
+            }
+            if (0 != feat.Tags.Count % 2)
+            {
+                throw new Exception(layer.Name + ", uneven number of feature tag ids");
+            }
+            if (feat.Tags.Count > 0)
+            {
+                int maxKeyIndex = feat.Tags.Where((key, idx) => idx % 2 == 0).Max();
+                int maxValueIndex = feat.Tags.Where((key, idx) => (idx + 1) % 2 == 0).Max();
+                if (maxKeyIndex >= layer.Keys.Count)
+                {
+                    throw new Exception(layer.Name + ", maximum key index equal or greater number of key elements");
+                }
+                if (maxValueIndex >= layer.Values.Count)
+                {
+                    throw new Exception(layer.Name + ", maximum value index equal or greater number of value elements");
+                }
             }
 
             return feat;
