@@ -298,7 +298,7 @@ namespace Mapbox.VectorTile
         {
 
             VectorTileReader vtr = new VectorTileReader(data);
-            VectorTile tile = new VectorTile(data);
+            VectorTile tile = new VectorTile(data, false);
 
             foreach (var layerName in vtr.LayerNames())
             {
