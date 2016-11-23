@@ -85,7 +85,6 @@ namespace Bench
                     elapsed.Add(stopWatch.ElapsedMilliseconds);
                 }
                 stopWatch.Reset();
-                elapsed.Add(stopWatch.ElapsedMilliseconds);
             }
 
 
