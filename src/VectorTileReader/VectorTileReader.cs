@@ -13,12 +13,6 @@ namespace Mapbox.VectorTile
     public class VectorTileReader
     {
 
-        /// <summary>
-        /// DON'T use this constructor: it will be removed
-        /// </summary>
-        [Obsolete("DON'T use this constructor: it will be removed")]
-        public VectorTileReader() { }
-
         public VectorTileReader(byte[] data)
         {
             if (null == data)
@@ -56,7 +50,8 @@ namespace Mapbox.VectorTile
                         {
                             ulong strLen = layerView.Varint();
                             name = layerView.GetString(strLen);
-                        } else
+                        }
+                        else
                         {
                             layerView.Skip();
                         }
@@ -70,7 +65,8 @@ namespace Mapbox.VectorTile
                         throw new Exception("Duplicate layer names: " + name);
                     }
                     _Layers.Add(name, layerMessage);
-                } else
+                }
+                else
                 {
                     tileReader.Skip();
                 }
@@ -101,7 +97,11 @@ namespace Mapbox.VectorTile
             while (layerReader.NextByte())
             {
                 int layerType = layerReader.Tag;
-                if (!Enum.IsDefined(typeof(LayerType), layerType))
+                //if (!Enum.IsDefined(typeof(LayerType), layerType))
+                //{
+                //    throw new Exception("Unknown layer type: " + layerType);
+                //}
+                if (!duMMY.LayerType.ContainsKey(layerType))
                 {
                     throw new Exception("Unknown layer type: " + layerType);
                 }
@@ -210,10 +210,8 @@ namespace Mapbox.VectorTile
         }
 
 
-        public VectorTileFeature GetFeature(VectorTileLayer layer, int idxFeature)
+        public static VectorTileFeature GetFeature(VectorTileLayer layer, byte[] data)
         {
-
-            byte[] data = layer.GetFeatureData(idxFeature);
 
             PbfReader featureReader = new PbfReader(data);
             VectorTileFeature feat = new VectorTileFeature(layer);
@@ -292,27 +290,6 @@ namespace Mapbox.VectorTile
 
             return feat;
         }
-
-
-        public static VectorTile Decode(byte[] data)
-        {
-
-            VectorTileReader vtr = new VectorTileReader(data);
-            VectorTile tile = new VectorTile(data, false);
-
-            foreach (var layerName in vtr.LayerNames())
-            {
-                VectorTileLayer layer = vtr.GetLayer(layerName);
-                for (int i = 0; i < layer.FeatureCount(); i++)
-                {
-                    VectorTileFeature feature = vtr.GetFeature(layer, i);
-                    layer.Features.Add(feature);
-                }
-                tile.Layers.Add(layer);
-            }
-            return tile;
-        }
-
 
 
     }

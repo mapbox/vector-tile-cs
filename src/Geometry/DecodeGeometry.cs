@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Mapbox.Geometry;
 
 namespace Mapbox.VectorTile.Geometry
 {

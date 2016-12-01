@@ -54,10 +54,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mapbox.Geometry, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mapbox.Geometry.1.0.0-alpha1\lib\net35\Mapbox.Geometry.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -69,17 +65,13 @@
     <Compile Include="..\AssemblyInfoVersion.cs">
       <Link>Properties\AssemblyInfoVersion.cs</Link>
     </Compile>
+    <Compile Include="VectorTile.cs" />
     <Compile Include="VectorTileFeature.cs" />
     <Compile Include="VectorTileLayer.cs" />
-    <Compile Include="VectorTile.cs" />
     <Compile Include="VectorTileReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Util\Util.csproj">
-      <Project>{55503403-0083-4ed8-b618-f8377610b225}</Project>
-      <Name>Util</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Geometry\Geometry.csproj">
       <Project>{f0967389-29c8-4d50-b397-9bb698f13ed6}</Project>
       <Name>Geometry</Name>
@@ -88,9 +80,6 @@
       <Project>{4bce42ee-c33f-4fa4-bfdd-86f3d45c647c}</Project>
       <Name>PbfReader</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

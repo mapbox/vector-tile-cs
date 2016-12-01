@@ -25,12 +25,12 @@ namespace VectorTiles.Tests
         {
 
             byte[] data = File.ReadAllBytes(Path.Combine(fixturesPath, "Feature-single-point.mvt"));
-            VectorTile vt = VectorTile.DecodeFully(data);
-            Assert.AreEqual(1, vt.Layers.Count, "one layer");
-            VectorTileLayer lyr = vt.Layers[0];
+            VectorTile vt = new VectorTile(data);
+            Assert.AreEqual(1, vt.LayerNames().Count, "one layer");
+            VectorTileLayer lyr = vt.GetLayer(vt.LayerNames()[0]);
             Assert.AreEqual("layer_name", lyr.Name, "Layer name");
-            Assert.AreEqual(1, lyr.Features.Count, "Feature count");
-            VectorTileFeature feat = lyr.Features[0];
+            Assert.AreEqual(1, lyr.FeatureCount(), "Feature count");
+            VectorTileFeature feat = lyr.GetFeature(0);
             Assert.AreEqual(GeomType.POINT, feat.GeometryType, "Geometry type");
             Assert.AreEqual(123, feat.Id, "id");
             Dictionary<string, object> properties = feat.GetProperties();

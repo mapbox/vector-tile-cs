@@ -34,15 +34,16 @@ namespace VectorTiles.Tests
             byte[] data = File.ReadAllBytes(fullFileName);
             Assert.Throws(Is.InstanceOf<Exception>(), () =>
             {
-                VectorTile vt = VectorTile.DecodeFully(data);
-                foreach (var lyr in vt.Layers)
+                VectorTile vt = new VectorTile(data);
+                foreach (var layerName in vt.LayerNames())
                 {
-                    foreach (var feat in lyr.Features)
+                    var layer = vt.GetLayer(layerName);
+                    for (int i = 0; i < layer.FeatureCount(); i++)
                     {
+                        var feat = layer.GetFeature(i);
                         feat.GetProperties();
                     }
                 }
-                //vt.Validate();
             });
         }
     }

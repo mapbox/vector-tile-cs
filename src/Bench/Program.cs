@@ -33,29 +33,26 @@ namespace Bench
             ulong nrOfTiles = (maxCol - minCol + 1) * (maxRow - minRow + 1);
             List<TileData> tiles = new List<TileData>((int)nrOfTiles);
 
-            //https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v7/13/2343/3133.vector.pbf?access_token=
-            using (GZipWebClient wc = new GZipWebClient())
+            for (ulong col = minCol; col <= maxCol; col++)
             {
-                for (ulong col = minCol; col <= maxCol; col++)
+                for (ulong row = minRow; row <= maxRow; row++)
                 {
-                    for (ulong row = minRow; row <= maxRow; row++)
+                    string fileName = string.Format("{0}-{1}-{2}.mvt", zoom, col, row);
+                    fileName = Path.Combine(fixturePath, fileName);
+                    if (!File.Exists(fileName))
                     {
-                        string fileName = string.Format("{0}-{1}-{2}.mvt", zoom, col, row);
-                        fileName = Path.Combine(fixturePath, fileName);
-                        if (!File.Exists(fileName))
+                        Console.Error.WriteLine("fixture mvt not found: [{0}]", fileName);
+                        return 1;
+                    }
+                    else
+                    {
+                        tiles.Add(new TileData()
                         {
-                            Console.Error.WriteLine("fixture mvt not found: [{0}]", fileName);
-                            return 1;
-                        } else
-                        {
-                            tiles.Add(new TileData()
-                            {
-                                zoom = zoom,
-                                col = col,
-                                row = row,
-                                pbf = File.ReadAllBytes(fileName)
-                            });
-                        }
+                            zoom = zoom,
+                            col = col,
+                            row = row,
+                            pbf = File.ReadAllBytes(fileName)
+                        });
                     }
                 }
             }
@@ -69,11 +66,13 @@ namespace Bench
                 stopWatch.Start();
                 foreach (var tile in tiles)
                 {
-                    VectorTile vt = VectorTile.DecodeFully(tile.pbf);
-                    foreach (var lyr in vt.Layers)
+                    VectorTile vt = new VectorTile(tile.pbf);
+                    foreach (var layerName in vt.LayerNames())
                     {
-                        foreach (var feat in lyr.Features)
+                        VectorTileLayer layer = vt.GetLayer(layerName);
+                        for (int j = 0; j < layer.FeatureCount(); j++)
                         {
+                            VectorTileFeature feat = layer.GetFeature(j);
                             var props = feat.GetProperties();
                         }
                     }

@@ -42,6 +42,18 @@ namespace Mapbox.VectorTile
         Extent = 5
     }
 
+    public static class duMMY
+    {
+        public static readonly Dictionary<int, string> LayerType = new Dictionary<int, string>()
+    {
+        {15, "Version" },
+        {1,"Name" },
+        {2,"Features" },
+        {3, "Keys" },
+        {4,"Values" },
+        {5, "Extent" }
+    };
+    }
 
     public enum FeatureType
     {

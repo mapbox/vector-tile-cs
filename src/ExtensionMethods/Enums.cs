@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Globalization;
-using System.IO;
 //using System.IO.Compression;
 
-namespace Mapbox.VectorTile
+namespace Mapbox.VectorTile.ExtensionMethods
 {
 
     //DOES NOT WORK WITH UNITY
