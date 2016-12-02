@@ -35,7 +35,11 @@ namespace Mapbox.VectorTile
             PbfReader tileReader = new PbfReader(data);
             while (tileReader.NextByte())
             {
-                if (!Enum.IsDefined(typeof(TileType), tileReader.Tag))
+                //if (!Enum.IsDefined(typeof(TileType), tileReader.Tag))
+                //{
+                //    throw new Exception("Unknown tile tag: " + tileReader.Tag);
+                //}
+                if (!duMMY.TileType.ContainsKey(tileReader.Tag))
                 {
                     throw new Exception("Unknown tile tag: " + tileReader.Tag);
                 }
@@ -219,7 +223,11 @@ namespace Mapbox.VectorTile
             while (featureReader.NextByte())
             {
                 int featureType = featureReader.Tag;
-                if (!Enum.IsDefined(typeof(FeatureType), featureType))
+                //if (!Enum.IsDefined(typeof(FeatureType), featureType))
+                //{
+                //    throw new Exception(layer.Name + ", unknown feature type: " + featureType);
+                //}
+                if (!duMMY.FeatureType.ContainsKey(featureType))
                 {
                     throw new Exception(layer.Name + ", unknown feature type: " + featureType);
                 }
@@ -234,7 +242,11 @@ namespace Mapbox.VectorTile
                         break;
                     case FeatureType.Type:
                         int geomType = (int)featureReader.Varint();
-                        if (!Enum.IsDefined(typeof(GeomType), geomType))
+                        //if (!Enum.IsDefined(typeof(GeomType), geomType))
+                        //{
+                        //    throw new Exception(layer.Name + ", unknown geometry type tag " + geomType);
+                        //}
+                        if (!duMMY.GeomType.ContainsKey(geomType))
                         {
                             throw new Exception(layer.Name + ", unknown geometry type tag " + geomType);
                         }

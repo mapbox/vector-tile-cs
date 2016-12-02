@@ -88,15 +88,24 @@ namespace Bench
 
 
             Console.WriteLine(
-               "{0}{0}runs:{1}{0}tiles per run:{2}{0}min [ms]:{3}{0}max [ms]:{4}{0}avg [ms]:{5}{0}StdDev:{6:0.00}{0}overall [ms]:{7}",
-               Environment.NewLine,
+@"
+runs          : {0}
+tiles per run : {1}
+min [ms]      : {2}
+max [ms]      : {3}
+avg [ms]      : {4}
+StdDev        : {5:0.00}
+overall [ms]  : {6}
+tiles/sec     : {7:0.0}
+",
                elapsed.Count,
                tiles.Count,
                elapsed.Min(),
                elapsed.Max(),
                elapsed.Average(),
                StdDev(elapsed),
-               elapsed.Sum()
+               elapsed.Sum(),
+               ((float)elapsed.Count * (float)tiles.Count / (float)elapsed.Sum()) * 1000
                );
 
 
