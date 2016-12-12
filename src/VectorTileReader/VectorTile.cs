@@ -13,10 +13,10 @@ namespace Mapbox.VectorTile
     public class VectorTile
     {
 
-        public VectorTile(byte[] data)
+        public VectorTile(byte[] data, bool validate = true)
         {
             _Layers = new List<VectorTileLayer>();
-            _VTR = new VectorTileReader(data);
+            _VTR = new VectorTileReader(data, validate);
         }
 
 
