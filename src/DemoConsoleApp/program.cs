@@ -1,3 +1,4 @@
+using Mapbox.VectorTile.ExtensionMethods;
 using System;
 using System.IO;
 
@@ -52,8 +53,7 @@ namespace Mapbox.VectorTile
             }
 
 
-            VectorTile tile = VectorTile.DecodeFully(bufferedData);
-
+            VectorTile tile = new VectorTile(bufferedData);
             Console.WriteLine(tile.ToGeoJson(zoom, tileCol, tileRow));
 
             return 0;

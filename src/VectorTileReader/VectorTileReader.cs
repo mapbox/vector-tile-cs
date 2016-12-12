@@ -13,13 +13,7 @@ namespace Mapbox.VectorTile
     public class VectorTileReader
     {
 
-        /// <summary>
-        /// DON'T use this constructor: it will be removed
-        /// </summary>
-        [Obsolete("DON'T use this constructor: it will be removed")]
-        public VectorTileReader() { }
-
-        public VectorTileReader(byte[] data)
+        public VectorTileReader(byte[] data, bool validate = true)
         {
             if (null == data)
             {
@@ -30,20 +24,25 @@ namespace Mapbox.VectorTile
                 throw new Exception("Tile data is zipped");
             }
 
+            _Validate = validate;
             layers(data);
         }
 
 
         private Dictionary<string, byte[]> _Layers = new Dictionary<string, byte[]>();
+        private bool _Validate;
 
         private void layers(byte[] data)
         {
             PbfReader tileReader = new PbfReader(data);
             while (tileReader.NextByte())
             {
-                if (!Enum.IsDefined(typeof(TileType), tileReader.Tag))
+                if (_Validate)
                 {
-                    throw new Exception("Unknown tile tag: " + tileReader.Tag);
+                    if (!duMMY.TileType.ContainsKey(tileReader.Tag))
+                    {
+                        throw new Exception("Unknown tile tag: " + tileReader.Tag);
+                    }
                 }
                 if (tileReader.Tag == (int)TileType.Layers)
                 {
@@ -56,21 +55,26 @@ namespace Mapbox.VectorTile
                         {
                             ulong strLen = layerView.Varint();
                             name = layerView.GetString(strLen);
-                        } else
+                        }
+                        else
                         {
                             layerView.Skip();
                         }
                     }
-                    if (string.IsNullOrEmpty(name))
+                    if (_Validate)
                     {
-                        throw new Exception("Layer missing name");
-                    }
-                    if (_Layers.ContainsKey(name))
-                    {
-                        throw new Exception("Duplicate layer names: " + name);
+                        if (string.IsNullOrEmpty(name))
+                        {
+                            throw new Exception("Layer missing name");
+                        }
+                        if (_Layers.ContainsKey(name))
+                        {
+                            throw new Exception("Duplicate layer names: " + name);
+                        }
                     }
                     _Layers.Add(name, layerMessage);
-                } else
+                }
+                else
                 {
                     tileReader.Skip();
                 }
@@ -101,9 +105,12 @@ namespace Mapbox.VectorTile
             while (layerReader.NextByte())
             {
                 int layerType = layerReader.Tag;
-                if (!Enum.IsDefined(typeof(LayerType), layerType))
+                if (_Validate)
                 {
-                    throw new Exception("Unknown layer type: " + layerType);
+                    if (!duMMY.LayerType.ContainsKey(layerType))
+                    {
+                        throw new Exception("Unknown layer type: " + layerType);
+                    }
                 }
                 switch ((LayerType)layerType)
                 {
@@ -181,39 +188,40 @@ namespace Mapbox.VectorTile
                 }
             }
 
-            if (string.IsNullOrEmpty(layer.Name))
+            if (_Validate)
             {
-                throw new Exception("Layer has no name");
-            }
-            if (0 == layer.Version)
-            {
-                throw new Exception("Layer has no version: " + layer.Name);
-            }
-            if (2 != layer.Version)
-            {
-                throw new Exception("Layer has invalid version: " + layer.Name);
-            }
-            if (0 == layer.Extent)
-            {
-                throw new Exception("Layer has no extent: " + layer.Name);
-            }
-            if (0 == layer.FeatureCount())
-            {
-                throw new Exception("Layer has no features: " + layer.Name);
-            }
-            if (layer.Values.Count != layer.Values.Distinct().Count())
-            {
-                throw new Exception("Duplicate values found");
+                if (string.IsNullOrEmpty(layer.Name))
+                {
+                    throw new Exception("Layer has no name");
+                }
+                if (0 == layer.Version)
+                {
+                    throw new Exception("Layer has no version: " + layer.Name);
+                }
+                if (2 != layer.Version)
+                {
+                    throw new Exception("Layer has invalid version: " + layer.Name);
+                }
+                if (0 == layer.Extent)
+                {
+                    throw new Exception("Layer has no extent: " + layer.Name);
+                }
+                if (0 == layer.FeatureCount())
+                {
+                    throw new Exception("Layer has no features: " + layer.Name);
+                }
+                if (layer.Values.Count != layer.Values.Distinct().Count())
+                {
+                    throw new Exception("Duplicate values found");
+                }
             }
 
             return layer;
         }
 
 
-        public VectorTileFeature GetFeature(VectorTileLayer layer, int idxFeature)
+        public static VectorTileFeature GetFeature(VectorTileLayer layer, byte[] data, bool validate = true)
         {
-
-            byte[] data = layer.GetFeatureData(idxFeature);
 
             PbfReader featureReader = new PbfReader(data);
             VectorTileFeature feat = new VectorTileFeature(layer);
@@ -221,9 +229,12 @@ namespace Mapbox.VectorTile
             while (featureReader.NextByte())
             {
                 int featureType = featureReader.Tag;
-                if (!Enum.IsDefined(typeof(FeatureType), featureType))
+                if (validate)
                 {
-                    throw new Exception(layer.Name + ", unknown feature type: " + featureType);
+                    if (!duMMY.FeatureType.ContainsKey(featureType))
+                    {
+                        throw new Exception(layer.Name + ", unknown feature type: " + featureType);
+                    }
                 }
                 switch ((FeatureType)featureType)
                 {
@@ -236,9 +247,12 @@ namespace Mapbox.VectorTile
                         break;
                     case FeatureType.Type:
                         int geomType = (int)featureReader.Varint();
-                        if (!Enum.IsDefined(typeof(GeomType), geomType))
+                        if (validate)
                         {
-                            throw new Exception(layer.Name + ", unknown geometry type tag " + geomType);
+                            if (!duMMY.GeomType.ContainsKey(geomType))
+                            {
+                                throw new Exception(layer.Name + ", unknown geometry type tag " + geomType);
+                            }
                         }
                         feat.GeometryType = (GeomType)geomType;
                         geomTypeSet = true;
@@ -264,55 +278,37 @@ namespace Mapbox.VectorTile
                 }
             }
 
-            if (!geomTypeSet)
+            if (validate)
             {
-                throw new Exception(layer.Name + ", feature missing geometry type");
-            }
-            if (null == feat.Geometry)
-            {
-                throw new Exception(layer.Name + ", feature has no geometry");
-            }
-            if (0 != feat.Tags.Count % 2)
-            {
-                throw new Exception(layer.Name + ", uneven number of feature tag ids");
-            }
-            if (feat.Tags.Count > 0)
-            {
-                int maxKeyIndex = feat.Tags.Where((key, idx) => idx % 2 == 0).Max();
-                int maxValueIndex = feat.Tags.Where((key, idx) => (idx + 1) % 2 == 0).Max();
-                if (maxKeyIndex >= layer.Keys.Count)
+                if (!geomTypeSet)
                 {
-                    throw new Exception(layer.Name + ", maximum key index equal or greater number of key elements");
+                    throw new Exception(layer.Name + ", feature missing geometry type");
                 }
-                if (maxValueIndex >= layer.Values.Count)
+                if (null == feat.Geometry)
                 {
-                    throw new Exception(layer.Name + ", maximum value index equal or greater number of value elements");
+                    throw new Exception(layer.Name + ", feature has no geometry");
+                }
+                if (0 != feat.Tags.Count % 2)
+                {
+                    throw new Exception(layer.Name + ", uneven number of feature tag ids");
+                }
+                if (feat.Tags.Count > 0)
+                {
+                    int maxKeyIndex = feat.Tags.Where((key, idx) => idx % 2 == 0).Max();
+                    int maxValueIndex = feat.Tags.Where((key, idx) => (idx + 1) % 2 == 0).Max();
+                    if (maxKeyIndex >= layer.Keys.Count)
+                    {
+                        throw new Exception(layer.Name + ", maximum key index equal or greater number of key elements");
+                    }
+                    if (maxValueIndex >= layer.Values.Count)
+                    {
+                        throw new Exception(layer.Name + ", maximum value index equal or greater number of value elements");
+                    }
                 }
             }
 
             return feat;
         }
-
-
-        public static VectorTile Decode(byte[] data)
-        {
-
-            VectorTileReader vtr = new VectorTileReader(data);
-            VectorTile tile = new VectorTile(data, false);
-
-            foreach (var layerName in vtr.LayerNames())
-            {
-                VectorTileLayer layer = vtr.GetLayer(layerName);
-                for (int i = 0; i < layer.FeatureCount(); i++)
-                {
-                    VectorTileFeature feature = vtr.GetFeature(layer, i);
-                    layer.Features.Add(feature);
-                }
-                tile.Layers.Add(layer);
-            }
-            return tile;
-        }
-
 
 
     }

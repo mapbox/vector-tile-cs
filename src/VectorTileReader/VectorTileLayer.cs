@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Mapbox.VectorTile
@@ -11,7 +12,6 @@ namespace Mapbox.VectorTile
 
         public VectorTileLayer()
         {
-            Features = new List<VectorTileFeature>();
             _FeaturesData = new List<byte[]>();
             Keys = new List<string>();
             Values = new List<object>();
@@ -31,8 +31,7 @@ namespace Mapbox.VectorTile
 
         public VectorTileFeature GetFeature(int feature)
         {
-            VectorTileReader vtr = new VectorTileReader();
-            return vtr.GetFeature(this, feature);
+            return VectorTileReader.GetFeature(this, _FeaturesData[feature], true);
         }
 
         public void AddFeatureData(byte[] data)
@@ -40,17 +39,19 @@ namespace Mapbox.VectorTile
             _FeaturesData.Add(data);
         }
 
-        public byte[] GetFeatureData(int idxFeature)
-        {
-            return _FeaturesData[idxFeature];
-        }
-
         public string Name { get; set; }
+
         public ulong Version { get; set; }
+
         public ulong Extent { get; set; }
-        public List<VectorTileFeature> Features { get; set; }
+
         private List<byte[]> _FeaturesData { get; set; }
+
+        /// <summary>
+        /// TODO: switch to 'dynamic' when Unity supports .Net 4.5
+        /// </summary>
         public List<object> Values { get; set; }
+
         public List<string> Keys { get; set; }
 
 

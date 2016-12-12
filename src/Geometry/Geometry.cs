@@ -40,8 +40,8 @@ namespace Mapbox.VectorTile.Geometry
             Y = y;
         }
 
-        public long X { get; set; }
-        public long Y { get; set; }
+        public long X; //performance: field instead of property
+        public long Y; //performance: field instead of property
 
         public LatLng ToLngLat(ulong z, ulong x, ulong y, ulong extent, bool checkLatLngMax = false)
         {

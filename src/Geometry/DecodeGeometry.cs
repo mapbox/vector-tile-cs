@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Mapbox.Geometry;
 
 namespace Mapbox.VectorTile.Geometry
 {
@@ -60,7 +59,8 @@ namespace Mapbox.VectorTile.Geometry
                             geomOut.Add(geomTmp);
                             geomTmp = new List<Point2d>();
                         }
-                        Point2d pntTmp = new Point2d(cursorX, cursorY);
+                        //Point2d pntTmp = new Point2d(cursorX, cursorY);
+                        Point2d pntTmp = new Point2d() { X = cursorX, Y = cursorY };
                         geomTmp.Add(pntTmp);
                     }
                 }
@@ -106,7 +106,7 @@ namespace Mapbox.VectorTile.Geometry
             //        throw new System.Exception("Geometry type invalid");
             //}
 
-            
+
             return geomOut;
         }
 
@@ -114,10 +114,17 @@ namespace Mapbox.VectorTile.Geometry
         private static Point2d zigzagDecode(long x, long y)
         {
 
-            return new Point2d(
-                ((x >> 1) ^ (-(x & 1))),
-                ((y >> 1) ^ (-(y & 1)))
-            );
+            //return new Point2d(
+            //    ((x >> 1) ^ (-(x & 1))),
+            //    ((y >> 1) ^ (-(y & 1)))
+            //);
+            return new Point2d()
+            {
+                X = ((x >> 1) ^ (-(x & 1))),
+                Y = ((y >> 1) ^ (-(y & 1)))
+            };
         }
+
+
     }
 }

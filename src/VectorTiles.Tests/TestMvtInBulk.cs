@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Mapbox.VectorTile;
 using System.Collections;
 using Mapbox.VectorTile.Geometry;
+using Mapbox.VectorTile.ExtensionMethods;
 
 namespace VectorTiles.Tests
 {
@@ -47,6 +48,13 @@ namespace VectorTiles.Tests
                     {
                         Assert.AreEqual(prop.Value, feat.GetValue(prop.Key), "Property values match");
                     }
+                    foreach (var geomPart in feat.Geometry)
+                    {
+                        foreach (var coord in geomPart)
+                        {
+                            //TODO add Assert
+                        }
+                    }
                 }
             }
             string geojson = vt.ToGeoJson(0, 0, 0);
@@ -60,8 +68,8 @@ namespace VectorTiles.Tests
             string fullFileName = Path.Combine(fixturesPath, fileName);
             Assert.True(File.Exists(fullFileName), "Vector tile exists");
             byte[] data = File.ReadAllBytes(fullFileName);
-            VectorTile vt = VectorTile.DecodeFully(data);
-            Assert.GreaterOrEqual(vt.Layers.Count, 1, "At least one layer");
+            VectorTile vt = new VectorTile(data);
+            Assert.GreaterOrEqual(vt.LayerNames().Count, 1, "At least one layer");
             string geojson = vt.ToGeoJson(0, 0, 0);
             Assert.GreaterOrEqual(geojson.Length, 30, "geojson >= 30 chars");
         }
@@ -73,11 +81,13 @@ namespace VectorTiles.Tests
             string fullFileName = Path.Combine(fixturesPath, fileName);
             Assert.True(File.Exists(fullFileName), "Vector tile exists");
             byte[] data = File.ReadAllBytes(fullFileName);
-            VectorTile vt = VectorTile.DecodeFully(data);
-            foreach (var lyr in vt.Layers)
+            VectorTile vt = new VectorTile(data);
+            foreach (var layerName in vt.LayerNames())
             {
-                foreach (var feat in lyr.Features)
+                var layer = vt.GetLayer(layerName);
+                for (int i = 0; i < layer.FeatureCount(); i++)
                 {
+                    var feat = layer.GetFeature(i);
                     var properties = feat.GetProperties();
                     foreach (var prop in properties)
                     {

@@ -20,11 +20,12 @@ namespace Mapbox.VectorTile
 
         public int Tag { get; private set; }
         public ulong Value { get; private set; }
-        public ulong Pos { get; private set; }
+        //public ulong Pos { get; private set; }
         public WireTypes WireType { get; private set; }
 
         private byte[] _buffer;
         private ulong _length;
+        private ulong _pos;
 
         public PbfReader(byte[] tileBuffer)
         {
@@ -42,9 +43,9 @@ namespace Mapbox.VectorTile
             ulong result = 0;
             while (shift < 64)
             {
-                byte b = _buffer[Pos];
+                byte b = _buffer[_pos];
                 result |= (ulong)(b & 0x7F) << shift;
-                Pos++;
+                _pos++;
                 if ((b & 0x80) == 0)
                 {
                     return result;
@@ -68,12 +69,12 @@ namespace Mapbox.VectorTile
                 throw new Exception("not of type string, bytes or message");
             }
 
-            ulong tmpPos = Pos;
+            ulong tmpPos = _pos;
             ulong skipBytes = Varint();
             SkipBytes(skipBytes);
 
             byte[] buf = new byte[skipBytes];
-            Array.Copy(_buffer, (int)Pos - (int)skipBytes, buf, 0, (int)skipBytes);
+            Array.Copy(_buffer, (int)_pos - (int)skipBytes, buf, 0, (int)skipBytes);
 
             return buf;
         }
@@ -83,8 +84,8 @@ namespace Mapbox.VectorTile
         {
             List<uint> values = new List<uint>(200);
             ulong sizeInByte = Varint();
-            ulong end = Pos + sizeInByte;
-            while (Pos < end)
+            ulong end = _pos + sizeInByte;
+            while (_pos < end)
             {
                 ulong val = Varint();
                 values.Add((uint)val);
@@ -95,8 +96,8 @@ namespace Mapbox.VectorTile
         public double GetDouble()
         {
             byte[] buf = new byte[8];
-            Array.Copy(_buffer, (int)Pos, buf, 0, 8);
-            Pos += 8;
+            Array.Copy(_buffer, (int)_pos, buf, 0, 8);
+            _pos += 8;
             double dblVal = BitConverter.ToDouble(buf, 0);
             return dblVal;
         }
@@ -104,8 +105,8 @@ namespace Mapbox.VectorTile
         public float GetFloat()
         {
             byte[] buf = new byte[4];
-            Array.Copy(_buffer, (int)Pos, buf, 0, 4);
-            Pos += 4;
+            Array.Copy(_buffer, (int)_pos, buf, 0, 4);
+            _pos += 4;
             float snglVal = BitConverter.ToSingle(buf, 0);
             return snglVal;
         }
@@ -114,14 +115,14 @@ namespace Mapbox.VectorTile
         public string GetString(ulong length)
         {
             byte[] buf = new byte[length];
-            Array.Copy(_buffer, (int)Pos, buf, 0, (int)length);
-            Pos += length;
+            Array.Copy(_buffer, (int)_pos, buf, 0, (int)length);
+            _pos += length;
             return Encoding.UTF8.GetString(buf);
         }
 
         public bool NextByte()
         {
-            if (Pos >= _length)
+            if (_pos >= _length)
             {
                 return false;
             }
@@ -162,12 +163,12 @@ namespace Mapbox.VectorTile
 
         public void SkipBytes(ulong skip)
         {
-            if (Pos + skip > _length)
+            if (_pos + skip > _length)
             {
-                string msg = string.Format(NumberFormatInfo.InvariantInfo, "[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, Pos, _length);
+                string msg = string.Format(NumberFormatInfo.InvariantInfo, "[SkipBytes()] skip:{0} pos:{1} len:{2}", skip, _pos, _length);
                 throw new Exception(msg);
             }
-            Pos += skip;
+            _pos += skip;
         }
 
 
@@ -198,7 +199,7 @@ namespace Mapbox.VectorTile
                     throw new Exception("unknown wire type");
             }
 
-            return Pos;
+            return _pos;
         }
     }
 }

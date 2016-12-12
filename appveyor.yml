@@ -54,7 +54,7 @@ after_test:
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor;
 - cmd: SET PATH=c:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\FxCop;%PATH%
-- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.Util.dll
+- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.ExtensionMethods.dll
 #http://help.appveyor.com/discussions/kb/9-support-for-stylecop-report#comment_34865295
 #http://help.appveyor.com/discussions/kb/5-code-analysis-fxcop-support
 - ps: >-
