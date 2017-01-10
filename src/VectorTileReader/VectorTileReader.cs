@@ -365,7 +365,7 @@ namespace Mapbox.VectorTile
 
             //use clipper for lines and polygons
             bool closed = true;
-            if (geomType == GeomType.LINESTRING) { closed = true; }
+            if (geomType == GeomType.LINESTRING) { closed = false; }
 
 
             Polygons subjects = new Polygons();
@@ -392,13 +392,32 @@ namespace Mapbox.VectorTile
             Clipper c = new Clipper();
             c.AddPaths(subjects, PolyType.ptSubject, closed);
             c.AddPaths(clip, PolyType.ptClip, true);
-            solution.Clear();
-            bool succeeded = c.Execute(
-                ClipType.ctIntersection
-                , solution
-                , PolyFillType.pftNonZero
-                , PolyFillType.pftNonZero
-            );
+
+            bool succeeded = false;
+            if (geomType == GeomType.LINESTRING)
+            {
+                PolyTree lineSolution = new PolyTree();
+                succeeded = c.Execute(
+                    ClipType.ctIntersection
+                    , lineSolution
+                    , PolyFillType.pftNonZero
+                    , PolyFillType.pftNonZero
+                );
+                if (succeeded)
+                {
+                    solution = Clipper.PolyTreeToPaths(lineSolution);
+                }
+            }
+            else
+            {
+                succeeded = c.Execute(
+                    ClipType.ctIntersection
+                    , solution
+                    , PolyFillType.pftNonZero
+                    , PolyFillType.pftNonZero
+                );
+            }
+
             if (succeeded)
             {
                 retVal = new List<List<Point2d>>();
