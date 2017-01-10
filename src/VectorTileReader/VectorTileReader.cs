@@ -5,9 +5,13 @@ using System.Linq;
 using Mapbox.VectorTile.Geometry;
 using System.Globalization;
 using System.Collections.ObjectModel;
+using ClipperLib;
 
 namespace Mapbox.VectorTile
 {
+
+    using Polygon = List<IntPoint>;
+    using Polygons = List<List<IntPoint>>;
 
 
     public class VectorTileReader
@@ -220,7 +224,12 @@ namespace Mapbox.VectorTile
         }
 
 
-        public static VectorTileFeature GetFeature(VectorTileLayer layer, byte[] data, bool validate = true)
+        public static VectorTileFeature GetFeature(
+            VectorTileLayer layer
+            , byte[] data
+            , bool validate = true
+            , bool hardclip = true
+        )
         {
 
             PbfReader featureReader = new PbfReader(data);
@@ -270,6 +279,10 @@ namespace Mapbox.VectorTile
                             , feat.GeometryType
                             , geometryCommands
                         );
+                        if (hardclip)
+                        {
+                            geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent);
+                        }
                         feat.Geometry = geom;
                         break;
                     default:
@@ -311,5 +324,99 @@ namespace Mapbox.VectorTile
         }
 
 
+        private static List<List<Point2d>> clipGeometries(
+            List<List<Point2d>> geoms
+            , GeomType geomType
+            , long extent
+            )
+        {
+
+            List<List<Point2d>> retVal = new List<List<Point2d>>();
+
+            //points: simply remove them if one part of the coordinate pair is out of bounds:
+            // <0 || >extent
+            if (geomType == GeomType.POINT)
+            {
+                foreach (var geomPart in geoms)
+                {
+                    List<Point2d> outGeom = new List<Point2d>();
+                    foreach (var geom in geomPart)
+                    {
+                        if (
+                            geom.X < 0
+                            || geom.Y < 0
+                            || geom.X > extent
+                            || geom.Y > extent
+                            )
+                        {
+                            continue;
+                        }
+                        outGeom.Add(geom);
+                    }
+
+                    if (outGeom.Count > 0)
+                    {
+                        retVal.Add(outGeom);
+                    }
+                }
+
+                return retVal;
+            }
+
+            //use clipper for lines and polygons
+            bool closed = true;
+            if (geomType == GeomType.LINESTRING) { closed = true; }
+
+
+            Polygons subjects = new Polygons();
+            Polygons clip = new Polygons(1);
+            Polygons solution = new Polygons();
+
+            clip.Add(new Polygon(4));
+            clip[0].Add(new IntPoint(0, 0));
+            clip[0].Add(new IntPoint(extent, 0));
+            clip[0].Add(new IntPoint(extent, extent));
+            clip[0].Add(new IntPoint(0, extent));
+
+            foreach (var geompart in geoms)
+            {
+                Polygon part = new Polygon();
+
+                foreach (var geom in geompart)
+                {
+                    part.Add(new IntPoint(geom.X, geom.Y));
+                }
+                subjects.Add(part);
+            }
+
+            Clipper c = new Clipper();
+            c.AddPaths(subjects, PolyType.ptSubject, closed);
+            c.AddPaths(clip, PolyType.ptClip, true);
+            solution.Clear();
+            bool succeeded = c.Execute(
+                ClipType.ctIntersection
+                , solution
+                , PolyFillType.pftNonZero
+                , PolyFillType.pftNonZero
+            );
+            if (succeeded)
+            {
+                retVal = new List<List<Point2d>>();
+                foreach (var part in solution)
+                {
+                    List<Point2d> geompart = new List<Point2d>();
+                    foreach (var geom in part)
+                    {
+                        geompart.Add(new Point2d() { X = geom.X, Y = geom.Y });
+                    }
+                    retVal.Add(geompart);
+                }
+                return retVal;
+            }
+            else
+            {
+                return geoms;
+            }
+        }
     }
 }

@@ -104,7 +104,7 @@ namespace Mapbox.VectorTile.ExtensionMethods
                                 break;
                         }
                     }
-                    else
+                    else if (geomWgs84.Count == 1)
                     { //singlepart
                         switch (feat.GeometryType)
                         {
@@ -126,6 +126,10 @@ namespace Mapbox.VectorTile.ExtensionMethods
                             default:
                                 break;
                         }
+                    }
+                    else
+                    {//no geometry
+                        continue;
                     }
 
                     geojsonFeatures.Add(
