@@ -2,15 +2,15 @@
 <package >
 	<metadata>
 		<id>Mapbox.VectorTile</id>
-		<version>1.0.2-alpha4</version>
+		<version>1.0.2-alpha5</version>
 		<authors>Mapbox</authors>
 		<owners>Mapbox</owners>
 		<licenseUrl>https://github.com/mapbox/vector-tile-cs</licenseUrl>
 		<projectUrl>https://github.com/mapbox/vector-tile-cs</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Mapbox VectorTileReader CSharp</description>
-		<releaseNotes>Remove full decoding. Flag to optionally disable some validations (better performance).</releaseNotes>
-		<copyright>Copyright 2016</copyright>
+		<releaseNotes>intermediate quick fix version: cut vector tiles exactly at their border</releaseNotes>
+		<copyright>Copyright 2017</copyright>
 		<tags>vector tiles c# mapbox</tags>
 <!--
 		<dependencies>
