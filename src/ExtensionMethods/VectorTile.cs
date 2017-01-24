@@ -15,6 +15,7 @@ namespace Mapbox.VectorTile.ExtensionMethods
             , ulong zoom
             , ulong tileColumn
             , ulong tileRow
+            , uint? clipBuffer = null
         )
         {
 
@@ -34,7 +35,7 @@ namespace Mapbox.VectorTile.ExtensionMethods
 
                 for (int i = 0; i < layer.FeatureCount(); i++)
                 {
-                    var feat = layer.GetFeature(i);
+                    var feat = layer.GetFeature(i, clipBuffer);
 
                     if (feat.GeometryType == GeomType.UNKNOWN) { continue; }
 

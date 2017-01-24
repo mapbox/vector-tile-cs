@@ -224,11 +224,23 @@ namespace Mapbox.VectorTile
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="data"></param>
+        /// <param name="validate"></param>
+        /// <param name="clippBuffer">
+        /// <para>'null': returns the geometries unaltered as they are in the vector tile. </para>
+        /// <para>Any value >=0 clips a border with the size around the tile. </para>
+        /// <para>These are not pixels but the same units as the 'extent' of the layer. </para>
+        /// </param>
+        /// <returns></returns>
         public static VectorTileFeature GetFeature(
             VectorTileLayer layer
             , byte[] data
             , bool validate = true
-            , bool hardclip = true
+            , uint? clippBuffer = null
         )
         {
 
@@ -279,9 +291,9 @@ namespace Mapbox.VectorTile
                             , feat.GeometryType
                             , geometryCommands
                         );
-                        if (hardclip)
+                        if (clippBuffer.HasValue)
                         {
-                            geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent);
+                            geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent, clippBuffer.Value);
                         }
                         feat.Geometry = geom;
                         break;
@@ -328,6 +340,7 @@ namespace Mapbox.VectorTile
             List<List<Point2d>> geoms
             , GeomType geomType
             , long extent
+            , uint bufferSize
             )
         {
 
@@ -343,10 +356,10 @@ namespace Mapbox.VectorTile
                     foreach (var geom in geomPart)
                     {
                         if (
-                            geom.X < 0
-                            || geom.Y < 0
-                            || geom.X > extent
-                            || geom.Y > extent
+                            geom.X < (0L - bufferSize)
+                            || geom.Y < (0L - bufferSize)
+                            || geom.X > (extent + bufferSize)
+                            || geom.Y > (extent + bufferSize)
                             )
                         {
                             continue;
@@ -373,10 +386,10 @@ namespace Mapbox.VectorTile
             Polygons solution = new Polygons();
 
             clip.Add(new Polygon(4));
-            clip[0].Add(new IntPoint(0, 0));
-            clip[0].Add(new IntPoint(extent, 0));
-            clip[0].Add(new IntPoint(extent, extent));
-            clip[0].Add(new IntPoint(0, extent));
+            clip[0].Add(new IntPoint(0L - bufferSize, 0L - bufferSize));
+            clip[0].Add(new IntPoint(extent + bufferSize, 0L - bufferSize));
+            clip[0].Add(new IntPoint(extent + bufferSize, extent + bufferSize));
+            clip[0].Add(new IntPoint(0L - bufferSize, extent + bufferSize));
 
             foreach (var geompart in geoms)
             {
@@ -430,10 +443,12 @@ namespace Mapbox.VectorTile
                     }
                     retVal.Add(geompart);
                 }
+
                 return retVal;
             }
             else
             {
+                //if clipper was not successfull return original geometries
                 return geoms;
             }
         }

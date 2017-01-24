@@ -10,13 +10,18 @@ namespace Mapbox.VectorTile
         public static int Main(string[] args)
         {
 
-            if (args.Length != 1)
+            if (args.Length != 1 && args.Length != 2)
             {
                 Console.WriteLine("invalid number of arguments");
                 return 1;
             }
 
             string vtIn = args[0];
+            uint? clipBuffer = null;
+            if (args.Length == 2)
+            {
+                clipBuffer = Convert.ToUInt32(args[1]);
+            }
             if (!File.Exists(vtIn))
             {
                 Console.WriteLine("file [{0}] not found", vtIn);
@@ -25,24 +30,6 @@ namespace Mapbox.VectorTile
 
 
             var bufferedData = File.ReadAllBytes(vtIn);
-
-            //VectorTileReader vtr = new VectorTileReader(bufferedData);
-            //foreach (var lyrName in vtr.LayerNames())
-            //{
-            //    Console.WriteLine(lyrName);
-            //    VectorTileLayer layer = vtr.GetLayer(lyrName);
-            //    Console.WriteLine("features: {0}", layer.FeatureCount());
-            //    for (int i = 0; i < layer.FeatureCount(); i++)
-            //    {
-            //        VectorTileFeature feat = layer.GetFeature(i);
-            //        Console.WriteLine(feat.Id);
-            //        foreach (var prop in feat.GetProperties())
-            //        {
-            //            Console.WriteLine("{0}: {1}", prop.Key, prop.Value);
-            //        }
-            //    }
-            //}
-
             ulong zoom;
             ulong tileCol;
             ulong tileRow;
@@ -52,36 +39,9 @@ namespace Mapbox.VectorTile
                 return 1;
             }
 
-
             VectorTile tile = new VectorTile(bufferedData);
 
-            //foreach (var lyrName in tile.LayerNames())
-            //{
-            //    VectorTileLayer lyr = tile.GetLayer(lyrName);
-            //    long lyrExtent = (long)lyr.Extent;
-            //    for (int i = 0; i < lyr.FeatureCount(); i++)
-            //    {
-            //        VectorTileFeature feat = lyr.GetFeature(i);
-            //        foreach (var geompart in feat.Geometry)
-            //        {
-            //            foreach (var geom in geompart)
-            //            {
-            //                if (
-            //                    geom.X > lyrExtent
-            //                    || geom.Y > lyrExtent
-            //                    || geom.X < 0
-            //                    || geom.Y < 0
-            //                )
-            //                {
-            //                    Console.WriteLine("lyr:[{0}], feat:{1} x:{2} y:{3}", lyrName, i, geom.X, geom.Y);
-            //                }
-
-            //            }
-            //        }
-            //    }
-            //}
-
-            Console.WriteLine(tile.ToGeoJson(zoom, tileCol, tileRow));
+            Console.WriteLine(tile.ToGeoJson(zoom, tileCol, tileRow, clipBuffer));
 
             return 0;
         }

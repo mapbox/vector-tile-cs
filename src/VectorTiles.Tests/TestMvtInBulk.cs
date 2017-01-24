@@ -72,6 +72,26 @@ namespace VectorTiles.Tests
             Assert.GreaterOrEqual(vt.LayerNames().Count, 1, "At least one layer");
             string geojson = vt.ToGeoJson(0, 0, 0);
             Assert.GreaterOrEqual(geojson.Length, 30, "geojson >= 30 chars");
+            foreach (var lyrName in vt.LayerNames())
+            {
+                VectorTileLayer lyr = vt.GetLayer(lyrName);
+                for (int i = 0; i < lyr.FeatureCount(); i++)
+                {
+                    Debug.WriteLine("{0} lyr:{1} feat:{2}", fileName, lyr.Name, i);
+                    VectorTileFeature feat = lyr.GetFeature(i);
+                    long extent = (long)lyr.Extent;
+                    foreach (var part in feat.Geometry)
+                    {
+                        foreach (var geom in part)
+                        {
+                            if (geom.X < 0 || geom.Y < 0 || geom.X > extent || geom.Y > extent)
+                            {
+                                Debug.WriteLine("{0} lyr:{1} feat:{2} x:{3} y:{4}", fileName, lyr.Name, i, geom.X, geom.Y);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
 
