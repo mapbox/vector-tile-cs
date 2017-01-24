@@ -37,6 +37,7 @@ namespace Mapbox.VectorTile.Geometry
             List<Point2d> geomTmp = new List<Point2d>();
             long cursorX = 0;
             long cursorY = 0;
+            long tileExtent = (long)extent;
 
             for (int i = 0; i < geometryCommands.Count; i++)
             {
@@ -59,6 +60,7 @@ namespace Mapbox.VectorTile.Geometry
                             geomOut.Add(geomTmp);
                             geomTmp = new List<Point2d>();
                         }
+
                         //Point2d pntTmp = new Point2d(cursorX, cursorY);
                         Point2d pntTmp = new Point2d() { X = cursorX, Y = cursorY };
                         geomTmp.Add(pntTmp);

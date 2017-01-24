@@ -29,9 +29,19 @@ namespace Mapbox.VectorTile
             return _FeaturesData.Count;
         }
 
-        public VectorTileFeature GetFeature(int feature)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="feature"></param>
+        /// <param name="clippBuffer">
+        /// <para>'null': returns the geometries unaltered as they are in the vector tile. </para>
+        /// <para>Any value >=0 clips a border with the size around the tile. </para>
+        /// <para>These are not pixels but the same units as the 'extent' of the layer. </para>
+        /// </param>
+        /// <returns></returns>
+        public VectorTileFeature GetFeature(int feature, uint? clippBuffer = null)
         {
-            return VectorTileReader.GetFeature(this, _FeaturesData[feature], true);
+            return VectorTileReader.GetFeature(this, _FeaturesData[feature], true, clippBuffer);
         }
 
         public void AddFeatureData(byte[] data)
