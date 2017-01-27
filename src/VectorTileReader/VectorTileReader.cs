@@ -5,13 +5,13 @@ using System.Linq;
 using Mapbox.VectorTile.Geometry;
 using System.Globalization;
 using System.Collections.ObjectModel;
-using ClipperLib;
+using Mapbox.VectorTile.InteralClipperLib;
 
 namespace Mapbox.VectorTile
 {
 
-    using Polygon = List<IntPoint>;
-    using Polygons = List<List<IntPoint>>;
+    using Polygon = List<InternalClipper.IntPoint>;
+    using Polygons = List<List<InternalClipper.IntPoint>>;
 
 
     public class VectorTileReader
@@ -386,10 +386,10 @@ namespace Mapbox.VectorTile
             Polygons solution = new Polygons();
 
             clip.Add(new Polygon(4));
-            clip[0].Add(new IntPoint(0L - bufferSize, 0L - bufferSize));
-            clip[0].Add(new IntPoint(extent + bufferSize, 0L - bufferSize));
-            clip[0].Add(new IntPoint(extent + bufferSize, extent + bufferSize));
-            clip[0].Add(new IntPoint(0L - bufferSize, extent + bufferSize));
+            clip[0].Add(new InternalClipper.IntPoint(0L - bufferSize, 0L - bufferSize));
+            clip[0].Add(new InternalClipper.IntPoint(extent + bufferSize, 0L - bufferSize));
+            clip[0].Add(new InternalClipper.IntPoint(extent + bufferSize, extent + bufferSize));
+            clip[0].Add(new InternalClipper.IntPoint(0L - bufferSize, extent + bufferSize));
 
             foreach (var geompart in geoms)
             {
@@ -397,37 +397,37 @@ namespace Mapbox.VectorTile
 
                 foreach (var geom in geompart)
                 {
-                    part.Add(new IntPoint(geom.X, geom.Y));
+                    part.Add(new InternalClipper.IntPoint(geom.X, geom.Y));
                 }
                 subjects.Add(part);
             }
 
-            Clipper c = new Clipper();
-            c.AddPaths(subjects, PolyType.ptSubject, closed);
-            c.AddPaths(clip, PolyType.ptClip, true);
+            InternalClipper.Clipper c = new InternalClipper.Clipper();
+            c.AddPaths(subjects, InternalClipper.PolyType.ptSubject, closed);
+            c.AddPaths(clip, InternalClipper.PolyType.ptClip, true);
 
             bool succeeded = false;
             if (geomType == GeomType.LINESTRING)
             {
-                PolyTree lineSolution = new PolyTree();
+                InternalClipper.PolyTree lineSolution = new InternalClipper.PolyTree();
                 succeeded = c.Execute(
-                    ClipType.ctIntersection
+                    InternalClipper.ClipType.ctIntersection
                     , lineSolution
-                    , PolyFillType.pftNonZero
-                    , PolyFillType.pftNonZero
+                    , InternalClipper.PolyFillType.pftNonZero
+                    , InternalClipper.PolyFillType.pftNonZero
                 );
                 if (succeeded)
                 {
-                    solution = Clipper.PolyTreeToPaths(lineSolution);
+                    solution = InternalClipper.Clipper.PolyTreeToPaths(lineSolution);
                 }
             }
             else
             {
                 succeeded = c.Execute(
-                    ClipType.ctIntersection
+                    InternalClipper.ClipType.ctIntersection
                     , solution
-                    , PolyFillType.pftNonZero
-                    , PolyFillType.pftNonZero
+                    , InternalClipper.PolyFillType.pftNonZero
+                    , InternalClipper.PolyFillType.pftNonZero
                 );
             }
 
