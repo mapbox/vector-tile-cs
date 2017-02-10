@@ -32,6 +32,10 @@ build:
   include_nuget_references: true
   verbosity: minimal
 
+after_build:
+  - cmd: nuget pack Mapbox.VectorTile.nuspec
+  - ps: Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+
 after_test:
 - ps: >-
     $nunitrunner = (Resolve-Path "tools/NUnit.ConsoleRunner.*/tools/nunit3-console.exe").ToString();
@@ -61,8 +65,12 @@ after_test:
     $codeAnalysisErrors = [xml](Get-Content fxcop.out.xml);
     foreach ($codeAnalysisError in $codeAnalysisErrors.SelectNodes("//Message")) {
        $issueNode = $codeAnalysisError.SelectSingleNode("Issue");
-       Write-Host "Violation of Rule $($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line) FileName: $($issueNode.Path)\$($codeAnalysisError.Issue.File) ErrorMessage: $($issueNode.InnerXml)";
-       Add-AppveyorTest "Violation of Rule $($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line)" -Outcome Failed -FileName "$($issueNode.Path)\$($codeAnalysisError.Issue.File)" -ErrorMessage $($issueNode.InnerXml);
+       $errorLevel = $($issueNode.Level);
+       if(!$errorLevel){$errorLevel='Warning'};
+       $errorLevel = $errorLevel.Replace("Critical","").Replace("Informational", "Information");
+       Write-Host "$($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName) Line Number: $($issueNode.Line) FileName: $($issueNode.Path)\$($codeAnalysisError.Issue.File) ErrorMessage: $($issueNode.InnerXml)";
+       Add-AppveyorCompilationMessage "$($codeAnalysisError.CheckId): $($codeAnalysisError.TypeName)" -Category $errorLevel -FileName "$($issueNode.Path)\$($codeAnalysisError.Issue.File)" -Line $($issueNode.Line) -Details $($issueNode.InnerXml);
     }
+    Push-AppveyorArtifact opencoverCoverage.xml;
     Push-AppveyorArtifact fxcop.out.xml;
 - cmd: cd bin && bench
