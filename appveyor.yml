@@ -41,7 +41,7 @@ after_test:
     -register:user `
     -target:"$nunitrunner" `
     -targetargs:"bin\VectorTiles.Tests.dll" `
-    -filter:"+[*]* -[*.Tests]*" `
+    -filter:"+[*]* -[*.Tests]* -[*]*.InteralClipperLib" `
     -output:opencoverCoverage.xml;
     & $coveralls --opencover -i opencoverCoverage.xml `
     --repoToken $env:COVERALLS_REPO_TOKEN `
