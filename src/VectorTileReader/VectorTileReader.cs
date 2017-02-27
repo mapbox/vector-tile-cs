@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using Mapbox.VectorTile.Geometry;
 using System.Globalization;
 using System.Collections.ObjectModel;
 using Mapbox.VectorTile.InteralClipperLib;
 
+#if !NET20
+using System.Linq;
+#endif
 
 namespace Mapbox.VectorTile {
 
@@ -70,7 +72,13 @@ namespace Mapbox.VectorTile {
 
 
 		public ReadOnlyCollection<string> LayerNames() {
+#if NET20
+			string[] lyrNames = new string[_Layers.Keys.Count];
+			_Layers.Keys.CopyTo(lyrNames, 0);
+			return new ReadOnlyCollection<string>(lyrNames);
+#else
 			return _Layers.Keys.ToList().AsReadOnly();
+#endif
 		}
 
 		public VectorTileLayer GetLayer(string name) {
@@ -181,9 +189,12 @@ namespace Mapbox.VectorTile {
 				if(0 == layer.FeatureCount()) {
 					throw new Exception($"Layer [{layer.Name}] has no features.");
 				}
+				//TODO: find equivalent of 'Distinct()' for NET20
+#if !NET20
 				if(layer.Values.Count != layer.Values.Distinct().Count()) {
 					throw new Exception($"Layer [{layer.Name}]: duplicate attribute values found");
 				}
+#endif
 			}
 
 			return layer;
@@ -224,7 +235,7 @@ namespace Mapbox.VectorTile {
 						feat.Id = featureReader.Varint();
 						break;
 					case FeatureType.Tags:
-						List<int> tags = featureReader.GetPackedUnit32().Select(t => (int)t).ToList();
+						List<int> tags = featureReader.GetPackedUnit32().ConvertAll<int>(ui => (int)ui);
 						feat.Tags = tags;
 						break;
 					case FeatureType.Type:
@@ -271,8 +282,19 @@ namespace Mapbox.VectorTile {
 					throw new Exception($"Layer [{layer.Name}]: uneven number of feature tag ids");
 				}
 				if(feat.Tags.Count > 0) {
+#if NET20
+					int maxKeyIndex = -9999;
+					for(int i = 0; i < feat.Tags.Count; i += 2) {
+						if(feat.Tags[i] > maxKeyIndex) { maxKeyIndex = feat.Tags[i]; }
+					}
+					int maxValueIndex = -9999;
+					for(int i = 1; i < feat.Tags.Count; i += 2) {
+						if(feat.Tags[i] > maxValueIndex) { maxValueIndex = feat.Tags[i]; }
+					}
+#else
 					int maxKeyIndex = feat.Tags.Where((key, idx) => idx % 2 == 0).Max();
 					int maxValueIndex = feat.Tags.Where((key, idx) => (idx + 1) % 2 == 0).Max();
+#endif
 					if(maxKeyIndex >= layer.Keys.Count) {
 						throw new Exception($"Layer [{layer.Name}]: maximum key index equal or greater number of key elements");
 					}

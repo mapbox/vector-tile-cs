@@ -2,6 +2,18 @@
 using System.ComponentModel;
 //using System.IO.Compression;
 
+
+#if NET20
+
+namespace System.Runtime.CompilerServices {
+	[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class
+		 | AttributeTargets.Method)]
+	public sealed class ExtensionAttribute : Attribute { }
+}
+
+#endif
+
+
 namespace Mapbox.VectorTile.ExtensionMethods {
 
 	//DOES NOT WORK WITH UNITY
