@@ -8,9 +8,13 @@ using System.Collections;
 using Mapbox.VectorTile.Geometry;
 using Mapbox.VectorTile.ExtensionMethods;
 
+
 namespace VectorTiles.Tests {
+
+
 	[TestFixture]
 	public class BulkMvtTests {
+
 
 		private string fixturesPath;
 
@@ -125,9 +129,6 @@ namespace VectorTiles.Tests {
 			}
 		}
 	}
-
-
-
 
 
 
