@@ -72,7 +72,7 @@ namespace Mapbox.VectorTile {
 
 
 		public ReadOnlyCollection<string> LayerNames() {
-#if NET20
+#if NET20 || PORTABLE || WINDOWS_UWP
 			string[] lyrNames = new string[_Layers.Keys.Count];
 			_Layers.Keys.CopyTo(lyrNames, 0);
 			return new ReadOnlyCollection<string>(lyrNames);
@@ -114,7 +114,7 @@ namespace Mapbox.VectorTile {
 						break;
 					case LayerType.Keys:
 						byte[] keyBuffer = layerReader.View();
-						string key = Encoding.UTF8.GetString(keyBuffer);
+						string key = Encoding.UTF8.GetString(keyBuffer, 0, keyBuffer.Length);
 						layer.Keys.Add(key);
 						break;
 					case LayerType.Values:
@@ -124,7 +124,7 @@ namespace Mapbox.VectorTile {
 							switch((ValueType)valReader.Tag) {
 								case ValueType.String:
 									byte[] stringBuffer = valReader.View();
-									string value = Encoding.UTF8.GetString(stringBuffer);
+									string value = Encoding.UTF8.GetString(stringBuffer, 0, stringBuffer.Length);
 									layer.Values.Add(value);
 									break;
 								case ValueType.Float:
@@ -235,7 +235,11 @@ namespace Mapbox.VectorTile {
 						feat.Id = featureReader.Varint();
 						break;
 					case FeatureType.Tags:
+#if NET20
 						List<int> tags = featureReader.GetPackedUnit32().ConvertAll<int>(ui => (int)ui);
+#else
+						List<int> tags = featureReader.GetPackedUnit32().Select(t => (int)t).ToList();
+#endif
 						feat.Tags = tags;
 						break;
 					case FeatureType.Type:

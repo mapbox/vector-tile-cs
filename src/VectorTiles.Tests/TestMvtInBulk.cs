@@ -21,7 +21,7 @@ namespace VectorTiles.Tests {
 
 		[OneTimeSetUp]
 		protected void SetUp() {
-			fixturesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "test", "mvt-fixtures", "fixtures", "valid");
+			fixturesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "valid");
 		}
 
 		[Test, Order(1)]
@@ -134,7 +134,7 @@ namespace VectorTiles.Tests {
 
 	public partial class GetMVTs {
 		public static IEnumerable GetFixtureFileName() {
-			string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "test", "mvt-fixtures", "fixtures", "valid");
+			string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "valid");
 
 			foreach(var file in Directory.GetFiles(path)) {
 				//return file basename only to make test description more readable

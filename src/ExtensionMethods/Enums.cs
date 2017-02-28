@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Mapbox.VectorTile.Geometry;
+using System;
 using System.ComponentModel;
-//using System.IO.Compression;
 
+#if PORTABLE || WINDOWS_UWP
+using System.Reflection;
+using System.Linq;
+#endif
 
 #if NET20
 
@@ -72,13 +76,16 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 	/// </summary>
 	public static class EnumExtensions {
 		public static string Description(this Enum value) {
-			// variables  
 			var enumType = value.GetType();
+#if PORTABLE || WINDOWS_UWP
+			var field = enumType.GetRuntimeField(value.ToString());
+			var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+			return attributes.Count() == 0 ? value.ToString() : ((DescriptionAttribute)attributes.First()).Description;
+#else
 			var field = enumType.GetField(value.ToString());
 			var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-			// return  
 			return attributes.Length == 0 ? value.ToString() : ((DescriptionAttribute)attributes[0]).Description;
+#endif
 		}
 	}
 }

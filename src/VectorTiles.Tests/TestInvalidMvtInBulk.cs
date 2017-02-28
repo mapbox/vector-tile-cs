@@ -1,33 +1,47 @@
 ﻿using System;
-using NUnit.Framework;
 using System.IO;
 using Mapbox.VectorTile;
 using System.Collections;
+#if WINDOWS_UWP
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using ATestClass = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
+using ATestMethod = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
+using ATestClassSetup = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.ClassInitializeAttribute; //run once per class
+using ATestSetup = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestInitializeAttribute; //run before every test
+using ATestDataSource = Microsoft.VisualStudio.TestTools.UnitTesting.DataSourceAttribute;
+#else
+using NUnit.Framework;
+using ATestClass = NUnit.Framework.TestFixtureAttribute;
+using ATestMethod = NUnit.Framework.TestAttribute;
+using ATestClassSetup = NUnit.Framework.OneTimeSetUpAttribute;
+using ATestDataSource = NUnit.Framework.TestCaseSourceAttribute;
+#endif
 
 
 namespace VectorTiles.Tests {
 
 
-	[TestFixture]
+	[ATestClass]
 	public class BulkInvalidMvtTests {
 
-		private string fixturesPath;
+		private string _fixturesPath;
+		public static string _executingFolder = AppDomain.CurrentDomain.BaseDirectory;
 
 
-		[OneTimeSetUp]
+		[ATestClassSetup]
 		protected void SetUp() {
-			fixturesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "test", "mvt-fixtures", "fixtures", "invalid");
+			_fixturesPath = Path.Combine(_executingFolder, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "invalid");
 		}
 
-		[Test, Order(1)]
+		[ATestMethod, Order(1)]
 		public void FixturesPathExists() {
-			Assert.True(Directory.Exists(fixturesPath), "MVT fixtures directory exists");
+			Assert.True(Directory.Exists(_fixturesPath), "MVT fixtures directory exists");
 		}
 
 
-		[Test, TestCaseSource(typeof(GetMVTs), "GetInValidFixtureFileName")]
+		[ATestMethod, ATestDataSource(typeof(GetMVTs), "GetInValidFixtureFileName")]
 		public void Validate(string fileName) {
-			string fullFileName = Path.Combine(fixturesPath, fileName);
+			string fullFileName = Path.Combine(_fixturesPath, fileName);
 			Assert.True(File.Exists(fullFileName), "Vector tile exists");
 			byte[] data = File.ReadAllBytes(fullFileName);
 			Assert.Throws(Is.InstanceOf<Exception>(), () => {
@@ -45,7 +59,7 @@ namespace VectorTiles.Tests {
 
 	public partial class GetMVTs {
 		public static IEnumerable GetInValidFixtureFileName() {
-			string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "test", "mvt-fixtures", "fixtures", "invalid");
+			string path = Path.Combine(BulkInvalidMvtTests._executingFolder, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "invalid");
 
 			foreach(var file in Directory.GetFiles(path)) {
 				//return file basename only to make test description more readable

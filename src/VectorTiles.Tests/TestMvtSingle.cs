@@ -15,7 +15,7 @@ namespace VectorTiles.Tests {
 
 		[OneTimeSetUp]
 		protected void SetUp() {
-			fixturesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "test", "mvt-fixtures", "fixtures", "valid");
+			fixturesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "valid");
 		}
 
 
