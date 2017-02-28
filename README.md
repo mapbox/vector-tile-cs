@@ -1,6 +1,8 @@
 # vector-tile-cs
 
-C# library for decoding [Mapbox Vector Tiles](https://www.mapbox.com/vector-tiles/) ([vector tile specification](https://github.com/mapbox/vector-tile-spec)).
+C# library for decoding [`Mapbox Vector Tiles @ v2.x`](https://www.mapbox.com/vector-tiles/) ([vector tile specification](https://github.com/mapbox/vector-tile-spec)).
+
+_**Decoding tiles created according to `Mapbox Vector Tile Specification @ v1.x` is not supported!**_
 
 Available as nuget package: [![nuget.org](https://img.shields.io/nuget/v/Mapbox.VectorTile.svg)](https://www.nuget.org/packages/Mapbox.VectorTile)
 

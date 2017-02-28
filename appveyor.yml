@@ -17,8 +17,9 @@ install:
 
 platform: Any CPU
 configuration:
-  - Debug
-  - Release
+  - Net20Debug
+  - Net35Debug
+  - Net462Debug
 
 environment:
   COVERALLS_REPO_TOKEN:
