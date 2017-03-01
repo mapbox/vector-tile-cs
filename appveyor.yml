@@ -7,7 +7,8 @@ clone_depth: 5
 
 install:
   - git submodule update --init --recursive
-  - nuget restore
+  - nuget restore VectorTileCsPortable.sln
+  - nuget restore VectorTileCs.sln
   - nuget install NUnit.Runners -OutputDirectory tools
   - nuget install OpenCover -OutputDirectory tools
 #  - nuget install ReportGenerator -Pre -OutputDirectory tools
