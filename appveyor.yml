@@ -78,4 +78,6 @@ after_test:
     }
     Push-AppveyorArtifact opencoverCoverage.xml;
     Push-AppveyorArtifact fxcop.out.xml;
-- cmd: cd bin\Net35Debug\v3.5 && bench
+- cmd: cd %APPVEYOR_BUILD_FOLDER%\bin\Net20Debug\v2.0 && bench
+- cmd: cd %APPVEYOR_BUILD_FOLDER%\bin\Net35Debug\v3.5 && bench
+- cmd: cd %APPVEYOR_BUILD_FOLDER%\bin\Net462Debug\v4.6.2 && bench

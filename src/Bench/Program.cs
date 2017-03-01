@@ -25,7 +25,7 @@ namespace Bench {
 			ulong maxCol = 4693;
 			ulong maxRow = 6274;
 
-			string fixturePath = Path.Combine(Path.Combine(Path.Combine("..", "bench"), "mvt-bench-fixtures"), "fixtures");
+			string fixturePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.Combine("..", ".."), ".."), "bench"), "mvt-bench-fixtures"), "fixtures");
 			if(!Directory.Exists(fixturePath)) {
 				Console.Error.WriteLine("fixture directory not found: [{0}]", fixturePath);
 				return 1;
