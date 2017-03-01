@@ -17,21 +17,20 @@ install:
 
 platform: Any CPU
 configuration:
-  - Net20Debug
-  - Net35Debug
-  - Net462Debug
+  - Debug
 
 environment:
   COVERALLS_REPO_TOKEN:
     secure: jAjmxnCi94uDJw6nWj6Kyr3jruWF4Aq03ItGuYvTzhfKgyk4h8R/tS0ZBBPC6j8k
 
-build:
-  parallel: true
-  project: VectorTileCs.sln
-  publish_nuget: true
-  publish_nuget_symbols: true
-  include_nuget_references: true
-  verbosity: minimal
+build_script:
+  msbuild VectorTileCsPortable.sln /p:Configuration=Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+  msbuild VectorTileCs.sln /p:Configuration=Net20Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+  bin\Net20Debug\v2.0\VerifyNetFrameworkVersion.exe
+  msbuild VectorTileCs.sln /p:Configuration=Net35Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+  bin\Net35Debug\v3.5\VerifyNetFrameworkVersion.exe
+  msbuild VectorTileCs.sln /p:Configuration=Net462Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+  bin\Net462Debug\v4.6.2\VerifyNetFrameworkVersion.exe
 
 after_build:
   - cmd: nuget pack Mapbox.VectorTile.nuspec
