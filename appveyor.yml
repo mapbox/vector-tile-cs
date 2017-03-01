@@ -49,7 +49,7 @@ after_test:
     & $opencov `
     -register:user `
     -target:"$nunitrunner" `
-    -targetargs:"bin\Net35Debug\v3.5.0\VectorTiles.Tests.dll" `
+    -targetargs:"bin\Net35Debug\v3.5\VectorTiles.Tests.dll" `
     -filter:"+[*]* -[*.Tests]* -[*]*.InteralClipperLib.*" `
     -output:opencoverCoverage.xml;
     & $coveralls --opencover -i opencoverCoverage.xml `
@@ -63,7 +63,7 @@ after_test:
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor;
 - cmd: SET PATH=c:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\FxCop;%PATH%
-- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Net35Debug\v3.5.0\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Net35Debug\v3.5.0\Mapbox.VectorTile.Geometry.dll /file:bin\Net35Debug\v3.5.0\Mapbox.VectorTile.PbfReader.dll /file:bin\Net35Debug\v3.5.0\Mapbox.VectorTile.ExtensionMethods.dll
+- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.Geometry.dll /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.PbfReader.dll /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.ExtensionMethods.dll
 #http://help.appveyor.com/discussions/kb/9-support-for-stylecop-report#comment_34865295
 #http://help.appveyor.com/discussions/kb/5-code-analysis-fxcop-support
 - ps: >-
@@ -78,4 +78,4 @@ after_test:
     }
     Push-AppveyorArtifact opencoverCoverage.xml;
     Push-AppveyorArtifact fxcop.out.xml;
-- cmd: cd bin\Net35Debug\v3.5.0 && bench
+- cmd: cd bin\Net35Debug\v3.5 && bench
