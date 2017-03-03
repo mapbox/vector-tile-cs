@@ -6,6 +6,18 @@ using System.Globalization;
 namespace Mapbox.VectorTile.Geometry {
 
 
+#if PORTABLE
+	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+	public class DescriptionAttribute : Attribute {
+		private readonly string description;
+		public string Description { get { return description; } }
+		public DescriptionAttribute(string description) {
+			this.description = description;
+		}
+	}
+#endif
+
+
 	public enum GeomType {
 		UNKNOWN = 0,
 		[Description("Point")]

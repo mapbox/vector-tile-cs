@@ -19,9 +19,26 @@
 -->
 	</metadata>
 	<files>
-		<file src="bin\Mapbox.VectorTile.ExtensionMethods.dll" target="lib\net35\Mapbox.VectorTile.ExtensionMethods.dll"></file>
-		<file src="bin\Mapbox.VectorTile.Geometry.dll" target="lib\net35\Mapbox.VectorTile.Geometry.dll"></file>
-		<file src="bin\Mapbox.VectorTile.PbfReader.dll" target="lib\net35\Mapbox.VectorTile.PbfReader.dll"></file>
-		<file src="bin\Mapbox.VectorTile.VectorTileReader.dll" target="lib\net35\Mapbox.VectorTile.VectorTileReader.dll"></file>
+
+		<file src="bin\Net20Debug\v2.0\Mapbox.VectorTile.ExtensionMethods.dll" target="lib\net20\Mapbox.VectorTile.ExtensionMethods.dll"></file>
+		<file src="bin\Net20Debug\v2.0\Mapbox.VectorTile.Geometry.dll" target="lib\net20\Mapbox.VectorTile.Geometry.dll"></file>
+		<file src="bin\Net20Debug\v2.0\Mapbox.VectorTile.PbfReader.dll" target="lib\net20\Mapbox.VectorTile.PbfReader.dll"></file>
+		<file src="bin\Net20Debug\v2.0\Mapbox.VectorTile.VectorTileReader.dll" target="lib\net20\Mapbox.VectorTile.VectorTileReader.dll"></file>
+
+		<file src="bin\Net35Debug\v3.5\Mapbox.VectorTile.ExtensionMethods.dll" target="lib\net35\Mapbox.VectorTile.ExtensionMethods.dll"></file>
+		<file src="bin\Net35Debug\v3.5\Mapbox.VectorTile.Geometry.dll" target="lib\net35\Mapbox.VectorTile.Geometry.dll"></file>
+		<file src="bin\Net35Debug\v3.5\Mapbox.VectorTile.PbfReader.dll" target="lib\net35\Mapbox.VectorTile.PbfReader.dll"></file>
+		<file src="bin\Net35Debug\v3.5\Mapbox.VectorTile.VectorTileReader.dll" target="lib\net35\Mapbox.VectorTile.VectorTileReader.dll"></file>
+
+		<file src="bin\Net462Debug\v4.6.2\Mapbox.VectorTile.ExtensionMethods.dll" target="lib\net462\Mapbox.VectorTile.ExtensionMethods.dll"></file>
+		<file src="bin\Net462Debug\v4.6.2\Mapbox.VectorTile.Geometry.dll" target="lib\net462\Mapbox.VectorTile.Geometry.dll"></file>
+		<file src="bin\Net462Debug\v4.6.2\Mapbox.VectorTile.PbfReader.dll" target="lib\net462\Mapbox.VectorTile.PbfReader.dll"></file>
+		<file src="bin\Net462Debug\v4.6.2\Mapbox.VectorTile.VectorTileReader.dll" target="lib\net462\Mapbox.VectorTile.VectorTileReader.dll"></file>
+
+		<file src="bin\PortableDebug\portable-net45+uap10\Mapbox.VectorTile.ExtensionMethods.dll" target="lib\uap10\Mapbox.VectorTile.ExtensionMethods.dll"></file>
+		<file src="bin\PortableDebug\portable-net45+uap10\Mapbox.VectorTile.Geometry.dll" target="lib\uap10\Mapbox.VectorTile.Geometry.dll"></file>
+		<file src="bin\PortableDebug\portable-net45+uap10\Mapbox.VectorTile.PbfReader.dll" target="lib\uap10\Mapbox.VectorTile.PbfReader.dll"></file>
+		<file src="bin\PortableDebug\portable-net45+uap10\Mapbox.VectorTile.VectorTileReader.dll" target="lib\uap10\Mapbox.VectorTile.VectorTileReader.dll"></file>
+
 	</files>
 </package>

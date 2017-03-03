@@ -108,7 +108,7 @@ namespace Mapbox.VectorTile {
 			byte[] buf = new byte[length];
 			Array.Copy(_buffer, (int)_pos, buf, 0, (int)length);
 			_pos += length;
-			return Encoding.UTF8.GetString(buf);
+			return Encoding.UTF8.GetString(buf, 0, buf.Length);
 		}
 
 

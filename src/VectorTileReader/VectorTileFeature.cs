@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Mapbox.VectorTile.Geometry;
-using System.Linq;
 using System;
 
 namespace Mapbox.VectorTile {

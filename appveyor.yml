@@ -7,7 +7,8 @@ clone_depth: 5
 
 install:
   - git submodule update --init --recursive
-  - nuget restore
+  - nuget restore VectorTileCsPortable.sln
+  - nuget restore VectorTileCs.sln
   - nuget install NUnit.Runners -OutputDirectory tools
   - nuget install OpenCover -OutputDirectory tools
 #  - nuget install ReportGenerator -Pre -OutputDirectory tools
@@ -18,19 +19,23 @@ install:
 platform: Any CPU
 configuration:
   - Debug
-  - Release
 
 environment:
   COVERALLS_REPO_TOKEN:
     secure: jAjmxnCi94uDJw6nWj6Kyr3jruWF4Aq03ItGuYvTzhfKgyk4h8R/tS0ZBBPC6j8k
 
-build:
-  parallel: true
-  project: VectorTileCs.sln
-  publish_nuget: true
-  publish_nuget_symbols: true
-  include_nuget_references: true
-  verbosity: minimal
+build_script:
+#build UWP
+  - msbuild VectorTileCsPortable.sln /p:Configuration=Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+#build Net 2.0
+  - msbuild VectorTileCs.sln /p:Configuration=Net20Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+  - bin\Net20Debug\v2.0\VerifyNetFrameworkVersion.exe
+#build Net 3.5
+  - msbuild VectorTileCs.sln /p:Configuration=Net35Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+  - bin\Net35Debug\v3.5\VerifyNetFrameworkVersion.exe
+#build Net 4.6.2
+  - msbuild VectorTileCs.sln /p:Configuration=Net462Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+  - bin\Net462Debug\v4.6.2\VerifyNetFrameworkVersion.exe
 
 after_build:
   - cmd: nuget pack Mapbox.VectorTile.nuspec
@@ -44,7 +49,7 @@ after_test:
     & $opencov `
     -register:user `
     -target:"$nunitrunner" `
-    -targetargs:"bin\VectorTiles.Tests.dll" `
+    -targetargs:"bin\Net35Debug\v3.5\VectorTiles.Tests.dll" `
     -filter:"+[*]* -[*.Tests]* -[*]*.InteralClipperLib.*" `
     -output:opencoverCoverage.xml;
     & $coveralls --opencover -i opencoverCoverage.xml `
@@ -58,7 +63,7 @@ after_test:
     --jobId $env:APPVEYOR_BUILD_NUMBER `
     --serviceName appveyor;
 - cmd: SET PATH=c:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\FxCop;%PATH%
-- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Mapbox.VectorTile.Geometry.dll /file:bin\Mapbox.VectorTile.PbfReader.dll /file:bin\Mapbox.VectorTile.ExtensionMethods.dll
+- cmd: FxCopCmd.exe /out:fxcop.out.xml /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.VectorTileReader.dll /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.Geometry.dll /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.PbfReader.dll /file:bin\Net35Debug\v3.5\Mapbox.VectorTile.ExtensionMethods.dll
 #http://help.appveyor.com/discussions/kb/9-support-for-stylecop-report#comment_34865295
 #http://help.appveyor.com/discussions/kb/5-code-analysis-fxcop-support
 - ps: >-
@@ -73,4 +78,6 @@ after_test:
     }
     Push-AppveyorArtifact opencoverCoverage.xml;
     Push-AppveyorArtifact fxcop.out.xml;
-- cmd: cd bin && bench
+- cmd: cd %APPVEYOR_BUILD_FOLDER%\bin\Net20Debug\v2.0 && bench
+- cmd: cd %APPVEYOR_BUILD_FOLDER%\bin\Net35Debug\v3.5 && bench
+- cmd: cd %APPVEYOR_BUILD_FOLDER%\bin\Net462Debug\v4.6.2 && bench

@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 
+#if !NET20
+using System.Linq;
+#endif
 
 namespace Bench {
 
@@ -25,7 +25,7 @@ namespace Bench {
 			ulong maxCol = 4693;
 			ulong maxRow = 6274;
 
-			string fixturePath = Path.Combine("..", "bench", "mvt-bench-fixtures", "fixtures");
+			string fixturePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.Combine("..", ".."), ".."), "bench"), "mvt-bench-fixtures"), "fixtures");
 			if(!Directory.Exists(fixturePath)) {
 				Console.Error.WriteLine("fixture directory not found: [{0}]", fixturePath);
 				return 1;
@@ -105,13 +105,21 @@ tiles/sec     : {7:0.0}
 
 		private static double StdDev(List<long> values) {
 			double ret = 0;
-			int count = values.Count();
+			int count = values.Count;
 			if(count > 1) {
 				//Compute the Average
 				double avg = values.Average();
 
 				//Perform the Sum of (value-avg)^2
+#if NET20
+				List<double> pows = new List<double>();
+				for(int i = 0; i < values.Count; i++) {
+					pows.Add(Math.Pow(values[i] - avg, 2));
+				}
+				double sum = pows.Sum();
+#else
 				double sum = values.Sum(d => (d - avg) * (d - avg));
+#endif
 
 				//Put it all together
 				ret = Math.Sqrt(sum / count);
@@ -138,5 +146,51 @@ tiles/sec     : {7:0.0}
 			return request;
 		}
 	}
+
+
+#if NET20
+	public static class Net20Extensions {
+
+		public static long Min(this List<long> theList) {
+			long min = long.MaxValue;
+			for(int i = 0; i < theList.Count; i++) {
+				if(min > theList[i]) { min = theList[i]; }
+			}
+			return min;
+		}
+
+		public static long Max(this List<long> theList) {
+			long max = long.MinValue;
+			for(int i = 0; i < theList.Count; i++) {
+				if(max < theList[i]) { max = theList[i]; }
+			}
+			return max;
+		}
+
+		public static long Sum(this List<long> theList) {
+			long retVal = 0;
+			for(int i = 0; i < theList.Count; i++) {
+				retVal += theList[i];
+			}
+			return retVal;
+		}
+
+		public static double Average(this List<long> theList) {
+			long sum = theList.Sum();
+			return (double)sum/(double)theList.Count;
+		}
+
+		public static double Sum(this List<double> theList) {
+			double retVal = 0;
+			for(int i = 0; i < theList.Count; i++) {
+				retVal += theList[i];
+			}
+			return retVal;
+		}
+
+	}
+#endif
+
+
 
 }

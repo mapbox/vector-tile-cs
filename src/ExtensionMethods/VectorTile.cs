@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Mapbox.VectorTile;
 using System.Globalization;
 using Mapbox.VectorTile.Geometry;
-using Mapbox.VectorTile.ExtensionMethods;
 
+#if !NET20
+using System.Linq;
+#endif
 
 namespace Mapbox.VectorTile.ExtensionMethods {
 
 
 	public static class VectorTileExtensions {
+
+
 		public static string ToGeoJson(
 			this VectorTile tile
 			, ulong zoom
@@ -65,12 +68,25 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 						switch(feat.GeometryType) {
 							case GeomType.POINT:
 								geomType = "MultiPoint";
+#if NET20
+								List<LatLng> allPoints = new List<LatLng>();
+								foreach(var part in geomWgs84) {
+									foreach(var pnt in part) {
+										allPoints.Add(pnt);
+									}
+								}
+								geojsonCoords = string.Join(
+									","
+									, allPoints.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+								);
+#else
 								geojsonCoords = string.Join(
 									","
 									, geomWgs84
 										.SelectMany((List<LatLng> g) => g)
 										.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 								);
+#endif
 								break;
 							case GeomType.LINESTRING:
 								geomType = "MultiLineString";
@@ -78,7 +94,11 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 								foreach(var part in geomWgs84) {
 									parts.Add("[" + string.Join(
 									","
+#if NET20
+									, part.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#else
 									, part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#endif
 									) + "]");
 								}
 								geojsonCoords = string.Join(",", parts.ToArray());
@@ -89,7 +109,11 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 								foreach(var part in geomWgs84) {
 									partsMP.Add("[" + string.Join(
 									","
+#if NET20
+									, part.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#else
 									, part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#endif
 									) + "]");
 								}
 								geojsonCoords = "[" + string.Join(",", partsMP.ToArray()) + "]";
@@ -105,13 +129,21 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 							case GeomType.LINESTRING:
 								geojsonCoords = string.Join(
 									","
+#if NET20
+									, geomWgs84[0].ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#else
 									, geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#endif
 								);
 								break;
 							case GeomType.POLYGON:
 								geojsonCoords = "[" + string.Join(
 									","
+#if NET20
+									, geomWgs84[0].ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#else
 									, geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+#endif
 								) + "]";
 								break;
 							default:
@@ -142,5 +174,9 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 			return geoJsonFeatColl;
 		}
 
+
+
 	}
 }
+
+
