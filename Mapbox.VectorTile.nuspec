@@ -2,14 +2,14 @@
 <package >
 	<metadata>
 		<id>Mapbox.VectorTile</id>
-		<version>1.0.2-alpha8</version>
+		<version>1.0.3-alpha1</version>
 		<authors>Mapbox</authors>
 		<owners>Mapbox</owners>
 		<licenseUrl>https://github.com/mapbox/vector-tile-cs</licenseUrl>
 		<projectUrl>https://github.com/mapbox/vector-tile-cs</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Mapbox VectorTileReader CSharp</description>
-		<releaseNotes>Make `ClipperLib` internal to not conflict with clients that might also have clipper.</releaseNotes>
+		<releaseNotes>Support for Net20, Net35, Net462, UWP.</releaseNotes>
 		<copyright>Copyright 2017</copyright>
 		<tags>vector tiles c# mapbox</tags>
 <!--
