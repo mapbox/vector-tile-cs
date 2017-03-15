@@ -6,7 +6,7 @@ using System.Globalization;
 namespace Mapbox.VectorTile.Geometry {
 
 
-#if PORTABLE
+#if PORTABLE || WINDOWS_UWP
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class DescriptionAttribute : Attribute {
 		private readonly string description;
