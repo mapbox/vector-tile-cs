@@ -20,10 +20,10 @@ namespace Mapbox.VectorTile {
 	public class VectorTileReader {
 
 		public VectorTileReader(byte[] data, bool validate = true) {
-			if(null == data) {
+			if (null == data) {
 				throw new Exception("Tile data cannot be null");
 			}
-			if(data[0] == 0x1f && data[1] == 0x8b) {
+			if (data[0] == 0x1f && data[1] == 0x8b) {
 				throw new Exception("Tile data is zipped");
 			}
 
@@ -37,30 +37,30 @@ namespace Mapbox.VectorTile {
 
 		private void layers(byte[] data) {
 			PbfReader tileReader = new PbfReader(data);
-			while(tileReader.NextByte()) {
-				if(_Validate) {
-					if(!duMMY.TileType.ContainsKey(tileReader.Tag)) {
-						throw new Exception($"Unknown tile tag: {tileReader.Tag}");
+			while (tileReader.NextByte()) {
+				if (_Validate) {
+					if (!duMMY.TileType.ContainsKey(tileReader.Tag)) {
+						throw new Exception(string.Format("Unknown tile tag: {0}", tileReader.Tag));
 					}
 				}
-				if(tileReader.Tag == (int)TileType.Layers) {
+				if (tileReader.Tag == (int)TileType.Layers) {
 					string name = null;
 					byte[] layerMessage = tileReader.View();
 					PbfReader layerView = new PbfReader(layerMessage);
-					while(layerView.NextByte()) {
-						if(layerView.Tag == (int)LayerType.Name) {
+					while (layerView.NextByte()) {
+						if (layerView.Tag == (int)LayerType.Name) {
 							ulong strLen = layerView.Varint();
 							name = layerView.GetString(strLen);
 						} else {
 							layerView.Skip();
 						}
 					}
-					if(_Validate) {
-						if(string.IsNullOrEmpty(name)) {
+					if (_Validate) {
+						if (string.IsNullOrEmpty(name)) {
 							throw new Exception("Layer missing name");
 						}
-						if(_Layers.ContainsKey(name)) {
-							throw new Exception($"Duplicate layer names: {name}");
+						if (_Layers.ContainsKey(name)) {
+							throw new Exception(string.Format("Duplicate layer names: {0}", name));
 						}
 					}
 					_Layers.Add(name, layerMessage);
@@ -82,7 +82,7 @@ namespace Mapbox.VectorTile {
 		}
 
 		public VectorTileLayer GetLayer(string name) {
-			if(!_Layers.ContainsKey(name)) {
+			if (!_Layers.ContainsKey(name)) {
 				return null;
 			}
 
@@ -93,14 +93,14 @@ namespace Mapbox.VectorTile {
 		private VectorTileLayer getLayer(byte[] data) {
 			VectorTileLayer layer = new VectorTileLayer(data);
 			PbfReader layerReader = new PbfReader(layer.Data);
-			while(layerReader.NextByte()) {
+			while (layerReader.NextByte()) {
 				int layerType = layerReader.Tag;
-				if(_Validate) {
-					if(!duMMY.LayerType.ContainsKey(layerType)) {
-						throw new Exception($"Unknown layer type: {layerType}");
+				if (_Validate) {
+					if (!duMMY.LayerType.ContainsKey(layerType)) {
+						throw new Exception(string.Format("Unknown layer type: {0}", layerType));
 					}
 				}
-				switch((LayerType)layerType) {
+				switch ((LayerType)layerType) {
 					case LayerType.Version:
 						ulong version = layerReader.Varint();
 						layer.Version = version;
@@ -120,8 +120,8 @@ namespace Mapbox.VectorTile {
 					case LayerType.Values:
 						byte[] valueBuffer = layerReader.View();
 						PbfReader valReader = new PbfReader(valueBuffer);
-						while(valReader.NextByte()) {
-							switch((ValueType)valReader.Tag) {
+						while (valReader.NextByte()) {
+							switch ((ValueType)valReader.Tag) {
 								case ValueType.String:
 									byte[] stringBuffer = valReader.View();
 									string value = Encoding.UTF8.GetString(stringBuffer, 0, stringBuffer.Length);
@@ -173,26 +173,26 @@ namespace Mapbox.VectorTile {
 				}
 			}
 
-			if(_Validate) {
-				if(string.IsNullOrEmpty(layer.Name)) {
+			if (_Validate) {
+				if (string.IsNullOrEmpty(layer.Name)) {
 					throw new Exception("Layer has no name");
 				}
-				if(0 == layer.Version) {
-					throw new Exception($"Layer [{layer.Name}] has invalid version. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.");
+				if (0 == layer.Version) {
+					throw new Exception(string.Format("Layer [{0}] has invalid version. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.", layer.Name));
 				}
-				if(2 != layer.Version) {
-					throw new Exception($"Layer [{layer.Name}] has invalid version: {layer.Version}. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.");
+				if (2 != layer.Version) {
+					throw new Exception(string.Format("Layer [{0}] has invalid version: {1}. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.", layer.Name, layer.Version));
 				}
-				if(0 == layer.Extent) {
-					throw new Exception($"Layer [{layer.Name}] has no extent.");
+				if (0 == layer.Extent) {
+					throw new Exception(string.Format("Layer [{0}] has no extent.", layer.Name));
 				}
-				if(0 == layer.FeatureCount()) {
-					throw new Exception($"Layer [{layer.Name}] has no features.");
+				if (0 == layer.FeatureCount()) {
+					throw new Exception(string.Format("Layer [{0}] has no features.", layer.Name));
 				}
 				//TODO: find equivalent of 'Distinct()' for NET20
 #if !NET20
-				if(layer.Values.Count != layer.Values.Distinct().Count()) {
-					throw new Exception($"Layer [{layer.Name}]: duplicate attribute values found");
+				if (layer.Values.Count != layer.Values.Distinct().Count()) {
+					throw new Exception(string.Format("Layer [{0}]: duplicate attribute values found", layer.Name));
 				}
 #endif
 			}
@@ -223,14 +223,14 @@ namespace Mapbox.VectorTile {
 			PbfReader featureReader = new PbfReader(data);
 			VectorTileFeature feat = new VectorTileFeature(layer);
 			bool geomTypeSet = false;
-			while(featureReader.NextByte()) {
+			while (featureReader.NextByte()) {
 				int featureType = featureReader.Tag;
-				if(validate) {
-					if(!duMMY.FeatureType.ContainsKey(featureType)) {
-						throw new Exception($"Layer [{layer.Name}] has unknown feature type: {featureType}");
+				if (validate) {
+					if (!duMMY.FeatureType.ContainsKey(featureType)) {
+						throw new Exception(string.Format("Layer [{0}] has unknown feature type: {1}", layer.Name, featureType));
 					}
 				}
-				switch((FeatureType)featureType) {
+				switch ((FeatureType)featureType) {
 					case FeatureType.Id:
 						feat.Id = featureReader.Varint();
 						break;
@@ -244,17 +244,17 @@ namespace Mapbox.VectorTile {
 						break;
 					case FeatureType.Type:
 						int geomType = (int)featureReader.Varint();
-						if(validate) {
-							if(!duMMY.GeomType.ContainsKey(geomType)) {
-								throw new Exception($"Layer [{layer.Name}] has unknown geometry type tag: {geomType}");
+						if (validate) {
+							if (!duMMY.GeomType.ContainsKey(geomType)) {
+								throw new Exception(string.Format("Layer [{0}] has unknown geometry type tag: {1}", layer.Name, geomType));
 							}
 						}
 						feat.GeometryType = (GeomType)geomType;
 						geomTypeSet = true;
 						break;
 					case FeatureType.Geometry:
-						if(null != feat.Geometry) {
-							throw new Exception($"Layer [{layer.Name}], feature already has a geometry");
+						if (null != feat.Geometry) {
+							throw new Exception(string.Format("Layer [{0}], feature already has a geometry", layer.Name));
 						}
 						//get raw array of commands and coordinates
 						List<uint> geometryCommands = featureReader.GetPackedUnit32();
@@ -264,7 +264,7 @@ namespace Mapbox.VectorTile {
 							, feat.GeometryType
 							, geometryCommands
 						);
-						if(clippBuffer.HasValue) {
+						if (clippBuffer.HasValue) {
 							geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent, clippBuffer.Value);
 						}
 						feat.Geometry = geom;
@@ -275,17 +275,17 @@ namespace Mapbox.VectorTile {
 				}
 			}
 
-			if(validate) {
-				if(!geomTypeSet) {
-					throw new Exception($"Layer [{layer.Name}]: feature missing geometry type");
+			if (validate) {
+				if (!geomTypeSet) {
+					throw new Exception(string.Format("Layer [{0}]: feature missing geometry type", layer.Name));
 				}
-				if(null == feat.Geometry) {
-					throw new Exception($"Layer [{layer.Name}]: feature has no geometry");
+				if (null == feat.Geometry) {
+					throw new Exception(string.Format("Layer [{0}]: feature has no geometry", layer.Name));
 				}
-				if(0 != feat.Tags.Count % 2) {
-					throw new Exception($"Layer [{layer.Name}]: uneven number of feature tag ids");
+				if (0 != feat.Tags.Count % 2) {
+					throw new Exception(string.Format("Layer [{0}]: uneven number of feature tag ids", layer.Name));
 				}
-				if(feat.Tags.Count > 0) {
+				if (feat.Tags.Count > 0) {
 #if NET20
 					int maxKeyIndex = -9999;
 					for(int i = 0; i < feat.Tags.Count; i += 2) {
@@ -299,11 +299,11 @@ namespace Mapbox.VectorTile {
 					int maxKeyIndex = feat.Tags.Where((key, idx) => idx % 2 == 0).Max();
 					int maxValueIndex = feat.Tags.Where((key, idx) => (idx + 1) % 2 == 0).Max();
 #endif
-					if(maxKeyIndex >= layer.Keys.Count) {
-						throw new Exception($"Layer [{layer.Name}]: maximum key index equal or greater number of key elements");
+					if (maxKeyIndex >= layer.Keys.Count) {
+						throw new Exception(string.Format("Layer [{0}]: maximum key index equal or greater number of key elements", layer.Name));
 					}
-					if(maxValueIndex >= layer.Values.Count) {
-						throw new Exception($"Layer [{layer.Name}]: maximum value index equal or greater number of value elements");
+					if (maxValueIndex >= layer.Values.Count) {
+						throw new Exception(string.Format("Layer [{0}]: maximum value index equal or greater number of value elements", layer.Name));
 					}
 				}
 			}
@@ -323,11 +323,11 @@ namespace Mapbox.VectorTile {
 
 			//points: simply remove them if one part of the coordinate pair is out of bounds:
 			// <0 || >extent
-			if(geomType == GeomType.POINT) {
-				foreach(var geomPart in geoms) {
+			if (geomType == GeomType.POINT) {
+				foreach (var geomPart in geoms) {
 					List<Point2d> outGeom = new List<Point2d>();
-					foreach(var geom in geomPart) {
-						if(
+					foreach (var geom in geomPart) {
+						if (
 							geom.X < (0L - bufferSize)
 							|| geom.Y < (0L - bufferSize)
 							|| geom.X > (extent + bufferSize)
@@ -338,7 +338,7 @@ namespace Mapbox.VectorTile {
 						outGeom.Add(geom);
 					}
 
-					if(outGeom.Count > 0) {
+					if (outGeom.Count > 0) {
 						retVal.Add(outGeom);
 					}
 				}
@@ -348,7 +348,7 @@ namespace Mapbox.VectorTile {
 
 			//use clipper for lines and polygons
 			bool closed = true;
-			if(geomType == GeomType.LINESTRING) { closed = false; }
+			if (geomType == GeomType.LINESTRING) { closed = false; }
 
 
 			Polygons subjects = new Polygons();
@@ -361,10 +361,10 @@ namespace Mapbox.VectorTile {
 			clip[0].Add(new InternalClipper.IntPoint(extent + bufferSize, extent + bufferSize));
 			clip[0].Add(new InternalClipper.IntPoint(0L - bufferSize, extent + bufferSize));
 
-			foreach(var geompart in geoms) {
+			foreach (var geompart in geoms) {
 				Polygon part = new Polygon();
 
-				foreach(var geom in geompart) {
+				foreach (var geom in geompart) {
 					part.Add(new InternalClipper.IntPoint(geom.X, geom.Y));
 				}
 				subjects.Add(part);
@@ -375,7 +375,7 @@ namespace Mapbox.VectorTile {
 			c.AddPaths(clip, InternalClipper.PolyType.ptClip, true);
 
 			bool succeeded = false;
-			if(geomType == GeomType.LINESTRING) {
+			if (geomType == GeomType.LINESTRING) {
 				InternalClipper.PolyTree lineSolution = new InternalClipper.PolyTree();
 				succeeded = c.Execute(
 					InternalClipper.ClipType.ctIntersection
@@ -383,7 +383,7 @@ namespace Mapbox.VectorTile {
 					, InternalClipper.PolyFillType.pftNonZero
 					, InternalClipper.PolyFillType.pftNonZero
 				);
-				if(succeeded) {
+				if (succeeded) {
 					solution = InternalClipper.Clipper.PolyTreeToPaths(lineSolution);
 				}
 			} else {
@@ -395,11 +395,11 @@ namespace Mapbox.VectorTile {
 				);
 			}
 
-			if(succeeded) {
+			if (succeeded) {
 				retVal = new List<List<Point2d>>();
-				foreach(var part in solution) {
+				foreach (var part in solution) {
 					List<Point2d> geompart = new List<Point2d>();
-					foreach(var geom in part) {
+					foreach (var geom in part) {
 						geompart.Add(new Point2d() { X = geom.X, Y = geom.Y });
 					}
 					retVal.Add(geompart);

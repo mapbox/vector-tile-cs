@@ -33,11 +33,11 @@ namespace Mapbox.VectorTile {
 
 		public Dictionary<string, object> GetProperties() {
 
-			if(0 != Tags.Count % 2) {
-				throw new Exception($"Layer [{_Layer.Name}]: uneven number of feature tag ids");
+			if (0 != Tags.Count % 2) {
+				throw new Exception(string.Format("Layer [{0}]: uneven number of feature tag ids", _Layer.Name));
 			}
 			Dictionary<string, object> properties = new Dictionary<string, object>();
-			for(int i = 0; i < Tags.Count; i += 2) {
+			for (int i = 0; i < Tags.Count; i += 2) {
 				properties.Add(_Layer.Keys[Tags[i]], _Layer.Values[Tags[i + 1]]);
 			}
 			return properties;
@@ -47,12 +47,12 @@ namespace Mapbox.VectorTile {
 		public object GetValue(string key) {
 
 			var idxKey = _Layer.Keys.IndexOf(key);
-			if(-1 == idxKey) {
-				throw new Exception($"Key [{key}] does not exist");
+			if (-1 == idxKey) {
+				throw new Exception(string.Format("Key [{0}] does not exist", key));
 			}
 
-			for(int i = 0; i < Tags.Count; i++) {
-				if(idxKey == Tags[i]) {
+			for (int i = 0; i < Tags.Count; i++) {
+				if (idxKey == Tags[i]) {
 					return _Layer.Values[Tags[i + 1]];
 				}
 			}
