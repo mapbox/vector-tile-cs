@@ -49,7 +49,7 @@ namespace Mapbox.VectorTile {
 					PbfReader layerView = new PbfReader(layerMessage);
 					while (layerView.NextByte()) {
 						if (layerView.Tag == (int)LayerType.Name) {
-							ulong strLen = layerView.Varint();
+							ulong strLen = (ulong)layerView.Varint();
 							name = layerView.GetString(strLen);
 						} else {
 							layerView.Skip();
@@ -102,15 +102,15 @@ namespace Mapbox.VectorTile {
 				}
 				switch ((LayerType)layerType) {
 					case LayerType.Version:
-						ulong version = layerReader.Varint();
+						ulong version = (ulong)layerReader.Varint();
 						layer.Version = version;
 						break;
 					case LayerType.Name:
-						ulong strLength = layerReader.Varint();
+						ulong strLength = (ulong)layerReader.Varint();
 						layer.Name = layerReader.GetString(strLength);
 						break;
 					case LayerType.Extent:
-						layer.Extent = layerReader.Varint();
+						layer.Extent = (ulong)layerReader.Varint();
 						break;
 					case LayerType.Keys:
 						byte[] keyBuffer = layerReader.View();
@@ -136,19 +136,19 @@ namespace Mapbox.VectorTile {
 									layer.Values.Add(dblVal);
 									break;
 								case ValueType.Int:
-									ulong i64 = valReader.Varint();
+									long i64 = valReader.Varint();
 									layer.Values.Add(i64);
 									break;
 								case ValueType.UInt:
-									ulong u64 = valReader.Varint();
+									long u64 = valReader.Varint();
 									layer.Values.Add(u64);
 									break;
 								case ValueType.SInt:
-									ulong s64 = valReader.Varint();
+									long s64 = valReader.Varint();
 									layer.Values.Add(s64);
 									break;
 								case ValueType.Bool:
-									ulong b = valReader.Varint();
+									long b = valReader.Varint();
 									layer.Values.Add(b == 1);
 									break;
 								default:
@@ -232,7 +232,7 @@ namespace Mapbox.VectorTile {
 				}
 				switch ((FeatureType)featureType) {
 					case FeatureType.Id:
-						feat.Id = featureReader.Varint();
+						feat.Id = (ulong)featureReader.Varint();
 						break;
 					case FeatureType.Tags:
 #if NET20

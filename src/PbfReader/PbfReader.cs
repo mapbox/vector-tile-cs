@@ -35,14 +35,14 @@ namespace Mapbox.VectorTile {
 		}
 
 
-		public ulong Varint() {
+		public long Varint() {
 			// convert to base 128 varint
 			// https://developers.google.com/protocol-buffers/docs/encoding
 			int shift = 0;
-			ulong result = 0;
+			long result = 0;
 			while(shift < 64) {
 				byte b = _buffer[_pos];
-				result |= (ulong)(b & 0x7F) << shift;
+				result |= (long)(b & 0x7F) << shift;
 				_pos++;
 				if((b & 0x80) == 0) {
 					return result;
@@ -64,7 +64,7 @@ namespace Mapbox.VectorTile {
 			}
 
 			ulong tmpPos = _pos;
-			ulong skipBytes = Varint();
+			ulong skipBytes = (ulong)Varint();
 			SkipBytes(skipBytes);
 
 			byte[] buf = new byte[skipBytes];
@@ -76,10 +76,10 @@ namespace Mapbox.VectorTile {
 
 		public List<uint> GetPackedUnit32() {
 			List<uint> values = new List<uint>(200);
-			ulong sizeInByte = Varint();
+			ulong sizeInByte = (ulong)Varint();
 			ulong end = _pos + sizeInByte;
 			while(_pos < end) {
-				ulong val = Varint();
+				ulong val = (ulong)Varint();
 				values.Add((uint)val);
 			}
 			return values;
@@ -118,7 +118,7 @@ namespace Mapbox.VectorTile {
 			}
 			// get and process the next byte in the buffer
 			// return true until end of stream
-			Value = Varint();
+			Value = (ulong)Varint();
 			Tag = (int)Value >> 3;
 			if(
 				(Tag == 0 || Tag >= 19000)
@@ -168,7 +168,7 @@ namespace Mapbox.VectorTile {
 					SkipVarint();
 					break;
 				case WireTypes.BYTES:
-					SkipBytes(Varint());
+					SkipBytes((ulong)Varint());
 					break;
 				case WireTypes.FIXED32:
 					SkipBytes(4);
