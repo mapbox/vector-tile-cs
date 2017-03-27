@@ -14,6 +14,20 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 	public static class VectorTileExtensions {
 
 
+		/// <summary>
+		/// Return the whole vector tile as GeoJSON
+		/// </summary>
+		/// <param name="tile"></param>
+		/// <param name="zoom">Zoom level of the tile</param>
+		/// <param name="tileColumn">Column of the tile (OSM tile schema)</param>
+		/// <param name="tileRow">Row of the tile (OSM tile schema)</param>
+		/// <param name="clipBuffer">
+		/// <para>Vector tiles may contain data reaching beyond the actual tile border.</para>
+		/// <para>Define if/how this data should be included.</para>
+		/// <para>'null': data from the vector tile as is</para>
+		/// <para>'&gt;=0': clip distance in internal tile units</para>
+		/// </param>
+		/// <returns>GeoJSON of the vector tile contents</returns>
 		public static string ToGeoJson(
 			this VectorTile tile
 			, ulong zoom

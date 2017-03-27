@@ -1,6 +1,5 @@
-﻿using Mapbox.VectorTile;
+﻿using Mapbox.VectorTile.Contants;
 using NUnit.Framework;
-using System.IO;
 
 
 namespace VectorTiles.Tests {

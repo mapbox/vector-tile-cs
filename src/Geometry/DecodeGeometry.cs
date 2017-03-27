@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Mapbox.VectorTile.Contants;
 
 namespace Mapbox.VectorTile.Geometry {
 
@@ -9,7 +10,7 @@ namespace Mapbox.VectorTile.Geometry {
 	public static class DecodeGeometry {
 
 		/// <summary>
-		/// <para>return a list of lists.</para>
+		/// <para>returns a list of lists.</para>
 		/// <para>If the root list contains one child list it is a single part feature</para>
 		/// <para>and the child list contains the coordinate pairs.</para>
 		/// <para>e.g. single part point:</para>
@@ -22,7 +23,7 @@ namespace Mapbox.VectorTile.Geometry {
 		/// <param name="extent">Tile extent</param>
 		/// <param name="geomType">Geometry type</param>
 		/// <param name="geometryCommands"></param>
-		/// <returns>List<List<Point2d>></returns>
+		/// <returns>List<List<Point2d>> of decoded geometries (in internal tile coordinates)</returns>
 		public static List<List<Point2d>> GetGeometry(
 			ulong extent
 			, GeomType geomType
@@ -70,40 +71,15 @@ namespace Mapbox.VectorTile.Geometry {
 				geomOut.Add(geomTmp);
 			}
 
-			//IGeometryBase geomOut2;
-			//switch (geomType)
-			//{
-			//    case GeomType.UNKNOWN:
-			//        throw new System.Exception("Geometry type unknown");
-			//    case GeomType.POINT:
-			//        if (geomOut.Count == 1)
-			//        {
-			//            geomOut2 = new Point<float>(geomOut[0][0].X, geomOut[0][0].Y);
-			//        } else
-			//        {
-			//            geomOut2 = new MultiPoint<float>();
-			//            foreach (var part in geomOut)
-			//            {
-			//                ((MultiPoint<float>)geomOut2).Add(new Point<float>(part[0].X, part[0].Y));
-			//            }
-			//        }
-			//        break;
-			//    case GeomType.LINESTRING:
-			//        geomOut2 = new LinearRing<float>();
-			//        break;
-			//    case GeomType.POLYGON:
-			//        geomOut2 = new Polygon<float>();
-			//        break;
-			//    default:
-			//        throw new System.Exception("Geometry type invalid");
-			//}
-
-
 			return geomOut;
 		}
 
 
 		private static Point2d zigzagDecode(long x, long y) {
+
+			//TODO: verify speed improvements using
+			// new Point2d(){X=x, Y=y} instead of
+			// new Point3d(x, y);
 
 			//return new Point2d(
 			//    ((x >> 1) ^ (-(x & 1))),

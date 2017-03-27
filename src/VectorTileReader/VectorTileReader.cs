@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-using Mapbox.VectorTile.Geometry;
-using System.Globalization;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text;
+using Mapbox.VectorTile.Contants;
+using Mapbox.VectorTile.Geometry;
 using Mapbox.VectorTile.InteralClipperLib;
 
 #if !NET20
@@ -17,14 +17,22 @@ namespace Mapbox.VectorTile {
 	using Polygons = List<List<InternalClipper.IntPoint>>;
 
 
+	/// <summary>
+	/// Mail vector tile reader class
+	/// </summary>
 	public class VectorTileReader {
 
+		/// <summary>
+		/// Initialize VectorTileReader
+		/// </summary>
+		/// <param name="data">Byte array containing the raw (already unzipped) tile data</param>
+		/// <param name="validate">If true, run checks if the tile contains valid data. Decreases decoding speed.</param>
 		public VectorTileReader(byte[] data, bool validate = true) {
 			if (null == data) {
-				throw new Exception("Tile data cannot be null");
+				throw new System.Exception("Tile data cannot be null");
 			}
 			if (data[0] == 0x1f && data[1] == 0x8b) {
-				throw new Exception("Tile data is zipped");
+				throw new System.Exception("Tile data is zipped");
 			}
 
 			_Validate = validate;
@@ -35,12 +43,13 @@ namespace Mapbox.VectorTile {
 		private Dictionary<string, byte[]> _Layers = new Dictionary<string, byte[]>();
 		private bool _Validate;
 
+
 		private void layers(byte[] data) {
 			PbfReader tileReader = new PbfReader(data);
 			while (tileReader.NextByte()) {
 				if (_Validate) {
-					if (!duMMY.TileType.ContainsKey(tileReader.Tag)) {
-						throw new Exception(string.Format("Unknown tile tag: {0}", tileReader.Tag));
+					if (!ConstantsAsDictionary.TileType.ContainsKey(tileReader.Tag)) {
+						throw new System.Exception(string.Format("Unknown tile tag: {0}", tileReader.Tag));
 					}
 				}
 				if (tileReader.Tag == (int)TileType.Layers) {
@@ -57,10 +66,10 @@ namespace Mapbox.VectorTile {
 					}
 					if (_Validate) {
 						if (string.IsNullOrEmpty(name)) {
-							throw new Exception("Layer missing name");
+							throw new System.Exception("Layer missing name");
 						}
 						if (_Layers.ContainsKey(name)) {
-							throw new Exception(string.Format("Duplicate layer names: {0}", name));
+							throw new System.Exception(string.Format("Duplicate layer names: {0}", name));
 						}
 					}
 					_Layers.Add(name, layerMessage);
@@ -71,6 +80,10 @@ namespace Mapbox.VectorTile {
 		}
 
 
+		/// <summary>
+		/// Collection of layers contained in the tile
+		/// </summary>
+		/// <returns>Collection of layer names</returns>
 		public ReadOnlyCollection<string> LayerNames() {
 #if NET20 || PORTABLE || WINDOWS_UWP
 			string[] lyrNames = new string[_Layers.Keys.Count];
@@ -81,6 +94,11 @@ namespace Mapbox.VectorTile {
 #endif
 		}
 
+		/// <summary>
+		/// Get a tile layer by name
+		/// </summary>
+		/// <param name="layerName">Name of the layer to request</param>
+		/// <returns>Decoded <see cref="VectorTileLayer"/></returns>
 		public VectorTileLayer GetLayer(string name) {
 			if (!_Layers.ContainsKey(name)) {
 				return null;
@@ -96,8 +114,8 @@ namespace Mapbox.VectorTile {
 			while (layerReader.NextByte()) {
 				int layerType = layerReader.Tag;
 				if (_Validate) {
-					if (!duMMY.LayerType.ContainsKey(layerType)) {
-						throw new Exception(string.Format("Unknown layer type: {0}", layerType));
+					if (!ConstantsAsDictionary.LayerType.ContainsKey(layerType)) {
+						throw new System.Exception(string.Format("Unknown layer type: {0}", layerType));
 					}
 				}
 				switch ((LayerType)layerType) {
@@ -152,7 +170,7 @@ namespace Mapbox.VectorTile {
 									layer.Values.Add(b == 1);
 									break;
 								default:
-									throw new Exception(string.Format(
+									throw new System.Exception(string.Format(
 										NumberFormatInfo.InvariantInfo
 										, "NOT IMPLEMENTED valueReader.Tag:{0} valueReader.WireType:{1}"
 										, valReader.Tag
@@ -175,24 +193,24 @@ namespace Mapbox.VectorTile {
 
 			if (_Validate) {
 				if (string.IsNullOrEmpty(layer.Name)) {
-					throw new Exception("Layer has no name");
+					throw new System.Exception("Layer has no name");
 				}
 				if (0 == layer.Version) {
-					throw new Exception(string.Format("Layer [{0}] has invalid version. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.", layer.Name));
+					throw new System.Exception(string.Format("Layer [{0}] has invalid version. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.", layer.Name));
 				}
 				if (2 != layer.Version) {
-					throw new Exception(string.Format("Layer [{0}] has invalid version: {1}. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.", layer.Name, layer.Version));
+					throw new System.Exception(string.Format("Layer [{0}] has invalid version: {1}. Only version 2.x of 'Mapbox Vector Tile Specification' (https://github.com/mapbox/vector-tile-spec) is supported.", layer.Name, layer.Version));
 				}
 				if (0 == layer.Extent) {
-					throw new Exception(string.Format("Layer [{0}] has no extent.", layer.Name));
+					throw new System.Exception(string.Format("Layer [{0}] has no extent.", layer.Name));
 				}
 				if (0 == layer.FeatureCount()) {
-					throw new Exception(string.Format("Layer [{0}] has no features.", layer.Name));
+					throw new System.Exception(string.Format("Layer [{0}] has no features.", layer.Name));
 				}
 				//TODO: find equivalent of 'Distinct()' for NET20
 #if !NET20
 				if (layer.Values.Count != layer.Values.Distinct().Count()) {
-					throw new Exception(string.Format("Layer [{0}]: duplicate attribute values found", layer.Name));
+					throw new System.Exception(string.Format("Layer [{0}]: duplicate attribute values found", layer.Name));
 				}
 #endif
 			}
@@ -202,11 +220,11 @@ namespace Mapbox.VectorTile {
 
 
 		/// <summary>
-		/// 
+		/// Get a feature of the <see cref="VectorTileLayer"/>
 		/// </summary>
-		/// <param name="layer"></param>
-		/// <param name="data"></param>
-		/// <param name="validate"></param>
+		/// <param name="layer"><see cref="VectorTileLayer"/> containing the feature</param>
+		/// <param name="data">Raw byte data of the feature</param>
+		/// <param name="validate">If true, run checks if the tile contains valid data. Decreases decoding speed.</param>
 		/// <param name="clippBuffer">
 		/// <para>'null': returns the geometries unaltered as they are in the vector tile. </para>
 		/// <para>Any value >=0 clips a border with the size around the tile. </para>
@@ -226,8 +244,8 @@ namespace Mapbox.VectorTile {
 			while (featureReader.NextByte()) {
 				int featureType = featureReader.Tag;
 				if (validate) {
-					if (!duMMY.FeatureType.ContainsKey(featureType)) {
-						throw new Exception(string.Format("Layer [{0}] has unknown feature type: {1}", layer.Name, featureType));
+					if (!ConstantsAsDictionary.FeatureType.ContainsKey(featureType)) {
+						throw new System.Exception(string.Format("Layer [{0}] has unknown feature type: {1}", layer.Name, featureType));
 					}
 				}
 				switch ((FeatureType)featureType) {
@@ -245,8 +263,8 @@ namespace Mapbox.VectorTile {
 					case FeatureType.Type:
 						int geomType = (int)featureReader.Varint();
 						if (validate) {
-							if (!duMMY.GeomType.ContainsKey(geomType)) {
-								throw new Exception(string.Format("Layer [{0}] has unknown geometry type tag: {1}", layer.Name, geomType));
+							if (!ConstantsAsDictionary.GeomType.ContainsKey(geomType)) {
+								throw new System.Exception(string.Format("Layer [{0}] has unknown geometry type tag: {1}", layer.Name, geomType));
 							}
 						}
 						feat.GeometryType = (GeomType)geomType;
@@ -254,7 +272,7 @@ namespace Mapbox.VectorTile {
 						break;
 					case FeatureType.Geometry:
 						if (null != feat.Geometry) {
-							throw new Exception(string.Format("Layer [{0}], feature already has a geometry", layer.Name));
+							throw new System.Exception(string.Format("Layer [{0}], feature already has a geometry", layer.Name));
 						}
 						//get raw array of commands and coordinates
 						List<uint> geometryCommands = featureReader.GetPackedUnit32();
@@ -277,13 +295,13 @@ namespace Mapbox.VectorTile {
 
 			if (validate) {
 				if (!geomTypeSet) {
-					throw new Exception(string.Format("Layer [{0}]: feature missing geometry type", layer.Name));
+					throw new System.Exception(string.Format("Layer [{0}]: feature missing geometry type", layer.Name));
 				}
 				if (null == feat.Geometry) {
-					throw new Exception(string.Format("Layer [{0}]: feature has no geometry", layer.Name));
+					throw new System.Exception(string.Format("Layer [{0}]: feature has no geometry", layer.Name));
 				}
 				if (0 != feat.Tags.Count % 2) {
-					throw new Exception(string.Format("Layer [{0}]: uneven number of feature tag ids", layer.Name));
+					throw new System.Exception(string.Format("Layer [{0}]: uneven number of feature tag ids", layer.Name));
 				}
 				if (feat.Tags.Count > 0) {
 #if NET20
@@ -300,10 +318,10 @@ namespace Mapbox.VectorTile {
 					int maxValueIndex = feat.Tags.Where((key, idx) => (idx + 1) % 2 == 0).Max();
 #endif
 					if (maxKeyIndex >= layer.Keys.Count) {
-						throw new Exception(string.Format("Layer [{0}]: maximum key index equal or greater number of key elements", layer.Name));
+						throw new System.Exception(string.Format("Layer [{0}]: maximum key index equal or greater number of key elements", layer.Name));
 					}
 					if (maxValueIndex >= layer.Values.Count) {
-						throw new Exception(string.Format("Layer [{0}]: maximum value index equal or greater number of value elements", layer.Name));
+						throw new System.Exception(string.Format("Layer [{0}]: maximum value index equal or greater number of value elements", layer.Name));
 					}
 				}
 			}

@@ -18,6 +18,9 @@ namespace Mapbox.VectorTile.Geometry {
 #endif
 
 
+	/// <summary>
+	/// Available geometry types
+	/// </summary>
 	public enum GeomType {
 		UNKNOWN = 0,
 		[Description("Point")]
@@ -29,6 +32,9 @@ namespace Mapbox.VectorTile.Geometry {
 	}
 
 
+	/// <summary>
+	/// Structure to hold a LatLng coordinate pair
+	/// </summary>
 	public struct LatLng {
 		public double Lat { get; set; }
 		public double Lng { get; set; }
@@ -43,6 +49,9 @@ namespace Mapbox.VectorTile.Geometry {
 	}
 
 
+	/// <summary>
+	/// Structure to hold a 2D point coordinate pair
+	/// </summary>
 	public struct Point2d {
 
 		public Point2d(long x, long y) {
