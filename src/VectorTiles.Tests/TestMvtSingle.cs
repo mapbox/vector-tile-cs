@@ -28,7 +28,7 @@ namespace VectorTiles.Tests {
 			VectorTileLayer lyr = vt.GetLayer(vt.LayerNames()[0]);
 			Assert.AreEqual("layer_name", lyr.Name, "Layer name");
 			Assert.AreEqual(1, lyr.FeatureCount(), "Feature count");
-			VectorTileFeature feat = lyr.GetFeature(0);
+			VectorTileFeature<long> feat = lyr.GetFeature<long>(0);
 			Assert.AreEqual(GeomType.POINT, feat.GeometryType, "Geometry type");
 			Assert.AreEqual(123, feat.Id, "id");
 			Dictionary<string, object> properties = feat.GetProperties();

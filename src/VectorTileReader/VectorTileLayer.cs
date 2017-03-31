@@ -54,8 +54,8 @@ namespace Mapbox.VectorTile {
 		/// <para>These are not pixels but the same units as the 'extent' of the layer. </para>
 		/// </param>
 		/// <returns></returns>
-		public VectorTileFeature GetFeature(int feature, uint? clippBuffer = null, float scale = 1.0f) {
-			return VectorTileReader.GetFeature(this, _FeaturesData[feature], true, clippBuffer, scale);
+		public VectorTileFeature<T> GetFeature<T>(int feature, uint? clippBuffer = null, float scale = 1.0f) {
+			return VectorTileReader.GetFeature<T>(this, _FeaturesData[feature], true, clippBuffer, scale);
 		}
 
 

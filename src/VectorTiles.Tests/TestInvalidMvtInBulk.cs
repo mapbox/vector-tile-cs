@@ -49,7 +49,7 @@ namespace VectorTiles.Tests {
 				foreach(var layerName in vt.LayerNames()) {
 					var layer = vt.GetLayer(layerName);
 					for(int i = 0; i < layer.FeatureCount(); i++) {
-						var feat = layer.GetFeature(i);
+						var feat = layer.GetFeature<long>(i);
 						feat.GetProperties();
 					}
 				}

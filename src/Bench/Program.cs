@@ -63,7 +63,7 @@ namespace Bench {
 					foreach(var layerName in vt.LayerNames()) {
 						VectorTileLayer layer = vt.GetLayer(layerName);
 						for(int j = 0; j < layer.FeatureCount(); j++) {
-							VectorTileFeature feat = layer.GetFeature(j);
+							VectorTileFeature<long> feat = layer.GetFeature<long>(j);
 							var props = feat.GetProperties();
 						}
 					}

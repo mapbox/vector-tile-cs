@@ -94,18 +94,26 @@ namespace Mapbox.VectorTile.Geometry {
 		}
 
 		public static explicit operator Point2d<T>(Point2d<float> v) {
-			TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+			TypeConverter converter = TypeDescriptor.GetConverter(typeof(float));
 			Point2d<T> pnt = new Point2d<T>();
-			pnt.X = (T)converter.ConvertFrom(v.X);
-			pnt.Y = (T)converter.ConvertFrom(v.Y);
+			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
 			return pnt;
 		}
 
 		public static explicit operator Point2d<T>(Point2d<int> v) {
-			TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+			TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
 			Point2d<T> pnt = new Point2d<T>();
-			pnt.X = (T)converter.ConvertFrom(v.X);
-			pnt.Y = (T)converter.ConvertFrom(v.Y);
+			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
+			return pnt;
+		}
+
+		public static explicit operator Point2d<T>(Point2d<long> v) {
+			TypeConverter converter = TypeDescriptor.GetConverter(typeof(long));
+			Point2d<T> pnt = new Point2d<T>();
+			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
 			return pnt;
 		}
 

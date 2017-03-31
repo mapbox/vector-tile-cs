@@ -47,7 +47,7 @@ namespace Mapbox.VectorTile {
 				//if (lyrName != "building") { continue; }
 				int featCnt = lyr.FeatureCount();
 				for (int i = 0; i < featCnt; i++) {
-					VectorTileFeature feat = lyr.GetFeature(i);
+					VectorTileFeature<long> feat = lyr.GetFeature<long>(i);
 					Console.WriteLine(string.Format("feature {0}: {1}", i, feat.GeometryType));
 					Dictionary<string, object> props = feat.GetProperties();
 					foreach (var prop in props) {

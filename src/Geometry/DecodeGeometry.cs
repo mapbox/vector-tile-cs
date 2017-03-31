@@ -23,16 +23,17 @@ namespace Mapbox.VectorTile.Geometry {
 		/// <param name="extent">Tile extent</param>
 		/// <param name="geomType">Geometry type</param>
 		/// <param name="geometryCommands"></param>
+		/// <param name="scale">NOT IMPLEMENTED HERE, <see cref="Scale{T}(List{List{Point2d{long}}})>"/> </param>
 		/// <returns>List<List<Point2d>> of decoded geometries (in internal tile coordinates)</returns>
-		public static List<List<Point2d<T>>> GetGeometry<T>(
+		public static List<List<Point2d<long>>> GetGeometry(
 			ulong extent
 			, GeomType geomType
 			, List<uint> geometryCommands
 			, float scale = 1.0f
 		) {
 
-			List<List<Point2d<T>>> geomOut = new List<List<Point2d<T>>>();
-			List<Point2d<T>> geomTmp = new List<Point2d<T>>();
+			List<List<Point2d<long>>> geomOut = new List<List<Point2d<long>>>();
+			List<Point2d<long>> geomTmp = new List<Point2d<long>>();
 			long cursorX = 0;
 			long cursorY = 0;
 			long tileExtent = (long)extent;
@@ -52,15 +53,15 @@ namespace Mapbox.VectorTile.Geometry {
 						//end of part of multipart feature
 						if (cmd == Commands.MoveTo && geomTmp.Count > 0) {
 							geomOut.Add(geomTmp);
-							geomTmp = new List<Point2d<T>>();
+							geomTmp = new List<Point2d<long>>();
 						}
 
 						//Point2d pntTmp = new Point2d(cursorX, cursorY);
-						Point2d<float> pntTmp = new Point2d<float>() {
-							X = ((float)cursorX) * scale,
-							Y = ((float)cursorY) * scale
+						Point2d<long> pntTmp = new Point2d<long>() {
+							X = cursorX,
+							Y = cursorY
 						};
-						geomTmp.Add((Point2d<T>)pntTmp);
+						geomTmp.Add(pntTmp);
 					}
 				}
 				if (cmd == Commands.ClosePath) {
@@ -77,6 +78,27 @@ namespace Mapbox.VectorTile.Geometry {
 			return geomOut;
 		}
 
+
+		public static List<List<Point2d<T>>> Scale<T>(
+			List<List<Point2d<long>>> inGeom
+			, float scale = 1.0f
+		) {
+
+			List<List<Point2d<T>>> outGeom = new List<List<Point2d<T>>>();
+			foreach (var inPart in inGeom) {
+				List<Point2d<T>> outPart = new List<Point2d<T>>();
+				foreach (var inVertex in inPart) {
+					Point2d<float> tmp = new Point2d<float>() {
+						X = ((float)inVertex.X) * scale,
+						Y = ((float)inVertex.Y) * scale
+					};
+					outPart.Add((Point2d<T>)tmp);
+				}
+				outGeom.Add(outPart);
+			}
+
+			return outGeom;
+		}
 
 		private static Point2d<long> zigzagDecode(long x, long y) {
 

@@ -278,7 +278,7 @@ namespace Mapbox.VectorTile {
 						//get raw array of commands and coordinates
 						List<uint> geometryCommands = featureReader.GetPackedUnit32();
 						//decode commands and coordinates
-						List<List<Point2d<T>>> geom = DecodeGeometry.GetGeometry<T>(
+						List<List<Point2d<long>>> geom = DecodeGeometry.GetGeometry(
 							layer.Extent
 							, feat.GeometryType
 							, geometryCommands
@@ -287,7 +287,11 @@ namespace Mapbox.VectorTile {
 						if (clippBuffer.HasValue) {
 							geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent, clippBuffer.Value, scale);
 						}
-						feat.Geometry = geom;
+
+						//HACK: use 'Scale' to convert to <T> too
+						List<List<Point2d<T>>> finalGeom = DecodeGeometry.Scale<T>(geom, scale);
+
+						feat.Geometry = finalGeom;
 						break;
 					default:
 						featureReader.Skip();
@@ -332,21 +336,21 @@ namespace Mapbox.VectorTile {
 		}
 
 
-		private static List<List<Point2d<T>>> clipGeometries<T>(
-			List<List<Point2d<T>>> geoms
+		private static List<List<Point2d<long>>> clipGeometries(
+			List<List<Point2d<long>>> geoms
 			, GeomType geomType
 			, long extent
 			, uint bufferSize
 			, float scale
 			) {
 
-			List<List<Point2d<T>>> retVal = new List<List<Point2d<T>>>();
+			List<List<Point2d<long>>> retVal = new List<List<Point2d<long>>>();
 
 			//points: simply remove them if one part of the coordinate pair is out of bounds:
 			// <0 || >extent
 			if (geomType == GeomType.POINT) {
 				foreach (var geomPart in geoms) {
-					List<Point2d<T>> outGeom = new List<Point2d<T>>();
+					List<Point2d<long>> outGeom = new List<Point2d<long>>();
 					foreach (var geom in geomPart) {
 						if (
 							geom.X < (0L - bufferSize)
@@ -417,11 +421,11 @@ namespace Mapbox.VectorTile {
 			}
 
 			if (succeeded) {
-				retVal = new List<List<Point2d>>();
+				retVal = new List<List<Point2d<long>>>();
 				foreach (var part in solution) {
-					List<Point2d> geompart = new List<Point2d>();
+					List<Point2d<long>> geompart = new List<Point2d<long>>();
 					foreach (var geom in part) {
-						geompart.Add(new Point2d() { X = geom.X, Y = geom.Y });
+						geompart.Add(new Point2d<long>() { X = geom.X, Y = geom.Y });
 					}
 					retVal.Add(geompart);
 				}
