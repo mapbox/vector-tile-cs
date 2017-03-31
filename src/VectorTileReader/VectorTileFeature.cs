@@ -6,7 +6,7 @@ using System;
 namespace Mapbox.VectorTile {
 
 
-	public class VectorTileFeature {
+	public class VectorTileFeature<T> {
 
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace Mapbox.VectorTile {
 
 
 		/// <summary>Geometry in internal tile coordinates</summary>
-		public List<List<Point2d>> Geometry { get; set; }
+		public List<List<Point2d<T>>> Geometry { get; set; }
 
 
 		/// <summary>Tags to resolve properties https://github.com/mapbox/vector-tile-spec/tree/master/2.1#44-feature-attributes</summary>

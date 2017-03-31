@@ -52,46 +52,63 @@ namespace Mapbox.VectorTile.Geometry {
 	/// <summary>
 	/// Structure to hold a 2D point coordinate pair
 	/// </summary>
-	public struct Point2d {
+	public struct Point2d<T> {
 
-		public Point2d(long x, long y) {
+		public Point2d(T x, T y) {
 			X = x;
 			Y = y;
 		}
 
-		public long X; //performance: field instead of property
-		public long Y; //performance: field instead of property
+		public T X; //performance: field instead of property
+		public T Y; //performance: field instead of property
 
-		public LatLng ToLngLat(ulong z, ulong x, ulong y, ulong extent, bool checkLatLngMax = false) {
+		//public LatLng ToLngLat(ulong z, ulong x, ulong y, ulong extent, bool checkLatLngMax = false) {
 
-			double size = (double)extent * Math.Pow(2, (double)z);
-			double x0 = (double)extent * (double)x;
-			double y0 = (double)extent * (double)y;
+		//	double size = (double)extent * Math.Pow(2, (double)z);
+		//	double x0 = (double)extent * (double)x;
+		//	double y0 = (double)extent * (double)y;
 
-			double y2 = 180 - (Y + y0) * 360 / size;
-			double lng = (X + x0) * 360 / size - 180;
-			double lat = 360 / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180)) - 90;
+		//	double y2 = 180 - (Y + y0) * 360 / size;
+		//	double lng = (X + x0) * 360 / size - 180;
+		//	double lat = 360 / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180)) - 90;
 
-			if(checkLatLngMax) {
-				if(lng < -180 || lng > 180) {
-					throw new ArgumentOutOfRangeException("Longitude out of range");
-				}
-				if(lat < -85.051128779806589 || lat > 85.051128779806589) {
-					throw new ArgumentOutOfRangeException("Latitude out of range");
-				}
-			}
+		//	if(checkLatLngMax) {
+		//		if(lng < -180 || lng > 180) {
+		//			throw new ArgumentOutOfRangeException("Longitude out of range");
+		//		}
+		//		if(lat < -85.051128779806589 || lat > 85.051128779806589) {
+		//			throw new ArgumentOutOfRangeException("Latitude out of range");
+		//		}
+		//	}
 
-			LatLng latLng = new LatLng() {
-				Lat = lat,
-				Lng = lng
-			};
+		//	LatLng latLng = new LatLng() {
+		//		Lat = lat,
+		//		Lng = lng
+		//	};
 
-			return latLng;
-		}
+		//	return latLng;
+		//}
 
 		public override string ToString() {
 			return string.Format(NumberFormatInfo.InvariantInfo, "{0}/{1}", X, Y);
 		}
+
+		public static explicit operator Point2d<T>(Point2d<float> v) {
+			TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+			Point2d<T> pnt = new Point2d<T>();
+			pnt.X = (T)converter.ConvertFrom(v.X);
+			pnt.Y = (T)converter.ConvertFrom(v.Y);
+			return pnt;
+		}
+
+		public static explicit operator Point2d<T>(Point2d<int> v) {
+			TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+			Point2d<T> pnt = new Point2d<T>();
+			pnt.X = (T)converter.ConvertFrom(v.X);
+			pnt.Y = (T)converter.ConvertFrom(v.Y);
+			return pnt;
+		}
+
 	}
 
 

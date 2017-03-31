@@ -231,15 +231,16 @@ namespace Mapbox.VectorTile {
 		/// <para>These are not pixels but the same units as the 'extent' of the layer. </para>
 		/// </param>
 		/// <returns></returns>
-		public static VectorTileFeature GetFeature(
+		public static VectorTileFeature<T> GetFeature<T>(
 			VectorTileLayer layer
 			, byte[] data
 			, bool validate = true
 			, uint? clippBuffer = null
+			, float scale = 1.0f
 		) {
 
 			PbfReader featureReader = new PbfReader(data);
-			VectorTileFeature feat = new VectorTileFeature(layer);
+			VectorTileFeature<T> feat = new VectorTileFeature<T>(layer);
 			bool geomTypeSet = false;
 			while (featureReader.NextByte()) {
 				int featureType = featureReader.Tag;
@@ -277,13 +278,14 @@ namespace Mapbox.VectorTile {
 						//get raw array of commands and coordinates
 						List<uint> geometryCommands = featureReader.GetPackedUnit32();
 						//decode commands and coordinates
-						List<List<Point2d>> geom = DecodeGeometry.GetGeometry(
+						List<List<Point2d<T>>> geom = DecodeGeometry.GetGeometry<T>(
 							layer.Extent
 							, feat.GeometryType
 							, geometryCommands
+							, scale
 						);
 						if (clippBuffer.HasValue) {
-							geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent, clippBuffer.Value);
+							geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent, clippBuffer.Value, scale);
 						}
 						feat.Geometry = geom;
 						break;
@@ -330,20 +332,21 @@ namespace Mapbox.VectorTile {
 		}
 
 
-		private static List<List<Point2d>> clipGeometries(
-			List<List<Point2d>> geoms
+		private static List<List<Point2d<T>>> clipGeometries<T>(
+			List<List<Point2d<T>>> geoms
 			, GeomType geomType
 			, long extent
 			, uint bufferSize
+			, float scale
 			) {
 
-			List<List<Point2d>> retVal = new List<List<Point2d>>();
+			List<List<Point2d<T>>> retVal = new List<List<Point2d<T>>>();
 
 			//points: simply remove them if one part of the coordinate pair is out of bounds:
 			// <0 || >extent
 			if (geomType == GeomType.POINT) {
 				foreach (var geomPart in geoms) {
-					List<Point2d> outGeom = new List<Point2d>();
+					List<Point2d<T>> outGeom = new List<Point2d<T>>();
 					foreach (var geom in geomPart) {
 						if (
 							geom.X < (0L - bufferSize)
