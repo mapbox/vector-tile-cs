@@ -424,8 +424,18 @@ namespace Mapbox.VectorTile {
 				retVal = new List<List<Point2d<long>>>();
 				foreach (var part in solution) {
 					List<Point2d<long>> geompart = new List<Point2d<long>>();
+					// HACK:
+					// 1. clipper may or may not reverse order of vertices of LineStrings
+					// 2. clipper semms to drop the first vertex of a Polygon
+					// * We don't care about 1.
+					// * Added a check for 2 and insert a copy of last vertex as first
 					foreach (var geom in part) {
 						geompart.Add(new Point2d<long>() { X = geom.X, Y = geom.Y });
+					}
+					if (geomType == GeomType.POLYGON) {
+						if (!geompart[0].Equals(geompart[geompart.Count - 1])) {
+							geompart.Insert(0, geompart[geompart.Count - 1]);
+						}
 					}
 					retVal.Add(geompart);
 				}
