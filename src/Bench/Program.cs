@@ -26,7 +26,7 @@ namespace Bench {
 			ulong maxRow = 6274;
 
 			string fixturePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.Combine("..", ".."), ".."), "bench"), "mvt-bench-fixtures"), "fixtures");
-			if(!Directory.Exists(fixturePath)) {
+			if (!Directory.Exists(fixturePath)) {
 				Console.Error.WriteLine("fixture directory not found: [{0}]", fixturePath);
 				return 1;
 			}
@@ -34,11 +34,11 @@ namespace Bench {
 			ulong nrOfTiles = (maxCol - minCol + 1) * (maxRow - minRow + 1);
 			List<TileData> tiles = new List<TileData>((int)nrOfTiles);
 
-			for(ulong col = minCol; col <= maxCol; col++) {
-				for(ulong row = minRow; row <= maxRow; row++) {
+			for (ulong col = minCol; col <= maxCol; col++) {
+				for (ulong row = minRow; row <= maxRow; row++) {
 					string fileName = string.Format("{0}-{1}-{2}.mvt", zoom, col, row);
 					fileName = Path.Combine(fixturePath, fileName);
-					if(!File.Exists(fileName)) {
+					if (!File.Exists(fileName)) {
 						Console.Error.WriteLine("fixture mvt not found: [{0}]", fileName);
 						return 1;
 					} else {
@@ -55,22 +55,22 @@ namespace Bench {
 			Stopwatch stopWatch = new Stopwatch();
 			List<long> elapsed = new List<long>();
 
-			for(int i = 0; i <= 100; i++) {
+			for (int i = 0; i <= 100; i++) {
 				Console.Write(".");
 				stopWatch.Start();
-				foreach(var tile in tiles) {
+				foreach (var tile in tiles) {
 					VectorTile vt = new VectorTile(tile.pbf, false);
-					foreach(var layerName in vt.LayerNames()) {
+					foreach (var layerName in vt.LayerNames()) {
 						VectorTileLayer layer = vt.GetLayer(layerName);
-						for(int j = 0; j < layer.FeatureCount(); j++) {
-							VectorTileFeature<long> feat = layer.GetFeature<long>(j);
+						for (int j = 0; j < layer.FeatureCount(); j++) {
+							VectorTileFeature feat = layer.GetFeature(j);
 							var props = feat.GetProperties();
 						}
 					}
 				}
 				stopWatch.Stop();
 				//skip first run
-				if(i != 0) {
+				if (i != 0) {
 					elapsed.Add(stopWatch.ElapsedMilliseconds);
 				}
 				stopWatch.Reset();
@@ -106,7 +106,7 @@ tiles/sec     : {7:0.0}
 		private static double StdDev(List<long> values) {
 			double ret = 0;
 			int count = values.Count;
-			if(count > 1) {
+			if (count > 1) {
 				//Compute the Average
 				double avg = values.Average();
 

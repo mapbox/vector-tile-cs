@@ -22,9 +22,9 @@ namespace Mapbox.VectorTile.Geometry {
 		/// </summary>
 		/// <param name="extent">Tile extent</param>
 		/// <param name="geomType">Geometry type</param>
-		/// <param name="geometryCommands"></param>
-		/// <param name="scale">NOT IMPLEMENTED HERE, <see cref="Scale{T}(List{List{Point2d{long}}})>"/> </param>
-		/// <returns>List<List<Point2d>> of decoded geometries (in internal tile coordinates)</returns>
+		/// <param name="geometryCommands">VT geometry commands, see spec</param>
+		/// <param name="scale">factor for scaling internal tile coordinates</param>
+		/// <returns>List<List<Point2d<long>>>> of decoded geometries (in internal tile coordinates)</returns>
 		public static List<List<Point2d<long>>> GetGeometry(
 			ulong extent
 			, GeomType geomType
@@ -79,6 +79,13 @@ namespace Mapbox.VectorTile.Geometry {
 		}
 
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T">Type of <see cref="Point2d{T}"/> to be returned. Currently supported: int, long and float. </typeparam>
+		/// <param name="inGeom">Geometry in internal tile coordinates.</param>
+		/// <param name="scale">Scale factor.</param>
+		/// <returns></returns>
 		public static List<List<Point2d<T>>> Scale<T>(
 			List<List<Point2d<long>>> inGeom
 			, float scale = 1.0f
