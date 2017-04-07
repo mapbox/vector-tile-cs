@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Mapbox.VectorTile.Contants;
 
 namespace Mapbox.VectorTile.Geometry {
@@ -95,11 +96,27 @@ namespace Mapbox.VectorTile.Geometry {
 			foreach (var inPart in inGeom) {
 				List<Point2d<T>> outPart = new List<Point2d<T>>();
 				foreach (var inVertex in inPart) {
-					Point2d<float> tmp = new Point2d<float>() {
-						X = ((float)inVertex.X) * scale,
-						Y = ((float)inVertex.Y) * scale
-					};
-					outPart.Add((Point2d<T>)tmp);
+					float fX = ((float)inVertex.X) * scale;
+					float fY = ((float)inVertex.Y) * scale;
+					// TODO: find a better solution to make this work
+					// scaled value has to be converted to target type beforehand
+					// casting to T only works via intermediate cast to object
+					// suppose (typeof(T) == typeof(x))
+					// works         : T x = (T)(object)x; 
+					// doesn't work  : T x = (T)x; 
+					if (typeof(T) == typeof(int)) {
+						int x = Convert.ToInt32(fX);
+						int y = Convert.ToInt32(fY);
+						outPart.Add(new Point2d<T>((T)(object)x, (T)(object)y));
+					} else if (typeof(T) == typeof(long)) {
+						long x = Convert.ToInt64(fX);
+						long y = Convert.ToInt64(fY);
+						outPart.Add(new Point2d<T>((T)(object)x, (T)(object)y));
+					} else if (typeof(T) == typeof(float)) {
+						float x = Convert.ToSingle(fX);
+						float y = Convert.ToSingle(fY);
+						outPart.Add(new Point2d<T>((T)(object)x, (T)(object)y));
+					}
 				}
 				outGeom.Add(outPart);
 			}

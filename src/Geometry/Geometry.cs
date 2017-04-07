@@ -95,32 +95,39 @@ namespace Mapbox.VectorTile.Geometry {
 			return string.Format(NumberFormatInfo.InvariantInfo, "{0}/{1}", X, Y);
 		}
 
-		public static explicit operator Point2d<T>(Point2d<float> v) {
-			TypeConverter converter = TypeDescriptor.GetConverter(typeof(float));
-			Point2d<T> pnt = new Point2d<T>();
-			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
-			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
-			return pnt;
-		}
+//#if !PORTABLE
 
-		public static explicit operator Point2d<T>(Point2d<int> v) {
-			TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
-			Point2d<T> pnt = new Point2d<T>();
-			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
-			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
-			return pnt;
-		}
+//		public static explicit operator Point2d<T>(Point2d<float> v) {
+//			TypeConverter converter = TypeDescriptor.GetConverter(typeof(float));
+//			Point2d<T> pnt = new Point2d<T>();
+//			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+//			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
+//			return pnt;
+//		}
 
-		public static explicit operator Point2d<T>(Point2d<long> v) {
-			TypeConverter converter = TypeDescriptor.GetConverter(typeof(long));
-			Point2d<T> pnt = new Point2d<T>();
-			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
-			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
-			return pnt;
-		}
+//		public static explicit operator Point2d<T>(Point2d<int> v) {
+//			TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
+//			Point2d<T> pnt = new Point2d<T>();
+//			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+//			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
+//			return pnt;
+//		}
 
+//		public static explicit operator Point2d<T>(Point2d<long> v) {
+//			TypeConverter converter = TypeDescriptor.GetConverter(typeof(long));
+//			Point2d<T> pnt = new Point2d<T>();
+//			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+//			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
+//			return pnt;
+//		}
+//#else
+//		public static explicit operator Point2d<T>(Point2d<long> v) {
+//			bool bla = typeof(IConvertible).IsAssignableFrom(T);
 
-
+//			Point2d<T> pnt = new Point2d<T>();
+//			return pnt;
+//		}
+//#endif
 
 	}
 
