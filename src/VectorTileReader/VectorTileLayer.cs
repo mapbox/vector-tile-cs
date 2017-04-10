@@ -48,14 +48,14 @@ namespace Mapbox.VectorTile {
 		/// Get a feature of this layer
 		/// </summary>
 		/// <param name="feature">Index of the feature to request</param>
-		/// <param name="clippBuffer">
+		/// <param name="clipBuffer">
 		/// <para>'null': returns the geometries unaltered as they are in the vector tile. </para>
 		/// <para>Any value >=0 clips a border with the size around the tile. </para>
 		/// <para>These are not pixels but the same units as the 'extent' of the layer. </para>
 		/// </param>
 		/// <returns></returns>
-		public VectorTileFeature GetFeature(int feature, uint? clippBuffer = null) {
-			return VectorTileReader.GetFeature(this, _FeaturesData[feature], true, clippBuffer);
+		public VectorTileFeature GetFeature(int feature, uint? clipBuffer = null, float scale = 1.0f) {
+			return VectorTileReader.GetFeature(this, _FeaturesData[feature], true, clipBuffer, scale);
 		}
 
 

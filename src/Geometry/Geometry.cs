@@ -52,15 +52,15 @@ namespace Mapbox.VectorTile.Geometry {
 	/// <summary>
 	/// Structure to hold a 2D point coordinate pair
 	/// </summary>
-	public struct Point2d {
+	public struct Point2d<T> {
 
-		public Point2d(long x, long y) {
+		public Point2d(T x, T y) {
 			X = x;
 			Y = y;
 		}
 
-		public long X; //performance: field instead of property
-		public long Y; //performance: field instead of property
+		public T X; //performance: field instead of property
+		public T Y; //performance: field instead of property
 
 		public LatLng ToLngLat(ulong z, ulong x, ulong y, ulong extent, bool checkLatLngMax = false) {
 
@@ -68,15 +68,17 @@ namespace Mapbox.VectorTile.Geometry {
 			double x0 = (double)extent * (double)x;
 			double y0 = (double)extent * (double)y;
 
-			double y2 = 180 - (Y + y0) * 360 / size;
-			double lng = (X + x0) * 360 / size - 180;
+			double dblY = Convert.ToDouble(Y);
+			double dblX = Convert.ToDouble(X);
+			double y2 = 180 - (dblY + y0) * 360 / size;
+			double lng = (dblX + x0) * 360 / size - 180;
 			double lat = 360 / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180)) - 90;
 
-			if(checkLatLngMax) {
-				if(lng < -180 || lng > 180) {
+			if (checkLatLngMax) {
+				if (lng < -180 || lng > 180) {
 					throw new ArgumentOutOfRangeException("Longitude out of range");
 				}
-				if(lat < -85.051128779806589 || lat > 85.051128779806589) {
+				if (lat < -85.051128779806589 || lat > 85.051128779806589) {
 					throw new ArgumentOutOfRangeException("Latitude out of range");
 				}
 			}
@@ -92,6 +94,41 @@ namespace Mapbox.VectorTile.Geometry {
 		public override string ToString() {
 			return string.Format(NumberFormatInfo.InvariantInfo, "{0}/{1}", X, Y);
 		}
+
+//#if !PORTABLE
+
+//		public static explicit operator Point2d<T>(Point2d<float> v) {
+//			TypeConverter converter = TypeDescriptor.GetConverter(typeof(float));
+//			Point2d<T> pnt = new Point2d<T>();
+//			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+//			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
+//			return pnt;
+//		}
+
+//		public static explicit operator Point2d<T>(Point2d<int> v) {
+//			TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
+//			Point2d<T> pnt = new Point2d<T>();
+//			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+//			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
+//			return pnt;
+//		}
+
+//		public static explicit operator Point2d<T>(Point2d<long> v) {
+//			TypeConverter converter = TypeDescriptor.GetConverter(typeof(long));
+//			Point2d<T> pnt = new Point2d<T>();
+//			pnt.X = (T)converter.ConvertTo(v.X, typeof(T));
+//			pnt.Y = (T)converter.ConvertTo(v.Y, typeof(T));
+//			return pnt;
+//		}
+//#else
+//		public static explicit operator Point2d<T>(Point2d<long> v) {
+//			bool bla = typeof(IConvertible).IsAssignableFrom(T);
+
+//			Point2d<T> pnt = new Point2d<T>();
+//			return pnt;
+//		}
+//#endif
+
 	}
 
 

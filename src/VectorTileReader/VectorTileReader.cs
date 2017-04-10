@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Text;
 using Mapbox.VectorTile.Contants;
 using Mapbox.VectorTile.Geometry;
-using Mapbox.VectorTile.InteralClipperLib;
 
 #if !NET20
 using System.Linq;
@@ -13,8 +12,6 @@ using System.Linq;
 namespace Mapbox.VectorTile {
 
 
-	using Polygon = List<InternalClipper.IntPoint>;
-	using Polygons = List<List<InternalClipper.IntPoint>>;
 
 
 	/// <summary>
@@ -235,11 +232,12 @@ namespace Mapbox.VectorTile {
 			VectorTileLayer layer
 			, byte[] data
 			, bool validate = true
-			, uint? clippBuffer = null
+			, uint? clipBuffer = null
+			, float scale = 1.0f
 		) {
 
 			PbfReader featureReader = new PbfReader(data);
-			VectorTileFeature feat = new VectorTileFeature(layer);
+			VectorTileFeature feat = new VectorTileFeature(layer, clipBuffer, scale);
 			bool geomTypeSet = false;
 			while (featureReader.NextByte()) {
 				int featureType = featureReader.Tag;
@@ -271,21 +269,11 @@ namespace Mapbox.VectorTile {
 						geomTypeSet = true;
 						break;
 					case FeatureType.Geometry:
-						if (null != feat.Geometry) {
+						if (null != feat.GeometryCommands) {
 							throw new System.Exception(string.Format("Layer [{0}], feature already has a geometry", layer.Name));
 						}
 						//get raw array of commands and coordinates
-						List<uint> geometryCommands = featureReader.GetPackedUnit32();
-						//decode commands and coordinates
-						List<List<Point2d>> geom = DecodeGeometry.GetGeometry(
-							layer.Extent
-							, feat.GeometryType
-							, geometryCommands
-						);
-						if (clippBuffer.HasValue) {
-							geom = clipGeometries(geom, feat.GeometryType, (long)layer.Extent, clippBuffer.Value);
-						}
-						feat.Geometry = geom;
+						feat.GeometryCommands = featureReader.GetPackedUnit32();
 						break;
 					default:
 						featureReader.Skip();
@@ -297,7 +285,7 @@ namespace Mapbox.VectorTile {
 				if (!geomTypeSet) {
 					throw new System.Exception(string.Format("Layer [{0}]: feature missing geometry type", layer.Name));
 				}
-				if (null == feat.Geometry) {
+				if (null == feat.GeometryCommands) {
 					throw new System.Exception(string.Format("Layer [{0}]: feature has no geometry", layer.Name));
 				}
 				if (0 != feat.Tags.Count % 2) {
@@ -328,108 +316,6 @@ namespace Mapbox.VectorTile {
 
 			return feat;
 		}
-
-
-		private static List<List<Point2d>> clipGeometries(
-			List<List<Point2d>> geoms
-			, GeomType geomType
-			, long extent
-			, uint bufferSize
-			) {
-
-			List<List<Point2d>> retVal = new List<List<Point2d>>();
-
-			//points: simply remove them if one part of the coordinate pair is out of bounds:
-			// <0 || >extent
-			if (geomType == GeomType.POINT) {
-				foreach (var geomPart in geoms) {
-					List<Point2d> outGeom = new List<Point2d>();
-					foreach (var geom in geomPart) {
-						if (
-							geom.X < (0L - bufferSize)
-							|| geom.Y < (0L - bufferSize)
-							|| geom.X > (extent + bufferSize)
-							|| geom.Y > (extent + bufferSize)
-							) {
-							continue;
-						}
-						outGeom.Add(geom);
-					}
-
-					if (outGeom.Count > 0) {
-						retVal.Add(outGeom);
-					}
-				}
-
-				return retVal;
-			}
-
-			//use clipper for lines and polygons
-			bool closed = true;
-			if (geomType == GeomType.LINESTRING) { closed = false; }
-
-
-			Polygons subjects = new Polygons();
-			Polygons clip = new Polygons(1);
-			Polygons solution = new Polygons();
-
-			clip.Add(new Polygon(4));
-			clip[0].Add(new InternalClipper.IntPoint(0L - bufferSize, 0L - bufferSize));
-			clip[0].Add(new InternalClipper.IntPoint(extent + bufferSize, 0L - bufferSize));
-			clip[0].Add(new InternalClipper.IntPoint(extent + bufferSize, extent + bufferSize));
-			clip[0].Add(new InternalClipper.IntPoint(0L - bufferSize, extent + bufferSize));
-
-			foreach (var geompart in geoms) {
-				Polygon part = new Polygon();
-
-				foreach (var geom in geompart) {
-					part.Add(new InternalClipper.IntPoint(geom.X, geom.Y));
-				}
-				subjects.Add(part);
-			}
-
-			InternalClipper.Clipper c = new InternalClipper.Clipper();
-			c.AddPaths(subjects, InternalClipper.PolyType.ptSubject, closed);
-			c.AddPaths(clip, InternalClipper.PolyType.ptClip, true);
-
-			bool succeeded = false;
-			if (geomType == GeomType.LINESTRING) {
-				InternalClipper.PolyTree lineSolution = new InternalClipper.PolyTree();
-				succeeded = c.Execute(
-					InternalClipper.ClipType.ctIntersection
-					, lineSolution
-					, InternalClipper.PolyFillType.pftNonZero
-					, InternalClipper.PolyFillType.pftNonZero
-				);
-				if (succeeded) {
-					solution = InternalClipper.Clipper.PolyTreeToPaths(lineSolution);
-				}
-			} else {
-				succeeded = c.Execute(
-					InternalClipper.ClipType.ctIntersection
-					, solution
-					, InternalClipper.PolyFillType.pftNonZero
-					, InternalClipper.PolyFillType.pftNonZero
-				);
-			}
-
-			if (succeeded) {
-				retVal = new List<List<Point2d>>();
-				foreach (var part in solution) {
-					List<Point2d> geompart = new List<Point2d>();
-					foreach (var geom in part) {
-						geompart.Add(new Point2d() { X = geom.X, Y = geom.Y });
-					}
-					retVal.Add(geompart);
-				}
-
-				return retVal;
-			} else {
-				//if clipper was not successfull return original geometries
-				return geoms;
-			}
-		}
-
 
 
 

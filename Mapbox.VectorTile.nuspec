@@ -2,14 +2,14 @@
 <package >
 	<metadata>
 		<id>Mapbox.VectorTile</id>
-		<version>1.0.3-alpha2</version>
+		<version>1.0.4-alpha1</version>
 		<authors>Mapbox</authors>
 		<owners>Mapbox</owners>
 		<licenseUrl>https://github.com/mapbox/vector-tile-cs</licenseUrl>
 		<projectUrl>https://github.com/mapbox/vector-tile-cs</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Mapbox VectorTileReader CSharp</description>
-		<releaseNotes>Update code comments.</releaseNotes>
+		<releaseNotes>Implement 'scale' parameter and generic number type for geometries. BREAKING change: VectorTileFeature.Geometry => VectorTileFeature.Geometry&lt;T&gt;() </releaseNotes>
 		<copyright>Copyright 2017</copyright>
 		<tags>vector tiles c# mapbox</tags>
 <!--

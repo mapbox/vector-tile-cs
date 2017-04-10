@@ -46,17 +46,17 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 
 			List<string> geojsonFeatures = new List<string>();
 
-			foreach(var layerName in tile.LayerNames()) {
+			foreach (var layerName in tile.LayerNames()) {
 				var layer = tile.GetLayer(layerName);
 
-				for(int i = 0; i < layer.FeatureCount(); i++) {
-					var feat = layer.GetFeature(i, clipBuffer);
+				for (int i = 0; i < layer.FeatureCount(); i++) {
+					var feat = layer.GetFeature(i, clipBuffer, 1.0f);
 
-					if(feat.GeometryType == GeomType.UNKNOWN) { continue; }
+					if (feat.GeometryType == GeomType.UNKNOWN) { continue; }
 
 					//resolve properties
 					List<string> keyValue = new List<string>();
-					for(int j = 0; j < feat.Tags.Count; j += 2) {
+					for (int j = 0; j < feat.Tags.Count; j += 2) {
 						string key = layer.Keys[feat.Tags[j]];
 						object val = layer.Values[feat.Tags[j + 1]];
 						keyValue.Add(string.Format(NumberFormatInfo.InvariantInfo, @"""{0}"":""{1}""", key, val));
@@ -78,21 +78,21 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 
 					//multipart
 					List<List<LatLng>> geomWgs84 = feat.GeometryAsWgs84(zoom, tileColumn, tileRow);
-					if(geomWgs84.Count > 1) {
-						switch(feat.GeometryType) {
+					if (geomWgs84.Count > 1) {
+						switch (feat.GeometryType) {
 							case GeomType.POINT:
 								geomType = "MultiPoint";
 #if NET20
-								List<LatLng> allPoints = new List<LatLng>();
-								foreach(var part in geomWgs84) {
-									foreach(var pnt in part) {
-										allPoints.Add(pnt);
-									}
-								}
-								geojsonCoords = string.Join(
-									","
-									, allPoints.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
-								);
+										List<LatLng> allPoints = new List<LatLng>();
+										foreach(var part in geomWgs84) {
+											foreach(var pnt in part) {
+												allPoints.Add(pnt);
+											}
+										}
+										geojsonCoords = string.Join(
+											","
+											, allPoints.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+										);
 #else
 								geojsonCoords = string.Join(
 									","
@@ -105,38 +105,38 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 							case GeomType.LINESTRING:
 								geomType = "MultiLineString";
 								List<string> parts = new List<string>();
-								foreach(var part in geomWgs84) {
+								foreach (var part in geomWgs84) {
 									parts.Add("[" + string.Join(
 									","
 #if NET20
-									, part.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, part.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #else
-									, part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #endif
-									) + "]");
+											) + "]");
 								}
 								geojsonCoords = string.Join(",", parts.ToArray());
 								break;
 							case GeomType.POLYGON:
 								geomType = "MultiPolygon";
 								List<string> partsMP = new List<string>();
-								foreach(var part in geomWgs84) {
+								foreach (var part in geomWgs84) {
 									partsMP.Add("[" + string.Join(
 									","
 #if NET20
-									, part.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, part.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #else
-									, part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, part.Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #endif
-									) + "]");
+											) + "]");
 								}
 								geojsonCoords = "[" + string.Join(",", partsMP.ToArray()) + "]";
 								break;
 							default:
 								break;
 						}
-					} else if(geomWgs84.Count == 1) { //singlepart
-						switch(feat.GeometryType) {
+					} else if (geomWgs84.Count == 1) { //singlepart
+						switch (feat.GeometryType) {
 							case GeomType.POINT:
 								geojsonCoords = string.Format(NumberFormatInfo.InvariantInfo, "{0},{1}", geomWgs84[0][0].Lng, geomWgs84[0][0].Lat);
 								break;
@@ -144,21 +144,21 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 								geojsonCoords = string.Join(
 									","
 #if NET20
-									, geomWgs84[0].ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, geomWgs84[0].ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #else
-									, geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #endif
-								);
+										);
 								break;
 							case GeomType.POLYGON:
 								geojsonCoords = "[" + string.Join(
 									","
 #if NET20
-									, geomWgs84[0].ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, geomWgs84[0].ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #else
-									, geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+											, geomWgs84[0].Select(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
 #endif
-								) + "]";
+										) + "]";
 								break;
 							default:
 								break;

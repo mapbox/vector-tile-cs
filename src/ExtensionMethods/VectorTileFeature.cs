@@ -26,16 +26,17 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 			, ulong zoom
 			, ulong tileColumn
 			, ulong tileRow
+			, uint? clipBuffer = null
 			) {
 
 			List<List<LatLng>> geometryAsWgs84 = new List<List<LatLng>>();
-			foreach (var part in feature.Geometry) {
+			foreach (var part in feature.Geometry<long>(clipBuffer, 1.0f)) {
 #if NET20
-				List<LatLng> partAsWgs84 = new List<LatLng>();
-				foreach(var partGeom in part) {
-					partAsWgs84.Add(partGeom.ToLngLat(zoom, tileColumn, tileRow, feature.Layer.Extent));
-				}
-				geometryAsWgs84.Add(partAsWgs84);
+						List<LatLng> partAsWgs84 = new List<LatLng>();
+						foreach(var partGeom in part) {
+							partAsWgs84.Add(partGeom.ToLngLat(zoom, tileColumn, tileRow, feature.Layer.Extent));
+						}
+						geometryAsWgs84.Add(partAsWgs84);
 #else
 				geometryAsWgs84.Add(
 					part.Select(g => g.ToLngLat(zoom, tileColumn, tileRow, feature.Layer.Extent)).ToList()

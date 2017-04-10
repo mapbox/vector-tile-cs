@@ -43,7 +43,8 @@ foreach(var lyrName in vt.LayerNames()) {
         //or get property value if you already know the key
         //object value = feat.GetValue(prop.Key);
         //iterate through all geometry parts
-        foreach(var part in feat.Geometry) {
+        //requesting coordinates as ints
+        foreach(var part in feat.Geometry<int>()) {
             //iterate through coordinates of the part
             foreach(var geom in part) {
                 Debug.WriteLine("geom.X:{0} geom.Y:{1}", geom.X, geom.Y);
