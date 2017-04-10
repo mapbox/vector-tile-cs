@@ -24,7 +24,7 @@ namespace Mapbox.VectorTile {
 		private VectorTileLayer _layer;
 		// TODO: how to cache without using object
 		// may a dictionary with parameters clip and scale as key to keep different requests fast
-		private object _cachedGeometry; 
+		private object _cachedGeometry;
 		private uint? _clipBuffer;
 		private float? _scale;
 		private float? _previousScale; //cache previous scale to not return
