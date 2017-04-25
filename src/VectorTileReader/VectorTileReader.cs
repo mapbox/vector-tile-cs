@@ -28,6 +28,9 @@ namespace Mapbox.VectorTile {
 			if (null == data) {
 				throw new System.Exception("Tile data cannot be null");
 			}
+			if (data.Length < 1) {
+				throw new System.Exception("Tile data cannot be empty");
+			}
 			if (data[0] == 0x1f && data[1] == 0x8b) {
 				throw new System.Exception("Tile data is zipped");
 			}
