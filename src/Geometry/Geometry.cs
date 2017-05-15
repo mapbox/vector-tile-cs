@@ -70,15 +70,15 @@ namespace Mapbox.VectorTile.Geometry {
 
 			double dblY = Convert.ToDouble(Y);
 			double dblX = Convert.ToDouble(X);
-			double y2 = 180 - (dblY + y0) * 360 / size;
-			double lng = (dblX + x0) * 360 / size - 180;
-			double lat = 360 / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180)) - 90;
+			double y2 = 180d - (dblY + y0) * 360d / size;
+			double lng = (dblX + x0) * 360d / size - 180d;
+			double lat = 360d / Math.PI * Math.Atan(Math.Exp(y2 * Math.PI / 180d)) - 90d;
 
 			if (checkLatLngMax) {
-				if (lng < -180 || lng > 180) {
+				if (lng < -180d || lng > 180d) {
 					throw new ArgumentOutOfRangeException("Longitude out of range");
 				}
-				if (lat < -85.051128779806589 || lat > 85.051128779806589) {
+				if (lat < -85.051128779806589d || lat > 85.051128779806589d) {
 					throw new ArgumentOutOfRangeException("Latitude out of range");
 				}
 			}
