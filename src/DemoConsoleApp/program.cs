@@ -99,21 +99,21 @@ namespace Mapbox.VectorTile {
 
 			ulong z;
 			if (!ulong.TryParse(zxy[0], out z)) {
-				Console.WriteLine($"could not parse zoom: {zxy[0]}");
+				Console.WriteLine($"not valid argument for tile zoom: {zxy[0]}");
 				return false;
 			}
 			zoom = z;
 
 			ulong x;
 			if (!ulong.TryParse(zxy[1], out x)) {
-				Console.WriteLine($"could not parse tileCol: {zxy[1]}");
+				Console.WriteLine($"not valid argument for tileCol: {zxy[1]}");
 				return false;
 			}
 			tileCol = x;
 
 			ulong y;
 			if (!ulong.TryParse(zxy[2], out y)) {
-				Console.WriteLine($"could not parse tileRow: {zxy[2]}");
+				Console.WriteLine($"not valid argument for tileRow: {zxy[2]}");
 				return false;
 			}
 			tileRow = y;
