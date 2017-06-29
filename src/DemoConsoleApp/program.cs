@@ -93,17 +93,48 @@ namespace Mapbox.VectorTile
 						}
 						if (feat.GeometryType == Geometry.GeomType.XYZ)
 						{
-							List<int> xyz = feat.XYZ();
-
 							StringBuilder sb = new StringBuilder();
-							for (int n = 0; n < xyz.Count; n++)
+
+							//List<int> xyz = feat.XYZ();
+							//int extent = (int)lyr.Extent;
+							//int extentSquared = extent * extent;
+							//// get actual tile data
+							//int n = 0;
+							//for (int y = 0; y < extent; y++)
+							//{
+							//	for (int x = 0; x < extent; x++)
+							//	{
+							//		sb.Append(((float)xyz[n] / 4f).ToString("0.00", NumberFormatInfo.InvariantInfo).PadLeft(8));
+							//		n++;
+							//	}
+							//	sb.Append(Environment.NewLine);
+							//}
+
+							//// get bleed data
+							//extent = 258;
+							//int cnter = 0;
+							//for (int b = n; b < xyz.Count; b++)
+							//{
+							//	if (0 != cnter && 0 == cnter % extent)
+							//	{
+							//		sb.Append(Environment.NewLine);
+							//	}
+							//	sb.Append(((float)xyz[b] / 4f).ToString("0.00", NumberFormatInfo.InvariantInfo).PadLeft(8));
+							//	cnter++;
+							//}
+
+							int[,] z = feat.XYZ();
+							int rows = z.GetLength(0);
+							int cols = z.GetLength(1);
+							for (int y = 0; y < rows; y++)
 							{
-								sb.Append(((float)xyz[n] / 4f).ToString("0.00", NumberFormatInfo.InvariantInfo).PadLeft(8));
-								if (0 == (n + 1) % (int)lyr.Extent)
+								for (int x = 0; x < cols; x++)
 								{
-									sb.Append(Environment.NewLine);
+									sb.Append(((float)z[x,y] / 4f).ToString("0.00", NumberFormatInfo.InvariantInfo).PadLeft(8));
 								}
+								sb.Append(Environment.NewLine);
 							}
+
 							File.WriteAllText($"{vtIn}.txt", sb.ToString(), new UTF8Encoding(false));
 						}
 					}

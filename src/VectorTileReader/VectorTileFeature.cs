@@ -52,29 +52,64 @@ namespace Mapbox.VectorTile
 		public List<int> XYZraw { get; set; }
 
 
-		public List<int> XYZ()
+		private int triangleAlgorithm(int left, int up, int upLeft)
+		{
+			return left + up - upLeft;
+		}
+
+
+		//public List<int> XYZ()
+		public int[,] XYZ()
 		{
 			if (GeometryType != GeomType.XYZ)
 			{
 				throw new Exception("Feature has is of type GEOMETRY, no XYZ available");
 			}
 
-			List<int> xyz = new List<int>(XYZraw);
-			for (int i = 1; i < xyz.Count; i++)
+			int extent = (int)Layer.Extent;
+			int[,] asMatrix = new int[extent, extent];
+
+			int n = 0;
+			for (int y = 0; y < extent; y++)
 			{
-				if (0 == i % (int)Layer.Extent)
+				for (int x = 0; x < extent; x++)
 				{
-					xyz[i] = xyz[i - (int)Layer.Extent] + xyz[i];
-				}
-				else
-				{
-					xyz[i] = xyz[i - 1] + xyz[i];
+					asMatrix[x, y] = XYZraw[n];
+					n++;
 				}
 			}
 
-			System.Diagnostics.Debug.WriteLine(Layer.Extent);
 
-			return xyz;
+			for (int y = 0; y < extent; y++)
+			{
+				for (int x = 0; x < extent; x++)
+				{
+					int value = asMatrix[x, y];
+					int left = x > 0 ? asMatrix[x - 1, y] : 0;
+					int up = y > 0 ? asMatrix[x, y - 1] : 0;
+					int upLeft = x > 0 && y > 0 ? asMatrix[x - 1, y - 1] : 0;
+					asMatrix[x, y] = value + triangleAlgorithm(left, up, upLeft);
+				}
+			}
+			return asMatrix;
+
+			//List<int> xyz = new List<int>(XYZraw);
+			//for (int i = 1; i < xyz.Count; i++)
+			//{
+			//	//xyz[i] = xyz[i - 1] + xyz[i];
+			//	if (0 == i % (int)Layer.Extent)
+			//	{
+			//		xyz[i] = xyz[i - (int)Layer.Extent] + xyz[i];
+			//	}
+			//	else
+			//	{
+			//		xyz[i] = xyz[i - 1] + xyz[i];
+			//	}
+			//}
+
+			//System.Diagnostics.Debug.WriteLine(Layer.Extent);
+
+			//return xyz;
 		}
 
 
