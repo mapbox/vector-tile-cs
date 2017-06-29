@@ -3,17 +3,20 @@ using Mapbox.VectorTile.Geometry;
 using System;
 
 
-namespace Mapbox.VectorTile {
+namespace Mapbox.VectorTile
+{
 
 
-	public class VectorTileFeature {
+	public class VectorTileFeature
+	{
 
 
 		/// <summary>
 		/// Initialize VectorTileFeature
 		/// </summary>
 		/// <param name="layer">Parent <see cref="VectorTileLayer"/></param>
-		public VectorTileFeature(VectorTileLayer layer, uint? clipBuffer = null, float scale = 1.0f) {
+		public VectorTileFeature(VectorTileLayer layer, uint? clipBuffer = null, float scale = 1.0f)
+		{
 			_layer = layer;
 			_clipBuffer = clipBuffer;
 			_scale = scale;
@@ -46,10 +49,45 @@ namespace Mapbox.VectorTile {
 		public List<uint> GeometryCommands { get; set; }
 
 
+		public List<int> XYZraw { get; set; }
+
+
+		public List<int> XYZ()
+		{
+			if (GeometryType != GeomType.XYZ)
+			{
+				throw new Exception("Feature has is of type GEOMETRY, no XYZ available");
+			}
+
+			List<int> xyz = new List<int>(XYZraw);
+			for (int i = 1; i < xyz.Count; i++)
+			{
+				if (0 == i % (int)Layer.Extent)
+				{
+					xyz[i] = xyz[i - (int)Layer.Extent] + xyz[i];
+				}
+				else
+				{
+					xyz[i] = xyz[i - 1] + xyz[i];
+				}
+			}
+
+			System.Diagnostics.Debug.WriteLine(Layer.Extent);
+
+			return xyz;
+		}
+
+
 		public List<List<Point2d<T>>> Geometry<T>(
 			uint? clipBuffer = null
 			, float? scale = null
-		) {
+		)
+		{
+
+			if (GeometryType == GeomType.XYZ)
+			{
+				throw new Exception("Feature is of type XYZ, no geometry available");
+			}
 
 			// parameters passed to this method override parameters passed to the constructor
 			if (_clipBuffer.HasValue && !clipBuffer.HasValue) { clipBuffer = _clipBuffer; }
@@ -58,7 +96,8 @@ namespace Mapbox.VectorTile {
 			// TODO: how to cache 'finalGeom' without making whole class generic???
 			// and without using an object (boxing) ???
 			List<List<Point2d<T>>> finalGeom = _cachedGeometry as List<List<Point2d<T>>>;
-			if (null != finalGeom && scale==_previousScale) {
+			if (null != finalGeom && scale == _previousScale)
+			{
 				return finalGeom;
 			}
 
@@ -69,7 +108,8 @@ namespace Mapbox.VectorTile {
 				, GeometryCommands
 				, scale.Value
 			);
-			if (clipBuffer.HasValue) {
+			if (clipBuffer.HasValue)
+			{
 				geom = UtilGeom.ClipGeometries(geom, GeometryType, (long)_layer.Extent, clipBuffer.Value, scale.Value);
 			}
 
@@ -91,13 +131,16 @@ namespace Mapbox.VectorTile {
 		/// Get properties of this feature. Throws exception if there is an uneven number of feature tag ids
 		/// </summary>
 		/// <returns>Dictionary of this feature's properties</returns>
-		public Dictionary<string, object> GetProperties() {
+		public Dictionary<string, object> GetProperties()
+		{
 
-			if (0 != Tags.Count % 2) {
+			if (0 != Tags.Count % 2)
+			{
 				throw new Exception(string.Format("Layer [{0}]: uneven number of feature tag ids", _layer.Name));
 			}
 			Dictionary<string, object> properties = new Dictionary<string, object>();
-			for (int i = 0; i < Tags.Count; i += 2) {
+			for (int i = 0; i < Tags.Count; i += 2)
+			{
 				properties.Add(_layer.Keys[Tags[i]], _layer.Values[Tags[i + 1]]);
 			}
 			return properties;
@@ -109,15 +152,19 @@ namespace Mapbox.VectorTile {
 		/// </summary>
 		/// <param name="key">Name of the property to request</param>
 		/// <returns>Value of the requested property</returns>
-		public object GetValue(string key) {
+		public object GetValue(string key)
+		{
 
 			var idxKey = _layer.Keys.IndexOf(key);
-			if (-1 == idxKey) {
+			if (-1 == idxKey)
+			{
 				throw new Exception(string.Format("Key [{0}] does not exist", key));
 			}
 
-			for (int i = 0; i < Tags.Count; i++) {
-				if (idxKey == Tags[i]) {
+			for (int i = 0; i < Tags.Count; i++)
+			{
+				if (idxKey == Tags[i])
+				{
 					return _layer.Values[Tags[i + 1]];
 				}
 			}

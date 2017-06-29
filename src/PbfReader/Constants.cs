@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 
 
-namespace Mapbox.VectorTile.Contants {
+namespace Mapbox.VectorTile.Contants
+{
 
 
 	/// <summary>
 	/// PBF wire types
 	/// </summary>
-	public enum WireTypes {
+	public enum WireTypes
+	{
 		VARINT = 0,// varint: int32, int64, uint32, uint64, sint32, sint64, bool, enum
 		FIXED64 = 1, // 64-bit: double, fixed64, sfixed64
 		BYTES = 2, // length-delimited: string, bytes, embedded messages, packed repeated fields
@@ -20,7 +22,8 @@ namespace Mapbox.VectorTile.Contants {
 	/// <summary>
 	/// Vector tile geometry commands https://github.com/mapbox/vector-tile-spec/tree/master/2.1#431-command-integers
 	/// </summary>
-	public enum Commands {
+	public enum Commands
+	{
 		MoveTo = 1,
 		LineTo = 2,
 		ClosePath = 7
@@ -30,7 +33,8 @@ namespace Mapbox.VectorTile.Contants {
 	/// <summary>
 	/// Root types contained in the vector tile. Currently just 'Layers' https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto#L75
 	/// </summary>
-	public enum TileType {
+	public enum TileType
+	{
 		Layers = 3
 	}
 
@@ -38,7 +42,8 @@ namespace Mapbox.VectorTile.Contants {
 	/// <summary>
 	/// Types contained in a layer https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto#L50-L73
 	/// </summary>
-	public enum LayerType {
+	public enum LayerType
+	{
 		Version = 15,
 		Name = 1,
 		Features = 2,
@@ -51,7 +56,8 @@ namespace Mapbox.VectorTile.Contants {
 	/// <summary>
 	/// Types contained in a feature https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto#L31-L47
 	/// </summary>
-	public enum FeatureType {
+	public enum FeatureType
+	{
 		Id = 1,
 		Tags = 2,
 		Type = 3,
@@ -63,7 +69,8 @@ namespace Mapbox.VectorTile.Contants {
 	/// <summary>
 	/// Available ypes for values https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto#L17-L28
 	/// </summary>
-	public enum ValueType {
+	public enum ValueType
+	{
 		String = 1,
 		Float = 2,
 		Double = 3,
@@ -77,7 +84,8 @@ namespace Mapbox.VectorTile.Contants {
 	/// <summary>
 	/// [wip] Investigate how to increase decoding speed. Looking up values in enums is slow
 	/// </summary>
-	public static class ConstantsAsDictionary {
+	public static class ConstantsAsDictionary
+	{
 
 
 		/// <summary>
@@ -123,7 +131,8 @@ namespace Mapbox.VectorTile.Contants {
 			{ 0, "Unknown"},
 			{ 1, "Point"},
 			{ 2, "LineString"},
-			{ 3, "Polygon"}
+			{ 3, "Polygon"},
+			{ 4, "XYZ" }
 		};
 	}
 

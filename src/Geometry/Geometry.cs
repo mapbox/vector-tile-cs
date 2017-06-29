@@ -28,7 +28,9 @@ namespace Mapbox.VectorTile.Geometry {
 		[Description("LineString")]
 		LINESTRING = 2,
 		[Description("Polygon")]
-		POLYGON = 3
+		POLYGON = 3,
+		[Description("XYZ")]
+		XYZ = 4
 	}
 
 
