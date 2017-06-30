@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Mapbox.VectorTile.Geometry;
 using System;
-
+using System.Diagnostics;
 
 namespace Mapbox.VectorTile
 {
@@ -67,12 +67,12 @@ namespace Mapbox.VectorTile
 			}
 
 			int extent = (int)Layer.Extent;
-			int[,] asMatrix = new int[extent, extent];
+			int[,] asMatrix = new int[extent + 2, extent + 2];
 
 			int n = 0;
-			for (int y = 0; y < extent; y++)
+			for (int y = 1; y <= extent; y++)
 			{
-				for (int x = 0; x < extent; x++)
+				for (int x = 1; x <= extent; x++)
 				{
 					asMatrix[x, y] = XYZraw[n];
 					n++;
@@ -80,36 +80,73 @@ namespace Mapbox.VectorTile
 			}
 
 
-			for (int y = 0; y < extent; y++)
+			for (int y = 1; y <= extent; y++)
 			{
-				for (int x = 0; x < extent; x++)
+				for (int x = 1; x <= extent; x++)
 				{
 					int value = asMatrix[x, y];
-					int left = x > 0 ? asMatrix[x - 1, y] : 0;
-					int up = y > 0 ? asMatrix[x, y - 1] : 0;
-					int upLeft = x > 0 && y > 0 ? asMatrix[x - 1, y - 1] : 0;
+					int left = x > 1 ? asMatrix[x - 1, y] : 0;
+					int up = y > 1 ? asMatrix[x, y - 1] : 0;
+					int upLeft = x > 1 && y > 1 ? asMatrix[x - 1, y - 1] : 0;
 					asMatrix[x, y] = value + triangleAlgorithm(left, up, upLeft);
 				}
 			}
-			return asMatrix;
 
-			//List<int> xyz = new List<int>(XYZraw);
-			//for (int i = 1; i < xyz.Count; i++)
-			//{
-			//	//xyz[i] = xyz[i - 1] + xyz[i];
-			//	if (0 == i % (int)Layer.Extent)
-			//	{
-			//		xyz[i] = xyz[i - (int)Layer.Extent] + xyz[i];
-			//	}
-			//	else
-			//	{
-			//		xyz[i] = xyz[i - 1] + xyz[i];
-			//	}
-			//}
+			int bleedCnt = 0;
+			int extentSquared = extent * extent;
+			for (int i = extentSquared; i < XYZraw.Count; i++)
+			{
+				bleedCnt++;
+			}
+			Debug.WriteLine($"bleed count: {bleedCnt}, extent: {extent}, extentSquared: {extentSquared}, XYZRaw-extentSquared: {XYZraw.Count - extentSquared}");
 
-			//System.Diagnostics.Debug.WriteLine(Layer.Extent);
+			//return asMatrix;
+			return decodeBleed(asMatrix, extent);
+		}
 
-			//return xyz;
+
+		private int[,] decodeBleed(int[,] tileMatrix, int extent)
+		{
+			//int[,] bleedMatrix = new int[extent + 2, extent + 2];
+
+			int x = 0;
+			int y = 0;
+			int prev = 0;
+			int idxRaw = extent * extent;
+
+			// left column
+			while (y <= extent)
+			{
+				//bleedMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				tileMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				y++; idxRaw++;
+			}
+
+			// bottom row
+			while (x <= extent)
+			{
+				//bleedMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				tileMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				x++; idxRaw++;
+			}
+
+			// right column
+			while (y > 0)
+			{
+				//bleedMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				tileMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				y--; idxRaw++;
+			}
+			// top row
+			while (x > 0)
+			{
+				//bleedMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				tileMatrix[x, y] = prev = XYZraw[idxRaw] + prev;
+				x--; idxRaw++;
+			}
+
+			//return bleedMatrix;
+			return tileMatrix;
 		}
 
 
@@ -122,6 +159,24 @@ namespace Mapbox.VectorTile
 			if (GeometryType == GeomType.XYZ)
 			{
 				throw new Exception("Feature is of type XYZ, no geometry available");
+
+				//int[,] asMatrix = XYZ();
+				//int width = asMatrix.GetLength(0);
+				//int height = asMatrix.GetLength(1);
+
+				//List<List<Point2d<T>>> xyzGeom = new List<List<Point2d<T>>>();
+				//for (int y = 0; y < height; y++)
+				//{
+				//	List<Point2d<T>> row = new List<Point2d<T>>();
+				//	for (int x = 0; x < width; x++)
+				//	{
+				//		T xt = (T)(object)x;
+				//		T yt = (T)(object)y;
+				//		Point2d<T> pnt = new Point2d<T>(xt, yt);
+				//	}
+				//}
+
+				//return xyzGeom;
 			}
 
 			// parameters passed to this method override parameters passed to the constructor
