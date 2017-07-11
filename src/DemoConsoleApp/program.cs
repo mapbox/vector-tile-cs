@@ -1,8 +1,10 @@
 using Mapbox.VectorTile.ExtensionMethods;
+using Mapbox.VectorTile.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Mapbox.VectorTile
@@ -130,18 +132,61 @@ namespace Mapbox.VectorTile
 							{
 								for (int x = 0; x < cols; x++)
 								{
-									sb.Append(((float)z[x,y] / 4f).ToString("0.00", NumberFormatInfo.InvariantInfo).PadLeft(8));
+									sb.Append(((float)z[x, y] / 4f).ToString("0.00", NumberFormatInfo.InvariantInfo).PadLeft(8));
 								}
 								sb.Append(Environment.NewLine);
 							}
 
 							File.WriteAllText($"{vtIn}.txt", sb.ToString(), new UTF8Encoding(false));
 						}
+						else
+						{
+							if (feat.GeometryType == Geometry.GeomType.POLYGON)
+							{
+								List<List<Point2d<float>>> geom = feat.Geometry<float>(0);
+								Console.WriteLine($"{geom.Count} parts");
+								for (int j = 0; j < geom.Count; j++)
+								{
+									List<Point2d<float>> part = geom[j];
+									Console.WriteLine($"part{j}, signed area: {SignedPolygonArea(part)}");
+									StringBuilder coords = new StringBuilder();
+									coords.Append(string.Join(
+										", "
+										, part
+										.Select(v => $"{v.X.ToString("0", NumberFormatInfo.InvariantInfo)}/{v.X.ToString("0", NumberFormatInfo.InvariantInfo)}")
+										.ToArray()
+									));
+									Console.WriteLine(coords.ToString());
+								}
+							}
+						}
 					}
 				}
 			}
 
 			return 0;
+		}
+
+
+		private static float SignedPolygonArea(List<Point2d<float>> vertices)
+		{
+			// Add the first point to the end.
+			int num_points = vertices.Count - 1;
+			//Point2d<float>[] pts = new Point2d<float>[num_points + 1];
+			//Points.CopyTo(pts, 0);
+			//pts[num_points] = Points[0];
+
+			// Get the areas.
+			float area = 0;
+			for (int i = 0; i < num_points; i++)
+			{
+				area +=
+					(vertices[i + 1].X - vertices[i].X) *
+					(vertices[i + 1].Y + vertices[i].Y) / 2;
+			}
+
+			// Return the result.
+			return area;
 		}
 
 		private static void usage()
