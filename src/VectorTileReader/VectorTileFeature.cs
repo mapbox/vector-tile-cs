@@ -200,7 +200,38 @@ namespace Mapbox.VectorTile
 			);
 			if (clipBuffer.HasValue)
 			{
-				geom = UtilGeom.ClipGeometries(geom, GeometryType, (long)_layer.Extent, clipBuffer.Value, scale.Value);
+				// HACK !!!
+				// work around a 'feature' of clipper where the ring order gets mixed up
+				// with multipolygons containing holes
+				if (geom.Count < 2 || GeometryType != GeomType.POLYGON)
+				{
+					// work on points, lines and single part polygons as before
+					geom = UtilGeom.ClipGeometries(geom, GeometryType, (long)_layer.Extent, clipBuffer.Value, scale.Value);
+				}
+				else
+				{
+					// process every ring of a polygon in a separate loop
+					List<List<Point2d<long>>> newGeom = new List<List<Point2d<long>>>();
+					for (int i = 0; i < geom.Count; i++)
+					{
+						List<Point2d<long>> part = geom[i];
+						List<List<Point2d<long>>> tmp = new List<List<Point2d<long>>>();
+						// flip order of inner rings to look like outer rings
+						bool isInner = signedPolygonArea(part) >= 0;
+						if (isInner) { part.Reverse(); }
+						tmp.Add(part);
+						tmp = UtilGeom.ClipGeometries(tmp, GeometryType, (long)_layer.Extent, clipBuffer.Value, scale.Value);
+						// ring was completely outside of clip border
+						if (0 == tmp.Count)
+						{
+							continue;
+						}
+						// flip winding order of inner rings back
+						if (isInner) { tmp[0].Reverse(); }
+						newGeom.Add(tmp[0]);
+					}
+					geom = newGeom;
+				}
 			}
 
 			//HACK: use 'Scale' to convert to <T> too
@@ -212,6 +243,21 @@ namespace Mapbox.VectorTile
 
 			return finalGeom;
 		}
+
+
+		private float signedPolygonArea(List<Point2d<long>> vertices)
+		{
+			int num_points = vertices.Count - 1;
+			float area = 0;
+			for (int i = 0; i < num_points; i++)
+			{
+				area +=
+					(vertices[i + 1].X - vertices[i].X) *
+					(vertices[i + 1].Y + vertices[i].Y) / 2;
+			}
+			return area;
+		}
+
 
 		/// <summary>Tags to resolve properties https://github.com/mapbox/vector-tile-spec/tree/master/2.1#44-feature-attributes</summary>
 		public List<int> Tags { get; set; }
