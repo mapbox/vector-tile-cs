@@ -9,7 +9,8 @@ using System.Linq;
 
 #if NET20
 
-namespace System.Runtime.CompilerServices {
+namespace System.Runtime.CompilerServices
+{
 	[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class
 		 | AttributeTargets.Method)]
 	public sealed class ExtensionAttribute : Attribute { }
@@ -18,13 +19,16 @@ namespace System.Runtime.CompilerServices {
 #endif
 
 
-namespace Mapbox.VectorTile.ExtensionMethods {
+namespace Mapbox.VectorTile.ExtensionMethods
+{
 
 	/// <summary>
 	/// Extension method to extract the [Description] attribute from an Enum
 	/// </summary>
-	public static class EnumExtensions {
-		public static string Description(this Enum value) {
+	public static class EnumExtensions
+	{
+		public static string Description(this Enum value)
+		{
 			var enumType = value.GetType();
 #if PORTABLE || WINDOWS_UWP
 			var field = enumType.GetRuntimeField(value.ToString());

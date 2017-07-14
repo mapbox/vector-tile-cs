@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using System.IO;
 
 
-namespace Mapbox.VectorTile {
+namespace Mapbox.VectorTile
+{
 
 
-	public class DemoConsoleApp {
+	public class DemoConsoleApp
+	{
 
 
-		public static int Main(string[] args) {
+		public static int Main(string[] args)
+		{
 
 			string vtIn = string.Empty;
 			uint? clipBuffer = null;
@@ -19,28 +22,39 @@ namespace Mapbox.VectorTile {
 			ulong? tileCol = null;
 			ulong? tileRow = null;
 
-			for (int i = 0; i < args.Length; i++) {
+			for (int i = 0; i < args.Length; i++)
+			{
 				string argLow = args[i].ToLower();
-				if (argLow.Contains("vt:")) {
+				if (argLow.Contains("vt:"))
+				{
 					vtIn = argLow.Replace("vt:", "");
-				} else if (argLow.Contains("clip:")) {
+				}
+				else if (argLow.Contains("clip:"))
+				{
 					clipBuffer = Convert.ToUInt32(argLow.Replace("clip:", ""));
-				} else if (argLow.Contains("out:")) {
+				}
+				else if (argLow.Contains("out:"))
+				{
 					outGeoJson = argLow.Replace("out:", "").Equals("geojson");
-				} else if (argLow.Contains("tileid:")) {
+				}
+				else if (argLow.Contains("tileid:"))
+				{
 					parseArg(argLow.Replace("tileid:", ""), out zoom, out tileCol, out tileRow);
 				}
 			}
 
-			if (!File.Exists(vtIn)) {
+			if (!File.Exists(vtIn))
+			{
 				Console.WriteLine($"file [{vtIn}] not found");
 				usage();
 				return 1;
 			}
 
 			// z-x-y weren't passed via parameters, try to get them from file name
-			if (!zoom.HasValue || !tileCol.HasValue || !tileRow.HasValue) {
-				if (!parseArg(Path.GetFileName(vtIn), out zoom, out tileCol, out tileRow)) {
+			if (!zoom.HasValue || !tileCol.HasValue || !tileRow.HasValue)
+			{
+				if (!parseArg(Path.GetFileName(vtIn), out zoom, out tileCol, out tileRow))
+				{
 					usage();
 					return 1;
 				}
@@ -50,19 +64,25 @@ namespace Mapbox.VectorTile {
 
 			VectorTile tile = new VectorTile(bufferedData);
 
-			if (outGeoJson) {
+			if (outGeoJson)
+			{
 				Console.WriteLine(tile.ToGeoJson(zoom.Value, tileCol.Value, tileRow.Value, clipBuffer));
-			} else {
-				foreach (string lyrName in tile.LayerNames()) {
+			}
+			else
+			{
+				foreach (string lyrName in tile.LayerNames())
+				{
 					VectorTileLayer lyr = tile.GetLayer(lyrName);
 					Console.WriteLine(string.Format("------------ {0} ---------", lyrName));
 					//if (lyrName != "building") { continue; }
 					int featCnt = lyr.FeatureCount();
-					for (int i = 0; i < featCnt; i++) {
+					for (int i = 0; i < featCnt; i++)
+					{
 						VectorTileFeature feat = lyr.GetFeature(i, clipBuffer);
 						Console.WriteLine(string.Format("feature {0}: {1}", i, feat.GeometryType));
 						Dictionary<string, object> props = feat.GetProperties();
-						foreach (var prop in props) {
+						foreach (var prop in props)
+						{
 							Console.WriteLine(string.Format("   {0}\t : {1}", prop.Key, prop.Value));
 						}
 					}
@@ -72,7 +92,8 @@ namespace Mapbox.VectorTile {
 			return 0;
 		}
 
-		private static void usage() {
+		private static void usage()
+		{
 
 			Console.WriteLine("");
 			Console.WriteLine("DemoConsoleApp.exe vt:<tile.mvt> <other parameters>");
@@ -85,34 +106,39 @@ namespace Mapbox.VectorTile {
 			Console.WriteLine("");
 		}
 
-		private static bool parseArg(string fileName, out ulong? zoom, out ulong? tileCol, out ulong? tileRow) {
+		private static bool parseArg(string fileName, out ulong? zoom, out ulong? tileCol, out ulong? tileRow)
+		{
 			zoom = null;
 			tileCol = null;
 			tileRow = null;
 
 			string zxyTxt = fileName.Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
 			string[] zxy = zxyTxt.Split("-".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-			if (zxy.Length != 3) {
+			if (zxy.Length != 3)
+			{
 				Console.WriteLine("invalid zoom, tileCol or tileRow [{0}]", zxyTxt);
 				return false;
 			}
 
 			ulong z;
-			if (!ulong.TryParse(zxy[0], out z)) {
+			if (!ulong.TryParse(zxy[0], out z))
+			{
 				Console.WriteLine($"could not parse zoom: {zxy[0]}");
 				return false;
 			}
 			zoom = z;
 
 			ulong x;
-			if (!ulong.TryParse(zxy[1], out x)) {
+			if (!ulong.TryParse(zxy[1], out x))
+			{
 				Console.WriteLine($"could not parse tileCol: {zxy[1]}");
 				return false;
 			}
 			tileCol = x;
 
 			ulong y;
-			if (!ulong.TryParse(zxy[2], out y)) {
+			if (!ulong.TryParse(zxy[2], out y))
+			{
 				Console.WriteLine($"could not parse tileRow: {zxy[2]}");
 				return false;
 			}

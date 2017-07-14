@@ -18,37 +18,45 @@ using ATestDataSource = NUnit.Framework.TestCaseSourceAttribute;
 #endif
 
 
-namespace VectorTiles.Tests {
+namespace VectorTiles.Tests
+{
 
 
 	[ATestClass]
-	public class BulkInvalidMvtTests {
+	public class BulkInvalidMvtTests
+	{
 
 		private string _fixturesPath;
 		public static string _executingFolder = AppDomain.CurrentDomain.BaseDirectory;
 
 
 		[ATestClassSetup]
-		protected void SetUp() {
+		protected void SetUp()
+		{
 			_fixturesPath = Path.Combine(_executingFolder, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "invalid");
 		}
 
 		[ATestMethod, Order(1)]
-		public void FixturesPathExists() {
+		public void FixturesPathExists()
+		{
 			Assert.True(Directory.Exists(_fixturesPath), "MVT fixtures directory exists");
 		}
 
 
 		[ATestMethod, ATestDataSource(typeof(GetMVTs), "GetInValidFixtureFileName")]
-		public void Validate(string fileName) {
+		public void Validate(string fileName)
+		{
 			string fullFileName = Path.Combine(_fixturesPath, fileName);
 			Assert.True(File.Exists(fullFileName), "Vector tile exists");
 			byte[] data = File.ReadAllBytes(fullFileName);
-			Assert.Throws(Is.InstanceOf<Exception>(), () => {
+			Assert.Throws(Is.InstanceOf<Exception>(), () =>
+			{
 				VectorTile vt = new VectorTile(data);
-				foreach(var layerName in vt.LayerNames()) {
+				foreach (var layerName in vt.LayerNames())
+				{
 					var layer = vt.GetLayer(layerName);
-					for(int i = 0; i < layer.FeatureCount(); i++) {
+					for (int i = 0; i < layer.FeatureCount(); i++)
+					{
 						var feat = layer.GetFeature(i);
 						feat.GetProperties();
 					}
@@ -57,11 +65,14 @@ namespace VectorTiles.Tests {
 		}
 	}
 
-	public partial class GetMVTs {
-		public static IEnumerable GetInValidFixtureFileName() {
+	public partial class GetMVTs
+	{
+		public static IEnumerable GetInValidFixtureFileName()
+		{
 			string path = Path.Combine(BulkInvalidMvtTests._executingFolder, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "invalid");
 
-			foreach(var file in Directory.GetFiles(path)) {
+			foreach (var file in Directory.GetFiles(path))
+			{
 				//return file basename only to make test description more readable
 				yield return new TestCaseData(Path.GetFileName(file));
 			}

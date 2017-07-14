@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Mapbox.VectorTile {
+namespace Mapbox.VectorTile
+{
 
 
 	/// <summary>
 	/// Class to access a vector tile layer
 	/// </summary>
 	[DebuggerDisplay("Layer {Name}")]
-	public class VectorTileLayer {
+	public class VectorTileLayer
+	{
 
 
 		/// <summary>
 		/// Class to access a vector tile layer
 		/// </summary>
-		public VectorTileLayer() {
+		public VectorTileLayer()
+		{
 			_FeaturesData = new List<byte[]>();
 			Keys = new List<string>();
 			Values = new List<object>();
@@ -26,7 +29,8 @@ namespace Mapbox.VectorTile {
 		/// Initialize vector tile layer with data
 		/// </summary>
 		/// <param name="data">Raw layer data as byte array</param>
-		public VectorTileLayer(byte[] data) : this() {
+		public VectorTileLayer(byte[] data) : this()
+		{
 			Data = data;
 		}
 
@@ -39,7 +43,8 @@ namespace Mapbox.VectorTile {
 		/// Get number of features.
 		/// </summary>
 		/// <returns>Number of features in this layer</returns>
-		public int FeatureCount() {
+		public int FeatureCount()
+		{
 			return _FeaturesData.Count;
 		}
 
@@ -54,12 +59,14 @@ namespace Mapbox.VectorTile {
 		/// <para>These are not pixels but the same units as the 'extent' of the layer. </para>
 		/// </param>
 		/// <returns></returns>
-		public VectorTileFeature GetFeature(int feature, uint? clipBuffer = null, float scale = 1.0f) {
+		public VectorTileFeature GetFeature(int feature, uint? clipBuffer = null, float scale = 1.0f)
+		{
 			return VectorTileReader.GetFeature(this, _FeaturesData[feature], true, clipBuffer, scale);
 		}
 
 
-		public void AddFeatureData(byte[] data) {
+		public void AddFeatureData(byte[] data)
+		{
 			_FeaturesData.Add(data);
 		}
 

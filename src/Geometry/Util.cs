@@ -2,7 +2,8 @@
 using Mapbox.VectorTile.Geometry.InteralClipperLib;
 
 
-namespace Mapbox.VectorTile.Geometry {
+namespace Mapbox.VectorTile.Geometry
+{
 
 	using Polygon = List<InternalClipper.IntPoint>;
 	using Polygons = List<List<InternalClipper.IntPoint>>;
@@ -11,7 +12,8 @@ namespace Mapbox.VectorTile.Geometry {
 	/// <summary>
 	/// Geometry related helper methods
 	/// </summary>
-	public static class UtilGeom {
+	public static class UtilGeom
+	{
 
 
 		/// <summary>
@@ -30,28 +32,34 @@ namespace Mapbox.VectorTile.Geometry {
 			, long extent
 			, uint bufferSize
 			, float scale
-			) {
+			)
+		{
 
 			List<List<Point2d<long>>> retVal = new List<List<Point2d<long>>>();
 
 			//points: simply remove them if one part of the coordinate pair is out of bounds:
 			// <0 || >extent
-			if (geomType == GeomType.POINT) {
-				foreach (var geomPart in geoms) {
+			if (geomType == GeomType.POINT)
+			{
+				foreach (var geomPart in geoms)
+				{
 					List<Point2d<long>> outGeom = new List<Point2d<long>>();
-					foreach (var geom in geomPart) {
+					foreach (var geom in geomPart)
+					{
 						if (
 							geom.X < (0L - bufferSize)
 							|| geom.Y < (0L - bufferSize)
 							|| geom.X > (extent + bufferSize)
 							|| geom.Y > (extent + bufferSize)
-							) {
+							)
+						{
 							continue;
 						}
 						outGeom.Add(geom);
 					}
 
-					if (outGeom.Count > 0) {
+					if (outGeom.Count > 0)
+					{
 						retVal.Add(outGeom);
 					}
 				}
@@ -74,10 +82,12 @@ namespace Mapbox.VectorTile.Geometry {
 			clip[0].Add(new InternalClipper.IntPoint(extent + bufferSize, extent + bufferSize));
 			clip[0].Add(new InternalClipper.IntPoint(0L - bufferSize, extent + bufferSize));
 
-			foreach (var geompart in geoms) {
+			foreach (var geompart in geoms)
+			{
 				Polygon part = new Polygon();
 
-				foreach (var geom in geompart) {
+				foreach (var geom in geompart)
+				{
 					part.Add(new InternalClipper.IntPoint(geom.X, geom.Y));
 				}
 				subjects.Add(part);
@@ -88,7 +98,8 @@ namespace Mapbox.VectorTile.Geometry {
 			c.AddPaths(clip, InternalClipper.PolyType.ptClip, true);
 
 			bool succeeded = false;
-			if (geomType == GeomType.LINESTRING) {
+			if (geomType == GeomType.LINESTRING)
+			{
 				InternalClipper.PolyTree lineSolution = new InternalClipper.PolyTree();
 				succeeded = c.Execute(
 					InternalClipper.ClipType.ctIntersection
@@ -96,10 +107,13 @@ namespace Mapbox.VectorTile.Geometry {
 					, InternalClipper.PolyFillType.pftNonZero
 					, InternalClipper.PolyFillType.pftNonZero
 				);
-				if (succeeded) {
+				if (succeeded)
+				{
 					solution = InternalClipper.Clipper.PolyTreeToPaths(lineSolution);
 				}
-			} else {
+			}
+			else
+			{
 				succeeded = c.Execute(
 					InternalClipper.ClipType.ctIntersection
 					, solution
@@ -108,20 +122,25 @@ namespace Mapbox.VectorTile.Geometry {
 				);
 			}
 
-			if (succeeded) {
+			if (succeeded)
+			{
 				retVal = new List<List<Point2d<long>>>();
-				foreach (var part in solution) {
+				foreach (var part in solution)
+				{
 					List<Point2d<long>> geompart = new List<Point2d<long>>();
 					// HACK:
 					// 1. clipper may or may not reverse order of vertices of LineStrings
 					// 2. clipper semms to drop the first vertex of a Polygon
 					// * We don't care about 1.
 					// * Added a check for 2 and insert a copy of last vertex as first
-					foreach (var geom in part) {
+					foreach (var geom in part)
+					{
 						geompart.Add(new Point2d<long>() { X = geom.X, Y = geom.Y });
 					}
-					if (geomType == GeomType.POLYGON) {
-						if (!geompart[0].Equals(geompart[geompart.Count - 1])) {
+					if (geomType == GeomType.POLYGON)
+					{
+						if (!geompart[0].Equals(geompart[geompart.Count - 1]))
+						{
 							geompart.Insert(0, geompart[geompart.Count - 1]);
 						}
 					}
@@ -129,7 +148,9 @@ namespace Mapbox.VectorTile.Geometry {
 				}
 
 				return retVal;
-			} else {
+			}
+			else
+			{
 				//if clipper was not successfull return original geometries
 				return geoms;
 			}

@@ -5,22 +5,26 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace VectorTiles.Tests {
+namespace VectorTiles.Tests
+{
 
 
 	[TestFixture]
-	public class SingleMvtTests {
+	public class SingleMvtTests
+	{
 
 		private string fixturesPath;
 
 		[OneTimeSetUp]
-		protected void SetUp() {
+		protected void SetUp()
+		{
 			fixturesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "test", "mvt-fixtures", "fixtures", "valid");
 		}
 
 
 		[Test]
-		public void FeatureSinglePoint() {
+		public void FeatureSinglePoint()
+		{
 
 			byte[] data = File.ReadAllBytes(Path.Combine(fixturesPath, "Feature-single-point.mvt"));
 			VectorTile vt = new VectorTile(data);

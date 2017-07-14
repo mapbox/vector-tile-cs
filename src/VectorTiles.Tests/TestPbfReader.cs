@@ -2,14 +2,17 @@
 using NUnit.Framework;
 
 
-namespace VectorTiles.Tests {
+namespace VectorTiles.Tests
+{
 
 
 	[TestFixture]
-	public class PbfReaderTests {
+	public class PbfReaderTests
+	{
 
 		[Test]
-		public void Constants() {
+		public void Constants()
+		{
 			Assert.AreEqual(0, (int)WireTypes.VARINT, "WireTypes.VARINT");
 			Assert.AreEqual(1, (int)WireTypes.FIXED64, "WireTypes.FIXED64");
 			Assert.AreEqual(2, (int)WireTypes.BYTES, "WireTypes.BYTES");

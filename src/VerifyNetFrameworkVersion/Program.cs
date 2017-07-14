@@ -5,35 +5,44 @@ using System.Reflection;
 using System.Runtime.Versioning;
 #endif
 
-namespace VerifyNetFrameworkVersion {
+namespace VerifyNetFrameworkVersion
+{
 
-	class Program {
+	class Program
+	{
 
 
-		static int Main(string[] args) {
+		static int Main(string[] args)
+		{
 
 			string myName = "VerifyNetFrameworkVersion";
 			string assemblyDir;
 
-			if(args.Length < 1) {
+			if (args.Length < 1)
+			{
 				assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 				Console.Error.WriteLine($"{myName}: no directory passed, using current directory: '{assemblyDir}'");
-			} else {
+			}
+			else
+			{
 				assemblyDir = args[0];
 			}
-			if(!Directory.Exists(assemblyDir)) {
+			if (!Directory.Exists(assemblyDir))
+			{
 				Console.Error.WriteLine($"{myName}: directory does not exist: {assemblyDir}");
 				return 1;
 			}
 
 			string[] dlls = Directory.GetFiles(assemblyDir, "*.dll");
-			if(dlls.Length < 1) {
+			if (dlls.Length < 1)
+			{
 				Console.Error.WriteLine($"{myName}: no dlls found in {assemblyDir}");
 				return 1;
 			}
 
 			Console.WriteLine($"{myName} analyzing assemblies:");
-			foreach(var dll in dlls) {
+			foreach (var dll in dlls)
+			{
 				Assembly assembly = Assembly.LoadFrom(dll);
 				string frameworkName = "NA";
 				string frameworkDisplayName = "NA";

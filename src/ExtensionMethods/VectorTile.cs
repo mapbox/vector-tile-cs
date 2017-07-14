@@ -8,10 +8,12 @@ using Mapbox.VectorTile.Geometry;
 using System.Linq;
 #endif
 
-namespace Mapbox.VectorTile.ExtensionMethods {
+namespace Mapbox.VectorTile.ExtensionMethods
+{
 
 
-	public static class VectorTileExtensions {
+	public static class VectorTileExtensions
+	{
 
 
 		/// <summary>
@@ -34,7 +36,8 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 			, ulong tileColumn
 			, ulong tileRow
 			, uint? clipBuffer = null
-		) {
+		)
+		{
 
 			//to get '.' instead of ',' when using "string.format" with double/float and non-US system number format settings
 			//CultureInfo en_US = new CultureInfo("en-US");
@@ -46,17 +49,20 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 
 			List<string> geojsonFeatures = new List<string>();
 
-			foreach (var layerName in tile.LayerNames()) {
+			foreach (var layerName in tile.LayerNames())
+			{
 				var layer = tile.GetLayer(layerName);
 
-				for (int i = 0; i < layer.FeatureCount(); i++) {
+				for (int i = 0; i < layer.FeatureCount(); i++)
+				{
 					var feat = layer.GetFeature(i, clipBuffer, 1.0f);
 
 					if (feat.GeometryType == GeomType.UNKNOWN) { continue; }
 
 					//resolve properties
 					List<string> keyValue = new List<string>();
-					for (int j = 0; j < feat.Tags.Count; j += 2) {
+					for (int j = 0; j < feat.Tags.Count; j += 2)
+					{
 						string key = layer.Keys[feat.Tags[j]];
 						object val = layer.Values[feat.Tags[j + 1]];
 						keyValue.Add(string.Format(NumberFormatInfo.InvariantInfo, @"""{0}"":""{1}""", key, val));
@@ -78,21 +84,25 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 
 					//multipart
 					List<List<LatLng>> geomWgs84 = feat.GeometryAsWgs84(zoom, tileColumn, tileRow);
-					if (geomWgs84.Count > 1) {
-						switch (feat.GeometryType) {
+					if (geomWgs84.Count > 1)
+					{
+						switch (feat.GeometryType)
+						{
 							case GeomType.POINT:
 								geomType = "MultiPoint";
 #if NET20
-										List<LatLng> allPoints = new List<LatLng>();
-										foreach(var part in geomWgs84) {
-											foreach(var pnt in part) {
-												allPoints.Add(pnt);
-											}
-										}
-										geojsonCoords = string.Join(
-											","
-											, allPoints.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
-										);
+								List<LatLng> allPoints = new List<LatLng>();
+								foreach (var part in geomWgs84)
+								{
+									foreach (var pnt in part)
+									{
+										allPoints.Add(pnt);
+									}
+								}
+								geojsonCoords = string.Join(
+									","
+									, allPoints.ConvertAll<string>(g => string.Format(NumberFormatInfo.InvariantInfo, "[{0},{1}]", g.Lng, g.Lat)).ToArray()
+								);
 #else
 								geojsonCoords = string.Join(
 									","
@@ -105,7 +115,8 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 							case GeomType.LINESTRING:
 								geomType = "MultiLineString";
 								List<string> parts = new List<string>();
-								foreach (var part in geomWgs84) {
+								foreach (var part in geomWgs84)
+								{
 									parts.Add("[" + string.Join(
 									","
 #if NET20
@@ -120,7 +131,8 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 							case GeomType.POLYGON:
 								geomType = "MultiPolygon";
 								List<string> partsMP = new List<string>();
-								foreach (var part in geomWgs84) {
+								foreach (var part in geomWgs84)
+								{
 									partsMP.Add("[" + string.Join(
 									","
 #if NET20
@@ -135,8 +147,11 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 							default:
 								break;
 						}
-					} else if (geomWgs84.Count == 1) { //singlepart
-						switch (feat.GeometryType) {
+					}
+					else if (geomWgs84.Count == 1)
+					{ //singlepart
+						switch (feat.GeometryType)
+						{
 							case GeomType.POINT:
 								geojsonCoords = string.Format(NumberFormatInfo.InvariantInfo, "{0},{1}", geomWgs84[0][0].Lng, geomWgs84[0][0].Lat);
 								break;
@@ -163,7 +178,9 @@ namespace Mapbox.VectorTile.ExtensionMethods {
 							default:
 								break;
 						}
-					} else {//no geometry
+					}
+					else
+					{//no geometry
 						continue;
 					}
 

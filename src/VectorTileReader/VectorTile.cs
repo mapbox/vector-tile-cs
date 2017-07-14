@@ -3,14 +3,16 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 
 
-namespace Mapbox.VectorTile {
+namespace Mapbox.VectorTile
+{
 
 
 	/// <summary>
 	/// Class to access the tile data
 	/// </summary>
 	[DebuggerDisplay("{Zoom}/{TileColumn}/{TileRow}")]
-	public class VectorTile {
+	public class VectorTile
+	{
 
 
 		/// <summary>
@@ -18,7 +20,8 @@ namespace Mapbox.VectorTile {
 		/// </summary>
 		/// <param name="data">Byte array containing the raw (already unzipped) tile data</param>
 		/// <param name="validate">If true, run checks if the tile contains valid data. Decreases decoding speed.</param>
-		public VectorTile(byte[] data, bool validate = true) {
+		public VectorTile(byte[] data, bool validate = true)
+		{
 			_Layers = new List<VectorTileLayer>();
 			_VTR = new VectorTileReader(data, validate);
 		}
@@ -32,7 +35,8 @@ namespace Mapbox.VectorTile {
 		/// Collection of layers contained in the tile
 		/// </summary>
 		/// <returns>Collection of layer names</returns>
-		public ReadOnlyCollection<string> LayerNames() {
+		public ReadOnlyCollection<string> LayerNames()
+		{
 			return _VTR.LayerNames();
 		}
 
@@ -42,7 +46,8 @@ namespace Mapbox.VectorTile {
 		/// </summary>
 		/// <param name="layerName">Name of the layer to request</param>
 		/// <returns>Decoded <see cref="VectorTileLayer"/></returns>
-		public VectorTileLayer GetLayer(string layerName) {
+		public VectorTileLayer GetLayer(string layerName)
+		{
 			return _VTR.GetLayer(layerName);
 		}
 
