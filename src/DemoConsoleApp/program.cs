@@ -143,20 +143,54 @@ namespace Mapbox.VectorTile
 						{
 							if (feat.GeometryType == Geometry.GeomType.POLYGON)
 							{
-								List<List<Point2d<float>>> geom = feat.Geometry<float>(0);
+								List<List<Point2d<float>>> geom = feat.Geometry<float>(clipBuffer);
 								Console.WriteLine($"{geom.Count} parts");
+								if (geom.Count == 0)
+								{
+									continue;
+								}
+								int[,] matrix = new int[geom.Count * 2, geom.Select(p => p.Count).Max()];
+
+								int idxX = 0;
+								int idxY = 0;
+
 								for (int j = 0; j < geom.Count; j++)
 								{
 									List<Point2d<float>> part = geom[j];
 									Console.WriteLine($"part{j}, signed area: {SignedPolygonArea(part)}");
 									StringBuilder coords = new StringBuilder();
 									coords.Append(string.Join(
-										", "
+										Environment.NewLine
 										, part
-										.Select(v => $"{v.X.ToString("0", NumberFormatInfo.InvariantInfo)}/{v.X.ToString("0", NumberFormatInfo.InvariantInfo)}")
+										.Select(v => $"{v.X.ToString("0", NumberFormatInfo.InvariantInfo)}\t{v.Y.ToString("0", NumberFormatInfo.InvariantInfo)}")
 										.ToArray()
 									));
+									for (int k = 0; k < part.Count; k++)
+									{
+										matrix[j * 2, k] = (int)part[k].X;
+										matrix[j * 2 + 1, k] = (int)part[k].Y;
+									}
 									Console.WriteLine(coords.ToString());
+								}
+
+								StringBuilder sbMatrix = new StringBuilder();
+								for (int k = 0; k < matrix.GetLength(0); k++)
+								{
+									sbMatrix.Append($"x{k}\ty{k}\t");
+								}
+								sbMatrix.AppendLine();
+
+								for (int row = 0; row < matrix.GetLength(1); row++)
+								{
+									for (int col = 0; col < matrix.GetLength(0); col++)
+									{
+										sbMatrix.Append(matrix[col, row] + "\t");
+									}
+									sbMatrix.AppendLine();
+								}
+								if (i == 13)
+								{
+									File.WriteAllText(vtIn + ".txt", sbMatrix.ToString(), new UTF8Encoding(false));
 								}
 							}
 						}
@@ -170,13 +204,7 @@ namespace Mapbox.VectorTile
 
 		private static float SignedPolygonArea(List<Point2d<float>> vertices)
 		{
-			// Add the first point to the end.
 			int num_points = vertices.Count - 1;
-			//Point2d<float>[] pts = new Point2d<float>[num_points + 1];
-			//Points.CopyTo(pts, 0);
-			//pts[num_points] = Points[0];
-
-			// Get the areas.
 			float area = 0;
 			for (int i = 0; i < num_points; i++)
 			{
@@ -184,8 +212,6 @@ namespace Mapbox.VectorTile
 					(vertices[i + 1].X - vertices[i].X) *
 					(vertices[i + 1].Y + vertices[i].Y) / 2;
 			}
-
-			// Return the result.
 			return area;
 		}
 
