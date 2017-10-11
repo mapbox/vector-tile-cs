@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using Mapbox.VectorTile.Contants;
 using Mapbox.VectorTile.Geometry;
+using System;
 
 #if !NET20
 using System.Linq;
@@ -18,6 +19,7 @@ namespace Mapbox.VectorTile
 	/// <summary>
 	/// Mail vector tile reader class
 	/// </summary>
+	[Serializable]
 	public class VectorTileReader
 	{
 
