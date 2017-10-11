@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
-using System;
 
 namespace Mapbox.VectorTile
 {
@@ -11,7 +10,7 @@ namespace Mapbox.VectorTile
 	/// Class to access the tile data
 	/// </summary>
 	[DebuggerDisplay("{Zoom}/{TileColumn}/{TileRow}")]
-	[Serializable]
+	[System.Serializable]
 	public class VectorTile
 	{
 
