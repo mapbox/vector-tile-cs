@@ -83,7 +83,7 @@ namespace Mapbox.VectorTile
 						Dictionary<string, object> props = feat.GetProperties();
 						foreach (var prop in props)
 						{
-							Console.WriteLine(string.Format("   {0}\t : {1}", prop.Key, prop.Value));
+							Console.WriteLine(string.Format("   {0}\t : ({1}) {2}", prop.Key, prop.Value.GetType(), prop.Value));
 						}
 					}
 				}
