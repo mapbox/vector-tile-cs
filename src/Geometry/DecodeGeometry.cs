@@ -41,7 +41,8 @@ namespace Mapbox.VectorTile.Geometry
 			long cursorX = 0;
 			long cursorY = 0;
 
-			for (int i = 0; i < geometryCommands.Count; i++)
+			int geomCmdCnt = geometryCommands.Count;
+			for (int i = 0; i < geomCmdCnt; i++)
 			{
 
 				uint g = geometryCommands[i];
