@@ -9,6 +9,7 @@ TestResults/
 StyleCop.Cache
 nuget.exe
 .vscode/
+.vs/
 tools/
 
 # globs
