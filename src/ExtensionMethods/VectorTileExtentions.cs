@@ -31,7 +31,7 @@ namespace Mapbox.VectorTile.ExtensionMethods
 		/// </param>
 		/// <returns>GeoJSON of the vector tile contents</returns>
 		public static string ToGeoJson(
-			this VectorTile tile
+			this VectorTileData tile
 			, ulong zoom
 			, ulong tileColumn
 			, ulong tileRow

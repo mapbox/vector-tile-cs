@@ -62,7 +62,7 @@ namespace Mapbox.VectorTile
 
 			var bufferedData = File.ReadAllBytes(vtIn);
 
-			VectorTile tile = new VectorTile(bufferedData);
+			VectorTileData tile = new VectorTileData(bufferedData);
 
 			if (outGeoJson)
 			{
