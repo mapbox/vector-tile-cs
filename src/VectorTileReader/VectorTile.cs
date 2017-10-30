@@ -11,7 +11,7 @@ namespace Mapbox.VectorTile
 	/// Class to access the tile data
 	/// </summary>
 	[DebuggerDisplay("{Zoom}/{TileColumn}/{TileRow}")]
-	public class VectorTileData
+	public class VectorTile
 	{
 
 
@@ -20,7 +20,7 @@ namespace Mapbox.VectorTile
 		/// </summary>
 		/// <param name="data">Byte array containing the raw (already unzipped) tile data</param>
 		/// <param name="validate">If true, run checks if the tile contains valid data. Decreases decoding speed.</param>
-		public VectorTileData(byte[] data, bool validate = true)
+		public VectorTile(byte[] data, bool validate = true)
 		{
 			_VTR = new VectorTileReader(data, validate);
 		}

@@ -71,7 +71,7 @@ namespace Bench
 				stopWatch.Start();
 				foreach (var tile in tiles)
 				{
-					VectorTileData vt = new VectorTileData(tile.pbf, false);
+					VectorTile vt = new VectorTile(tile.pbf, false);
 					foreach (var layerName in vt.LayerNames())
 					{
 						VectorTileLayer layer = vt.GetLayer(layerName);
