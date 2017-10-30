@@ -1,6 +1,9 @@
 # Autosave files
 *~
 
+TestResult.xml
+openCoverCoverage.xml
+
 # build
 [Oo]bj/
 [Bb]in/

@@ -7,6 +7,8 @@ clone_depth: 5
 
 install:
   - git submodule update --init --recursive
+# print nuget version
+  - nuget help
   - nuget restore VectorTileCsPortable.sln
   - nuget restore VectorTileCs.sln
   - nuget install NUnit.Runners -OutputDirectory tools
@@ -22,7 +24,7 @@ configuration:
 
 environment:
   COVERALLS_REPO_TOKEN:
-    secure: jAjmxnCi94uDJw6nWj6Kyr3jruWF4Aq03ItGuYvTzhfKgyk4h8R/tS0ZBBPC6j8k
+    secure: gO7ftSjlgxhWlaWnPRDjgR64iGQw1kg83UX7nA62TpqfZsRyU0NaDO/WeGpjLKDm
 
 build_script:
 #build UWP
@@ -46,12 +48,17 @@ after_test:
     $nunitrunner = (Resolve-Path "tools/NUnit.ConsoleRunner.*/tools/nunit3-console.exe").ToString();
     $opencov = (Resolve-Path "tools/OpenCover.*/tools/OpenCover.Console.exe").ToString();
     $coveralls = (Resolve-Path "tools/coveralls.net.*/tools/csmacnz.coveralls.exe").ToString();
+    Write-Host "nunitrunner: $nunitrunner"
+    Write-Host "opencov: $opencov"
+    Write-Host "coveralls: $coveralls"
+- ps: >-
     & $opencov `
     -register:user `
     -target:"$nunitrunner" `
     -targetargs:"bin\Net35Debug\v3.5\VectorTiles.Tests.dll" `
     -filter:"+[*]* -[*.Tests]* -[*]*.InteralClipperLib.*" `
     -output:opencoverCoverage.xml;
+- ps: >-
     & $coveralls --opencover -i opencoverCoverage.xml `
     --repoToken $env:COVERALLS_REPO_TOKEN `
     --useRelativePaths `
