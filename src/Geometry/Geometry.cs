@@ -7,7 +7,7 @@ namespace Mapbox.VectorTile.Geometry
 {
 
 
-#if PORTABLE || WINDOWS_UWP
+#if (PORTABLE || WINDOWS_UWP) && !UNITY_5_4_OR_NEWER
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class DescriptionAttribute : Attribute {
 		private readonly string description;
