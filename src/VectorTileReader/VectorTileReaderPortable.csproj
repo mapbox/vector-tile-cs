@@ -34,6 +34,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <ProjectReference Include="..\Geometry\GeometryPortable.csproj">
+      <Project>{b6044f02-10a3-4637-962e-8b2f882dcd59}</Project>
+      <Name>GeometryPortable</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PbfReader\PbfReaderPortable.csproj">
+      <Project>{e3ed95c9-42d9-4480-90e5-87f4fe60b8e2}</Project>
+      <Name>PbfReaderPortable</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VectorTile.cs" />
     <Compile Include="VectorTileFeature.cs" />
