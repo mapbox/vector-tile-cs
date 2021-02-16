@@ -192,7 +192,7 @@ namespace Mapbox.VectorTile
 									layer.Values.Add(u64);
 									break;
 								case ValueType.SInt:
-									long s64 = valReader.Varint();
+									long s64 = valReader.SInt();
 									layer.Values.Add(s64);
 									break;
 								case ValueType.Bool:
