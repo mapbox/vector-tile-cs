@@ -19,6 +19,10 @@ namespace Mapbox.VectorTile
 		/// </summary>
 		public VectorTileLayer()
 		{
+			//set some defaults according to the spec: https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto
+			Version = 1;
+			Extent = 4096;
+
 			_FeaturesData = new List<byte[]>();
 			Keys = new List<string>();
 			Values = new List<object>();

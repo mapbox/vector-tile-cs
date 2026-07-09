@@ -17,6 +17,10 @@ namespace Mapbox.VectorTile
 		/// <param name="layer">Parent <see cref="VectorTileLayer"/></param>
 		public VectorTileFeature(VectorTileLayer layer, uint? clipBuffer = null, float scale = 1.0f)
 		{
+			//set some defaults according to the spec: https://github.com/mapbox/vector-tile-spec/blob/master/2.1/vector_tile.proto
+			Id = 0;
+			GeometryType = GeomType.UNKNOWN;
+
 			_layer = layer;
 			_clipBuffer = clipBuffer;
 			_scale = scale;

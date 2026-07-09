@@ -38,7 +38,11 @@ namespace Mapbox.VectorTile
 			}
 			if (data[0] == 0x1f && data[1] == 0x8b)
 			{
-				throw new System.Exception("Tile data is zipped");
+				throw new System.Exception("Tile data is gzipped");
+			}
+			if (data[0] == 0x78 && (data[1] == 0x9C || data[1] == 0x01 || data[1] == 0xDA || data[1] == 0x5E))
+			{
+				throw new System.Exception("Tile data is zlib compressed");
 			}
 
 			_Validate = validate;
@@ -239,13 +243,21 @@ namespace Mapbox.VectorTile
 				{
 					throw new System.Exception(string.Format("Layer [{0}] has no extent.", layer.Name));
 				}
+
+				//commenting following check as per
+				//"Layer has no features, encoders should not create this, but decoders should read this still"
+				//https://github.com/mapbox/mvt-fixtures/blob/7e0e67ba67478fd8af63509077b000ee5cee2d6d/fixtures/025/info.json#L2
+				/*
 				if (0 == layer.FeatureCount())
 				{
 					throw new System.Exception(string.Format("Layer [{0}] has no features.", layer.Name));
 				}
+				*/
+
 				//TODO: find equivalent of 'Distinct()' for NET20
 #if !NET20
-				if (layer.Values.Count != layer.Values.Distinct().Count()) {
+				if (layer.Values.Count != layer.Values.Distinct().Count())
+				{
 					throw new System.Exception(string.Format("Layer [{0}]: duplicate attribute values found", layer.Name));
 				}
 #endif

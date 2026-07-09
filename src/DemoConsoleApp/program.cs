@@ -16,6 +16,7 @@ namespace Mapbox.VectorTile
 		{
 
 			string vtIn = string.Empty;
+			bool validate = true;
 			uint? clipBuffer = null;
 			bool outGeoJson = false;
 			ulong? zoom = null;
@@ -41,6 +42,10 @@ namespace Mapbox.VectorTile
 				{
 					parseArg(argLow.Replace("tileid:", ""), out zoom, out tileCol, out tileRow);
 				}
+				else if (argLow.Contains("validate:"))
+				{
+					validate = argLow.Replace("validate:", "").Equals("true");
+				}
 			}
 
 			if (!File.Exists(vtIn))
@@ -62,7 +67,7 @@ namespace Mapbox.VectorTile
 
 			var bufferedData = File.ReadAllBytes(vtIn);
 
-			VectorTile tile = new VectorTile(bufferedData);
+			VectorTile tile = new VectorTile(bufferedData, validate);
 
 			if (outGeoJson)
 			{
@@ -79,7 +84,7 @@ namespace Mapbox.VectorTile
 					for (int i = 0; i < featCnt; i++)
 					{
 						VectorTileFeature feat = lyr.GetFeature(i, clipBuffer);
-						Console.WriteLine(string.Format("feature {0}: {1}", i, feat.GeometryType));
+						Console.WriteLine(string.Format("feature[{0}] id:{1} geomtype:{2}", i, feat.Id, feat.GeometryType));
 						Dictionary<string, object> props = feat.GetProperties();
 						foreach (var prop in props)
 						{
@@ -99,6 +104,7 @@ namespace Mapbox.VectorTile
 			Console.WriteLine("DemoConsoleApp.exe vt:<tile.mvt> <other parameters>");
 			Console.WriteLine("");
 			Console.WriteLine("- vt:<path/to/vector/tile.mvt> or vt:<path/to/<z>-<x>-<y>.tile.mvt>");
+			Console.WriteLine("- validate:<true|false>   validate vt contents, default:true");
 			Console.WriteLine("- clip:<buffer>           to clip geometries extending beyong the tile border");
 			Console.WriteLine("- out:<geojson|metadata>  to ouput either GeoJson or some metadata");
 			Console.WriteLine("- tileid:<z>-<x>-<y>      to pass tile id if not contained within the file name");
