@@ -74,7 +74,11 @@ namespace Mapbox.VectorTile
 
 		}
 
-
+		public long SInt()
+        {
+			long varint = Varint();
+			return decodeZigZag64(varint);
+		}
 		/// <summary>
 		/// <para>Get a view into the buffer.</para>
 		/// <para>TODO: refactor to return a DataView instead of a byte array</para>
