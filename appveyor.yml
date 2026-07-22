@@ -29,6 +29,8 @@ environment:
 build_script:
 #build UWP
   - msbuild VectorTileCsPortable.sln /p:Configuration=Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
+#build NetStandard
+  - msbuild VectorTileCsNetStandard.sln /p:Configuration=Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
 #build Net 2.0
   - msbuild VectorTileCs.sln /p:Configuration=Net20Debug /p:Platform="Any Cpu" /maxcpucount:%NUMBER_OF_PROCESSORS%
   - bin\Net20Debug\v2.0\VerifyNetFrameworkVersion.exe
